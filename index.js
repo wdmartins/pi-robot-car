@@ -5,7 +5,8 @@ const ws281x = require('rpi-ws281x-v2');
 const Gpio = require('onoff').Gpio;
 const Servo = require('pigpio').Gpio;
 const usonic = require('mmm-usonic-fixed');
-const GpioDef = require('./rpiGpioDef.js');
+const GpioDef = require('./rpiGpioDef');
+const MotorDriver = require('./motorDriver');
 
 // Configure logger
 const logger = bunyan.createLogger({
@@ -62,15 +63,17 @@ const vCamServo = new Servo(GPIO_CAM_V_SERVO, {mode: Servo.OUTPUT});
 let testInterval;
 
 // DC Motors
-
+const motorDriver = new MotorDriver(logger);
+motorDriver.initializeController();
 
 const Bot = function() {
     this.test = async function () {
         logger.info('[ROBOT] Starting hardware test...');
         render(255,255,255);
-        beep.writeSync(STATUS_ON);
+        beep.writeSync(STATUS_OFF);
         let pulseWidth = 1000;
-        let increment = 100;        
+        let increment = 100;    
+        motorDriver.test();    
         testInterval = setInterval(() => {
             logger.info(`[ROBOT] Testing servo motors with pulseWidth ${pulseWidth}`);
             hCamServo.servoWrite(pulseWidth);
@@ -85,6 +88,7 @@ const Bot = function() {
         setTimeout(() => {
             render(0, 0, 0);
             beep.writeSync(STATUS_OFF);
+            motorDriver.stopAllMotors();
             logger.info('[ROBOT] End hardware test.');
             clearInterval(testInterval);
         }, 2000);

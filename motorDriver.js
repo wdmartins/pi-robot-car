@@ -1,3 +1,4 @@
+'use strict';
 
 const bunyan = require('bunyan');
 const Gpio = require('onoff').Gpio;
@@ -55,7 +56,7 @@ const MOTOR_MAP = [
     }
 ];
 
-const motorDriver = (log) => {
+let MotorDriver = function (log) {
     let motorLatch;
     let motorClock;
     let motorData;
@@ -90,6 +91,8 @@ const motorDriver = (log) => {
 
     this.runMotor = (motorNumber, runMode) => {
         runMode = runMode || RUN_MODE.FORWARD;
+        logger.info(`[MotorDriver] motorNumber: ${motorNumber}, runMode: ${runMode}`);
+        logger.info(`[MotorDriver] MOTOR_MAP = ${JSON.stringify(MOTOR_MAP[motorNumber])}`);
         let a = MOTOR_MAP[motorNumber].a;
         let b = MOTOR_MAP[motorNumber].b;
         switch(runMode) {
@@ -118,19 +121,65 @@ const motorDriver = (log) => {
             setTimeout(() => {
                 this.stopAllMotors();
                 cb && cb();
-            })
+            }, time);
         }
+        return;
+    };
+
+    this.moveBackward = async (time, cb) => {
+        _that.runMotor(MOTOR.LEFT_FRONT, RUN_MODE.BACKWARD);
+        _that.runMotor(MOTOR.RIGHT_FRONT, RUN_MODE.BACKWARD);
+        _that.runMotor(MOTOR.LEFT_REAR, RUN_MODE.BACKWARD);
+        _that.runMotor(MOTOR.RIGHT_REAN, RUN_MODE.BACKWARD);
+        if (time) {
+            setTimeout(() => {
+                this.stopAllMotors();
+                cb && cb();
+            }, time);
+        }
+        return;
+    };
+
+    this.moveLeft = async (time, cb) => {
+        _that.runMotor(MOTOR.LEFT_FRONT, RUN_MODE.BACKWARD);
+        _that.runMotor(MOTOR.RIGHT_FRONT, RUN_MODE.FORWARD);
+        _that.runMotor(MOTOR.LEFT_REAR, RUN_MODE.BACKWARD);
+        _that.runMotor(MOTOR.RIGHT_REAN, RUN_MODE.FORWARD);
+        if (time) {
+            setTimeout(() => {
+                this.stopAllMotors();
+                cb && cb();
+            }, time);
+        }
+        return;
+    };
+
+    this.moveRight = async (time, cb) => {
+        _that.runMotor(MOTOR.LEFT_FRONT, RUN_MODE.FORWARD);
+        _that.runMotor(MOTOR.RIGHT_FRONT, RUN_MODE.BACKWARD);
+        _that.runMotor(MOTOR.LEFT_REAR, RUN_MODE.FORWARD);
+        _that.runMotor(MOTOR.RIGHT_REAN, RUN_MODE.BACKWARD);
+        if (time) {
+            setTimeout(() => {
+                this.stopAllMotors();
+                cb && cb();
+            }, time);
+        }
+        return;
     };
 
     this.stopAllMotors = () => {
         _that.runMotor(MOTOR.LEFT_FRONT, RUN_MODE.RELEASE);
         _that.runMotor(MOTOR.RIGHT_FRONT, RUN_MODE.RELEASE);
         _that.runMotor(MOTOR.LEFT_REAR, RUN_MODE.RELEASE);
-        _that.runMotor(MOTOR.RIGHT_REAN, RUN_MODE.RELEASE);
+        _that.runMotor(MOTOR.RIGHT_REAR, RUN_MODE.RELEASE);
     };
 
-}
+    this.test = () => {
+        logger.info(`[MotorDriver] MOTOR: ${JSON.stringify(MOTOR)}`);
+        logger.info(`[MotorDriver] Left Front: ${MOTOR.LEFT_FRONT}`);
+        _that.runMotor(MOTOR.LEFT_FRONT, RUN_MODE.FORWARD);
+    };
+};
 
-module.exports = {
-    motorDriver: motorDriver
-}
+module.exports = MotorDriver;
