@@ -1,0 +1,23 @@
+{
+  "name": "pi-robot-car",
+  "version": "1.0.0",
+  "description": "Robot Car controlled through Circuit call",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Robot",
+    "Raspberry",
+    "Circuit"
+  ],
+  "author": "Walter Martins",
+  "license": "ISC",
+  "dependencies": {
+    "bunyan": "^1.8.12",
+    "mmm-usonic-fixed": "^2.5.4",
+    "onoff": "^5.0.1",
+    "pigpio": "^2.0.1",
+    "rpi-ws281x-v2": "^1.3.4"
+  }
+}
