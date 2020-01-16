@@ -1,12 +1,15 @@
 'use strict';
 
 const bunyan = require('bunyan');
-const Gpio = require('onoff').Gpio;
+const rpiGpio = require('rpi-gpio');
 const GpioDef = require('./rpiGpioDef.js');
+const sleep = require('sleep-promise');
+
 let logger;
-const DEFAULT_GPIO_MOTOR_LATCH = GpioDef.BCM.GPIO29;
-const DEFAULT_GPIO_MOTOR_CLOCK = GpioDef.BCM.GPIO28;
-const DEFAULT_GPIO_MOTOR_DATA = GpioDef.BCM.GPIO27;
+const DEFAULT_GPIO_MOTOR_LATCH = GpioDef.PHY.GPIO29; // 40
+const DEFAULT_GPIO_MOTOR_CLOCK = GpioDef.PHY.GPIO28; // 38
+const DEFAULT_GPIO_MOTOR_DATA = GpioDef.PHY.GPIO27; // 36
+const DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS = 1;
 const BIT = [
     1,   // 00000001
     2,   // 00000010
@@ -56,13 +59,12 @@ const MOTOR_MAP = [
     }
 ];
 
-let MotorDriver = function (log) {
-    let motorLatch;
-    let motorClock;
-    let motorData;
+let MotorDriver = function (Gpio, log) {
     let registerByte = 0;
-    let movingTimer;
     let _that = this;
+    let motorLatchPin;
+    let motorDataPin;
+    let motorClockPin;
 
     logger = log ||  bunyan.createLogger({
         name: 'motorDriver',
@@ -70,23 +72,90 @@ let MotorDriver = function (log) {
     });
 
     let setRegister = (byte) => {
-        motorLatch.writeSync(Gpio.LOW);
-        motorData.writeSync(Gpio.LOW);
+        return new Promise(async (resolve, reject) => {
+            logger.info(`[MOTORDRIVER] Set Register to ${byte}`);
 
-        for (let i=0; i < 8; i++) {
-            motorClock.writeSync(Gpio.LOW);
-            motorData.writeSync( byte & BIT[7-i] ? Gpio.HIGH : Gpio.LOW);
-            motorClock.writeSync(Gpio.HIGH);
-        }
-        motorLatch.writeSync(Gpio.HIGH);
+            const setupController = function() {
+                return new Promise((resolve, reject) => {
+                    rpiGpio.write(motorLatchPin, false, (err) => {
+                        if (err) reject(err);
+                        logger.info('Wrote false to latch');
+                        rpiGpio.write(motorDataPin, false, (err) => {
+                            if (err) reject(err);
+                            logger.info('Wrote false to data');
+                            resolve();
+                        });
+                    });
+                });
+            };
+
+            const writeRegister = function (data) {
+                return new Promise( async (resolve, reject) => {
+                    await sleep(DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS);
+                    rpiGpio.write(motorClockPin, false, (err) => {
+                        if (err) reject(err);
+                        logger.info('Wrote false to clock');
+                        rpiGpio.write(motorDataPin, data, async (err) => {
+                            if (err) reject(err);
+                            logger.info(`Wrote ${data} to data`);
+                            await sleep(DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS);
+                            rpiGpio.write(motorClockPin, true, (err) => {
+                                if (err) reject(err);
+                                logger.info('Wrote true to clock');
+                                resolve();
+                            });
+                        });
+                    });
+                });
+            };
+
+            await setupController();
+
+            for (let i=0; i < 8; i++) {
+                await writeRegister(byte & BIT[7-i] ? true : false);
+            }
+
+            rpiGpio.write(motorLatchPin, true,  (err) => {
+                if(err) reject(err);
+                logger.info('Wrote true to latch');
+                resolve();
+            });
+        });
     };
 
-    this.initializeController = (latchGpio, clockGpio, dataGpio) => {
-        motorLatch = new Gpio(latchGpio || DEFAULT_GPIO_MOTOR_LATCH, 'out');
-        motorClock = new Gpio(clockGpio || DEFAULT_GPIO_MOTOR_CLOCK, 'out');
-        motorData = new Gpio(dataGpio || DEFAULT_GPIO_MOTOR_DATA, 'out');
+    this.initializeController = async (latchGpio, clockGpio, dataGpio) => {
+        // Initialize PWM
+        new Gpio(GpioDef.BCM.GPIO21, {mode: Gpio.OUTPUT}).pwmWrite(255);
+        new Gpio(GpioDef.BCM.GPIO22, {mode: Gpio.OUTPUT}).pwmWrite(255);
+        new Gpio(GpioDef.BCM.GPIO23, {mode: Gpio.OUTPUT}).pwmWrite(255);
+        new Gpio(GpioDef.BCM.GPIO24, {mode: Gpio.OUTPUT}).pwmWrite(255);
+
+        // Initialize shift register to control individual DC Motors
+        motorDataPin = dataGpio || DEFAULT_GPIO_MOTOR_DATA;
+        motorLatchPin = latchGpio || DEFAULT_GPIO_MOTOR_LATCH;
+        motorClockPin = clockGpio || DEFAULT_GPIO_MOTOR_CLOCK;
+
+        const gpioSetup = function () {
+            return new Promise((resolve) => {
+                // rpiGpio.setMode(rpiGpio.MODE_RPI);
+                rpiGpio.setup(motorDataPin, rpiGpio.DIR_OUT, function(err) {
+                    if (err) throw err;
+                    logger.info(`[MotorDriver] Set Data Pin ${motorDataPin}`);
+                    rpiGpio.setup(motorLatchPin, rpiGpio.DIR_OUT, function(err) {
+                        if (err) throw err;
+                        logger.info(`[MotorDriver] Set Latch Pin ${motorLatchPin}`);
+                        rpiGpio.setup(motorClockPin, rpiGpio.DIR_OUT, function(err) {
+                            if (err) throw err;
+                            logger.info(`[MotorDriver] Set Clock Pin ${motorClockPin}`);
+                            resolve();
+                        });
+                    });
+                });
+            });
+        };
+        await gpioSetup();
         registerByte = 0;
-        setRegister(registerByte);
+        return setRegister(registerByte);
     };
 
     this.runMotor = (motorNumber, runMode) => {
@@ -109,76 +178,26 @@ let MotorDriver = function (log) {
                 registerByte = registerByte & ~BIT[b];
             break;
         }
-        setRegister(registerByte);
+        return setRegister(registerByte);
     };
 
-    this.moveForward = async (time, cb) => {
-        _that.runMotor(MOTOR.LEFT_FRONT, RUN_MODE.FORWARD);
-        _that.runMotor(MOTOR.RIGHT_FRONT, RUN_MODE.FORWARD);
-        _that.runMotor(MOTOR.LEFT_REAR, RUN_MODE.FORWARD);
-        _that.runMotor(MOTOR.RIGHT_REAN, RUN_MODE.FORWARD);
-        if (time) {
-            setTimeout(() => {
-                this.stopAllMotors();
-                cb && cb();
-            }, time);
-        }
-        return;
-    };
+    this.moveForward = async (time, cb) => {};
 
-    this.moveBackward = async (time, cb) => {
-        _that.runMotor(MOTOR.LEFT_FRONT, RUN_MODE.BACKWARD);
-        _that.runMotor(MOTOR.RIGHT_FRONT, RUN_MODE.BACKWARD);
-        _that.runMotor(MOTOR.LEFT_REAR, RUN_MODE.BACKWARD);
-        _that.runMotor(MOTOR.RIGHT_REAN, RUN_MODE.BACKWARD);
-        if (time) {
-            setTimeout(() => {
-                this.stopAllMotors();
-                cb && cb();
-            }, time);
-        }
-        return;
-    };
+    this.moveBackward = async (time, cb) => {};
 
-    this.moveLeft = async (time, cb) => {
-        _that.runMotor(MOTOR.LEFT_FRONT, RUN_MODE.BACKWARD);
-        _that.runMotor(MOTOR.RIGHT_FRONT, RUN_MODE.FORWARD);
-        _that.runMotor(MOTOR.LEFT_REAR, RUN_MODE.BACKWARD);
-        _that.runMotor(MOTOR.RIGHT_REAN, RUN_MODE.FORWARD);
-        if (time) {
-            setTimeout(() => {
-                this.stopAllMotors();
-                cb && cb();
-            }, time);
-        }
-        return;
-    };
+    this.moveLeft = async (time, cb) => {};
 
-    this.moveRight = async (time, cb) => {
-        _that.runMotor(MOTOR.LEFT_FRONT, RUN_MODE.FORWARD);
-        _that.runMotor(MOTOR.RIGHT_FRONT, RUN_MODE.BACKWARD);
-        _that.runMotor(MOTOR.LEFT_REAR, RUN_MODE.FORWARD);
-        _that.runMotor(MOTOR.RIGHT_REAN, RUN_MODE.BACKWARD);
-        if (time) {
-            setTimeout(() => {
-                this.stopAllMotors();
-                cb && cb();
-            }, time);
-        }
-        return;
-    };
+    this.moveRight = async (time, cb) => {};
 
     this.stopAllMotors = () => {
-        _that.runMotor(MOTOR.LEFT_FRONT, RUN_MODE.RELEASE);
-        _that.runMotor(MOTOR.RIGHT_FRONT, RUN_MODE.RELEASE);
-        _that.runMotor(MOTOR.LEFT_REAR, RUN_MODE.RELEASE);
-        _that.runMotor(MOTOR.RIGHT_REAR, RUN_MODE.RELEASE);
+        registerByte = 0;
+        return setRegister(registerByte);
     };
 
     this.test = () => {
         logger.info(`[MotorDriver] MOTOR: ${JSON.stringify(MOTOR)}`);
         logger.info(`[MotorDriver] Left Front: ${MOTOR.LEFT_FRONT}`);
-        _that.runMotor(MOTOR.LEFT_FRONT, RUN_MODE.FORWARD);
+        return _that.runMotor(MOTOR.LEFT_FRONT, RUN_MODE.FORWARD);
     };
 };
 

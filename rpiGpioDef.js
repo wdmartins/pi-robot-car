@@ -23,23 +23,24 @@
 // onOff uses the BCM GPIO port numbers, for instance, GPIO0 is actually 17.
 // ws281x uses the BCM GPIO port numbers as well
 // usonic uses wiringPi pin numbers so GPIO0 is 0
-const GPIO0_WPI = 0; const GPIO0_BCM = 17;
-const GPIO1_WPI = 1; const GPIO1_BCM = 18;
-const GPIO2_WPI = 2; const GPIO2_BCM = 27;
-const GPIO3_WPI = 3; const GPIO3_BCM = 22;
-const GPIO4_WPI = 4; const GPIO4_BCM = 23;
-const GPIO5_WPI = 5; const GPIO5_BCM = 24;
-const GPIO6_WPI = 6; const GPIO6_BCM = 25;
-const GPIO7_WPI = 7; const GPIO7_BCM = 4;
-const GPIO21_WPI = 21; const GPIO21_BCM = 5;
-const GPIO22_WPI = 22; const GPIO22_BCM = 6;
-const GPIO23_WPI = 23; const GPIO23_BCM = 13;
-const GPIO24_WPI = 24; const GPIO24_BCM = 19;
-const GPIO25_WPI = 25; const GPIO25_BCM = 26;
-const GPIO26_WPI = 26; const GPIO26_BCM = 12;
-const GPIO27_WPI = 27; const GPIO27_BCM = 16;
-const GPIO28_WPI = 28; const GPIO28_BCM = 20;
-const GPIO29_WPI = 29; const GPIO29_BCM = 21;
+// rpi-gpio uses physical pin numbers so GPIO0 is 11;
+const GPIO0_WPI = 0; const GPIO0_BCM = 17; const GPIO0_PHY = 11;
+const GPIO1_WPI = 1; const GPIO1_BCM = 18; const GPIO1_PHY = 12;
+const GPIO2_WPI = 2; const GPIO2_BCM = 27; const GPIO2_PHY = 13;
+const GPIO3_WPI = 3; const GPIO3_BCM = 22; const GPIO3_PHY = 15;
+const GPIO4_WPI = 4; const GPIO4_BCM = 23; const GPIO4_PHY = 16;
+const GPIO5_WPI = 5; const GPIO5_BCM = 24; const GPIO5_PHY = 18;
+const GPIO6_WPI = 6; const GPIO6_BCM = 25; const GPIO6_PHY = 22;
+const GPIO7_WPI = 7; const GPIO7_BCM = 4; const GPIO7_PHY = 7;
+const GPIO21_WPI = 21; const GPIO21_BCM = 5; const GPIO21_PHY = 29;
+const GPIO22_WPI = 22; const GPIO22_BCM = 6; const GPIO22_PHY = 31;
+const GPIO23_WPI = 23; const GPIO23_BCM = 13; const GPIO23_PHY = 33;
+const GPIO24_WPI = 24; const GPIO24_BCM = 19; const GPIO24_PHY = 35;
+const GPIO25_WPI = 25; const GPIO25_BCM = 26; const GPIO25_PHY = 37;
+const GPIO26_WPI = 26; const GPIO26_BCM = 12; const GPIO26_PHY = 32;
+const GPIO27_WPI = 27; const GPIO27_BCM = 16; const GPIO27_PHY = 36;
+const GPIO28_WPI = 28; const GPIO28_BCM = 20; const GPIO28_PHY = 38;
+const GPIO29_WPI = 29; const GPIO29_BCM = 21; const GPIO29_PHY = 40;
 
 module.exports = {
     WPI: {
@@ -79,5 +80,24 @@ module.exports = {
         GPIO27: GPIO27_BCM, 
         GPIO28: GPIO28_BCM, 
         GPIO29: GPIO29_BCM
+    },
+    PHY: {
+        GPIO0: GPIO0_PHY, 
+        GPIO1: GPIO1_PHY, 
+        GPIO2: GPIO2_PHY, 
+        GPIO3: GPIO3_PHY, 
+        GPIO4: GPIO4_PHY, 
+        GPIO5: GPIO5_PHY, 
+        GPIO6: GPIO6_PHY, 
+        GPIO7: GPIO7_PHY, 
+        GPIO21: GPIO21_PHY, 
+        GPIO22: GPIO22_PHY, 
+        GPIO23: GPIO23_PHY, 
+        GPIO24: GPIO24_PHY, 
+        GPIO25: GPIO25_PHY, 
+        GPIO26: GPIO26_PHY, 
+        GPIO27: GPIO27_PHY, 
+        GPIO28: GPIO28_PHY, 
+        GPIO29: GPIO29_PHY
     }
 }

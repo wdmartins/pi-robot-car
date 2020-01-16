@@ -2,8 +2,7 @@
 
 const bunyan = require('bunyan');
 const ws281x = require('rpi-ws281x-v2');
-const Gpio = require('onoff').Gpio;
-const Servo = require('pigpio').Gpio;
+const piGpio = require('pigpio');
 const usonic = require('mmm-usonic-fixed');
 const GpioDef = require('./rpiGpioDef');
 const MotorDriver = require('./motorDriver');
@@ -14,13 +13,17 @@ const logger = bunyan.createLogger({
     stream: process.stdout
 });
 
+// Initialize Gpio
+const Gpio = piGpio.Gpio;
+piGpio.initialize();
+
 // Gpio status
 const STATUS_OFF = 0;
 const STATUS_ON = 1;
 
 // Buzzer
 const BEEP_GPIO = GpioDef.BCM.GPIO26;
-const beep = new Gpio(BEEP_GPIO, 'out');
+const beep = new Gpio(BEEP_GPIO, {mode: Gpio.OUTPUT}); // new OnOff(BEEP_GPIO, 'out');
 
 // Echo
 const ECHO_GPIO = GpioDef.WPI.GPIO23;
@@ -56,24 +59,23 @@ const render = function(red, green, blue) {
 };
 
 // Servos
-const GPIO_CAM_H_SERVO = GpioDef.WPI.GPIO4;
-const GPIO_CAM_V_SERVO = GpioDef.WPI.GPIO25;
-const hCamServo = new Servo(GPIO_CAM_H_SERVO, {mode: Servo.OUTPUT});
-const vCamServo = new Servo(GPIO_CAM_V_SERVO, {mode: Servo.OUTPUT});
+const GPIO_CAM_H_SERVO = GpioDef.BCM.GPIO7; // GpioDef.WPI.GPIO4;
+const GPIO_CAM_V_SERVO = GpioDef.BCM.GPIO6; // GpioDef.WPI.GPIO25;
+const hCamServo = new Gpio(GPIO_CAM_H_SERVO, {mode: Gpio.OUTPUT});
+const vCamServo = new Gpio(GPIO_CAM_V_SERVO, {mode: Gpio.OUTPUT});
 let testInterval;
 
 // DC Motors
-const motorDriver = new MotorDriver(logger);
-motorDriver.initializeController();
+const motorDriver = new MotorDriver(Gpio, logger);
 
 const Bot = function() {
     this.test = async function () {
         logger.info('[ROBOT] Starting hardware test...');
         render(255,255,255);
-        beep.writeSync(STATUS_OFF);
+        beep.digitalWrite(STATUS_ON);
         let pulseWidth = 1000;
-        let increment = 100;    
-        motorDriver.test();    
+        let increment = 100;
+        await motorDriver.initializeController();
         testInterval = setInterval(() => {
             logger.info(`[ROBOT] Testing servo motors with pulseWidth ${pulseWidth}`);
             hCamServo.servoWrite(pulseWidth);
@@ -85,10 +87,10 @@ const Bot = function() {
               increment = 100;
             }
         }, 100);
-        setTimeout(() => {
+        setTimeout(async () => {
             render(0, 0, 0);
-            beep.writeSync(STATUS_OFF);
-            motorDriver.stopAllMotors();
+            beep.digitalWrite(STATUS_OFF);
+            await motorDriver.stopAllMotors();
             logger.info('[ROBOT] End hardware test.');
             clearInterval(testInterval);
         }, 2000);
@@ -101,7 +103,7 @@ logger.debug('[ROBOT] Initializing robot...');
     try {
         logger.info('[ROBOT] Initializing robot...');
         const bot = new Bot();
-        bot.test();
+        await bot.test();
     } catch (e) {
         clearOnClose();
         logger.error(`[ROBOT] bot failed ${e.message}`);
@@ -110,8 +112,11 @@ logger.debug('[ROBOT] Initializing robot...');
     }
 })();
 
-let clearOnClose = function() {
-    beep.writeSync(STATUS.OFF);
+let clearOnClose = async function() {
+    beep.digitalWrite(STATUS_OFF);
     render(0, 0, 0);
+    await motorDriver.stopAllMotors();
+    piGpio.terminate();
+    process.exit(1);
 }
 process.on('SIGINT', clearOnClose);
