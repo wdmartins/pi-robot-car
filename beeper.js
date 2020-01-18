@@ -10,7 +10,7 @@ const STATUS_ON = 1;
 let Beeper = function(log, gpio) {
     const _that = this;
     const logger = log ||  bunyan.createLogger({
-        name: 'motorDriver',
+        name: 'beeper',
         stream: process.stdout
     });
     logger.info('[Beeper] Initializing...');

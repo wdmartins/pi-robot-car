@@ -2,12 +2,12 @@
 
 const bunyan = require('bunyan');
 const piGpio = require('pigpio');
-const usonic = require('mmm-usonic-fixed');
 const GpioDef = require('./rpiGpioDef');
 const MotorDriver = require('./motorDriver');
 const RUN_MODE = MotorDriver.RUN_MODE;
 const LedStrip = require('./ledStrip');
 const Beeper = require('./beeper');
+const EchoSensor = require('./echoSensor');
 
 // Configure logger
 const logger = bunyan.createLogger({
@@ -25,21 +25,8 @@ const ledStrip = new LedStrip(logger);
 // Bepper
 const beeper = new Beeper(logger);
 
-// Echo
-const ECHO_GPIO = GpioDef.WPI.GPIO23;
-const TRIGGER_GPIO = GpioDef.WPI.GPIO26;
-const DEFAULT_ECHO_TIMEOUT = 750; // microseconds
-let echoSensor = null;
-
-usonic.init((error) => {
-    if (error) {
-        logger.error(`[ROBOT] Error initializing usonic module. Error: ${error}`);
-    } else {
-        logger.info('[ROBOT] usonic module initialized.');
-        echoSensor = usonic.createSensor(ECHO_GPIO, TRIGGER_GPIO, DEFAULT_ECHO_TIMEOUT);
-        logger.info(`[ROBOT] Echo sensor reporting ${echoSensor()} cm`);
-    }
-});
+// Echo Sensor
+const echoSensor = new EchoSensor(logger);
 
 // Servos
 const GPIO_CAM_H_SERVO = GpioDef.BCM.GPIO7; // GpioDef.WPI.GPIO4;
@@ -59,6 +46,7 @@ const Bot = function() {
         let pulseWidth = 1000;
         let increment = 100;
         await motorDriver.initializeController();
+        logger.info(`[ROBOT] Echo Sensor reporting ${echoSensor.getDistanceCm()}`);
         testInterval = setInterval(() => {
             logger.info(`[ROBOT] Testing servo motors with pulseWidth ${pulseWidth}`);
             hCamServo.servoWrite(pulseWidth);
@@ -76,6 +64,7 @@ const Bot = function() {
             await motorDriver.stopAllMotors();
             logger.info('[ROBOT] End hardware test.');
             clearInterval(testInterval);
+            logger.info(`[ROBOT] Echo Sensor reporting ${echoSensor.getDistanceCm()}`);
         }, 2000);
         return;
     }
