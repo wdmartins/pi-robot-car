@@ -1,11 +1,12 @@
 'use strict';
 
 const bunyan = require('bunyan');
-const ws281x = require('rpi-ws281x-v2');
 const piGpio = require('pigpio');
 const usonic = require('mmm-usonic-fixed');
 const GpioDef = require('./rpiGpioDef');
 const MotorDriver = require('./motorDriver');
+const RUN_MODE = MotorDriver.RUN_MODE;
+const LedStrip = require('./ledStrip');
 
 // Configure logger
 const logger = bunyan.createLogger({
@@ -16,6 +17,9 @@ const logger = bunyan.createLogger({
 // Initialize Gpio
 const Gpio = piGpio.Gpio;
 piGpio.initialize();
+
+// Configure LED strip
+const ledStrip = new LedStrip(logger);
 
 // Gpio status
 const STATUS_OFF = 0;
@@ -41,23 +45,6 @@ usonic.init((error) => {
     }
 });
 
-// Configure LED strip
-const NUMBER_OF_LEDS = 16;
-const DMA = 10;
-const LED_STRIP_GPIO = GpioDef.BCM.GPIO1;
-ws281x.configure({
-    leds: NUMBER_OF_LEDS,
-    dma: DMA,
-    gpio: LED_STRIP_GPIO
-});
-const pixels = new Uint32Array(16);
-const render = function(red, green, blue) {
-    for (let i = 0; i < NUMBER_OF_LEDS; i++) {
-        pixels[i] = (red << 16) | (green << 8)| blue;
-    }
-    ws281x.render(pixels);
-};
-
 // Servos
 const GPIO_CAM_H_SERVO = GpioDef.BCM.GPIO7; // GpioDef.WPI.GPIO4;
 const GPIO_CAM_V_SERVO = GpioDef.BCM.GPIO6; // GpioDef.WPI.GPIO25;
@@ -71,7 +58,7 @@ const motorDriver = new MotorDriver(Gpio, logger);
 const Bot = function() {
     this.test = async function () {
         logger.info('[ROBOT] Starting hardware test...');
-        render(255,255,255);
+        ledStrip.render(255,255,255);
         beep.digitalWrite(STATUS_ON);
         let pulseWidth = 1000;
         let increment = 100;
@@ -88,7 +75,7 @@ const Bot = function() {
             }
         }, 100);
         setTimeout(async () => {
-            render(0, 0, 0);
+            ledStrip.render(0, 0, 0);
             beep.digitalWrite(STATUS_OFF);
             await motorDriver.stopAllMotors();
             logger.info('[ROBOT] End hardware test.');
@@ -114,7 +101,7 @@ logger.debug('[ROBOT] Initializing robot...');
 
 let clearOnClose = async function() {
     beep.digitalWrite(STATUS_OFF);
-    render(0, 0, 0);
+    ledStrip.render(0, 0, 0);
     await motorDriver.stopAllMotors();
     piGpio.terminate();
     process.exit(1);

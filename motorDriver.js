@@ -42,7 +42,7 @@ const RUN_MODE = {
     RELEASE: 4
 };
 
-let MotorDriver = function (Gpio, log) {
+let MotorDriver = function(Gpio, log) {
     let _that = this;
     let motorLatchPin;
     let motorDataPin;
@@ -196,3 +196,4 @@ let MotorDriver = function (Gpio, log) {
 };
 
 module.exports = MotorDriver;
+module.exports.RUN_MODE = MOVE_REGISTER;
