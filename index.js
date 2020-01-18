@@ -7,6 +7,7 @@ const GpioDef = require('./rpiGpioDef');
 const MotorDriver = require('./motorDriver');
 const RUN_MODE = MotorDriver.RUN_MODE;
 const LedStrip = require('./ledStrip');
+const Beeper = require('./beeper');
 
 // Configure logger
 const logger = bunyan.createLogger({
@@ -21,13 +22,8 @@ piGpio.initialize();
 // Configure LED strip
 const ledStrip = new LedStrip(logger);
 
-// Gpio status
-const STATUS_OFF = 0;
-const STATUS_ON = 1;
-
-// Buzzer
-const BEEP_GPIO = GpioDef.BCM.GPIO26;
-const beep = new Gpio(BEEP_GPIO, {mode: Gpio.OUTPUT}); // new OnOff(BEEP_GPIO, 'out');
+// Bepper
+const beeper = new Beeper(logger);
 
 // Echo
 const ECHO_GPIO = GpioDef.WPI.GPIO23;
@@ -59,7 +55,7 @@ const Bot = function() {
     this.test = async function () {
         logger.info('[ROBOT] Starting hardware test...');
         ledStrip.render(255,255,255);
-        beep.digitalWrite(STATUS_ON);
+        beeper.beep(100, 500);
         let pulseWidth = 1000;
         let increment = 100;
         await motorDriver.initializeController();
@@ -76,7 +72,7 @@ const Bot = function() {
         }, 100);
         setTimeout(async () => {
             ledStrip.render(0, 0, 0);
-            beep.digitalWrite(STATUS_OFF);
+            beeper.beepOff();
             await motorDriver.stopAllMotors();
             logger.info('[ROBOT] End hardware test.');
             clearInterval(testInterval);
@@ -100,7 +96,7 @@ logger.debug('[ROBOT] Initializing robot...');
 })();
 
 let clearOnClose = async function() {
-    beep.digitalWrite(STATUS_OFF);
+    beeper.beepOff();
     ledStrip.render(0, 0, 0);
     await motorDriver.stopAllMotors();
     piGpio.terminate();
