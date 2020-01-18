@@ -2,12 +2,12 @@
 
 const bunyan = require('bunyan');
 const piGpio = require('pigpio');
-const GpioDef = require('./rpiGpioDef');
 const MotorDriver = require('./motorDriver');
 const RUN_MODE = MotorDriver.RUN_MODE;
 const LedStrip = require('./ledStrip');
 const Beeper = require('./beeper');
 const EchoSensor = require('./echoSensor');
+const ServoCam = require('./servoCam');
 
 // Configure logger
 const logger = bunyan.createLogger({
@@ -15,28 +15,15 @@ const logger = bunyan.createLogger({
     stream: process.stdout
 });
 
-// Initialize Gpio
-const Gpio = piGpio.Gpio;
+// Initialize Gpio and Controllers
 piGpio.initialize();
-
-// Configure LED strip
 const ledStrip = new LedStrip(logger);
-
-// Bepper
 const beeper = new Beeper(logger);
-
-// Echo Sensor
 const echoSensor = new EchoSensor(logger);
+const servoCam = new ServoCam(logger);
+const motorDriver = new MotorDriver(logger);
 
-// Servos
-const GPIO_CAM_H_SERVO = GpioDef.BCM.GPIO7; // GpioDef.WPI.GPIO4;
-const GPIO_CAM_V_SERVO = GpioDef.BCM.GPIO6; // GpioDef.WPI.GPIO25;
-const hCamServo = new Gpio(GPIO_CAM_H_SERVO, {mode: Gpio.OUTPUT});
-const vCamServo = new Gpio(GPIO_CAM_V_SERVO, {mode: Gpio.OUTPUT});
 let testInterval;
-
-// DC Motors
-const motorDriver = new MotorDriver(Gpio, logger);
 
 const Bot = function() {
     this.test = async function () {
@@ -49,8 +36,7 @@ const Bot = function() {
         logger.info(`[ROBOT] Echo Sensor reporting ${echoSensor.getDistanceCm()}`);
         testInterval = setInterval(() => {
             logger.info(`[ROBOT] Testing servo motors with pulseWidth ${pulseWidth}`);
-            hCamServo.servoWrite(pulseWidth);
-            vCamServo.servoWrite(pulseWidth);
+            servoCam.move(pulseWidth, pulseWidth);
             pulseWidth += increment;
             if (pulseWidth >= 2000) {
               increment = -100;

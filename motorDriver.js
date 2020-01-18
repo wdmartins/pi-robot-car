@@ -4,6 +4,7 @@ const bunyan = require('bunyan');
 const rpiGpio = require('rpi-gpio');
 const GpioDef = require('./rpiGpioDef.js');
 const sleep = require('sleep-promise');
+const Gpio = require('pigpio').Gpio;
 
 const DEFAULT_GPIO_MOTOR_LATCH = GpioDef.PHY.GPIO29;        // Pin 40
 const DEFAULT_GPIO_MOTOR_CLOCK = GpioDef.PHY.GPIO28;        // Pin 38
@@ -42,7 +43,7 @@ const RUN_MODE = {
     RELEASE: 4
 };
 
-let MotorDriver = function(Gpio, log) {
+let MotorDriver = function(log) {
     let _that = this;
     let motorLatchPin;
     let motorDataPin;
