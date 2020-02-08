@@ -52,8 +52,18 @@ function gotResult(error, results) {
     console.error(error);
   }
   // The results are in an array ordered by confidence.
-  console.log(results);
+  //console.log(results);
   // Show the first label and confidence
   label.textContent = 'Label: ' + results[0].label;
   confidence.textContent = 'Confidence: ' + results[0].confidence.toFixed(4); 
 }
+const socket = io('https://pi-robot-car.duckdns.org');
+socket.on('connect', function() {
+  console.log('Connected');
+});
+socket.on('event', function(data) {
+  console.log('Data');
+});
+socket.on('disconnect', function() {
+  console.log('Disconnected')
+});

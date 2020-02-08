@@ -8,18 +8,14 @@ const LedStrip = require('./ledStrip');
 const Beeper = require('./beeper');
 const EchoSensor = require('./echoSensor');
 const ServoCam = require('./servoCam');
-const express = require('express');
-const http = require('http');
-const WebSocket = require('ws');
+const app = require('express')();
+const server = require('http').Server(app);
 const path = require('path');
-
 const PORT = process.env.PORT || 3128;
-const app = express();
-const server = http.createServer(app);
-const wss = new WebSocket.Server({server});
-
-wss.on('connection', (ws) => {
-    ws.on('message', (message) => {
+const io = require('socket.io')(server);
+io.on('connection', (ws) => {
+    console.log('Connected');
+    io.on('message', (message) => {
         logger.debug(`[WSS]: Received: ${message}`);
     });
 });
@@ -78,7 +74,7 @@ logger.debug('[ROBOT] Initializing robot...');
         const bot = new Bot();
         //await bot.test();
         logger.info('[ROBOT] Initialize server...');
-        app.listen(PORT, function() {
+        server.listen(PORT, function() {
             console.log(`App running on localhost:${PORT}`);
         });
         
@@ -90,6 +86,9 @@ logger.debug('[ROBOT] Initializing robot...');
             console.log('GET to /');
             res.sendFile(path.join(`${__dirname}/client.js`));
         });
+        // app.get('/socket.io/', function (req, res) {
+        //     console.log('GET to socket.oi');
+        // });
     } catch (e) {
         clearOnClose();
         logger.error(`[ROBOT] bot failed ${e.message}`);
@@ -101,7 +100,7 @@ logger.debug('[ROBOT] Initializing robot...');
 let clearOnClose = async function() {
     beeper.beepOff();
     ledStrip.render(0, 0, 0);
-    await motorDriver.stopAllMotors();
+    //await motorDriver.stopAllMotors();
     piGpio.terminate();
     process.exit(1);
 }
