@@ -21,7 +21,7 @@ console.log('ml5 version:', ml5.version);
 // Initialize a sound classifier method with SpeechCommands18w model. A callback needs to be passed.
 let classifier;
 // Options for the SpeechCommands18w model, the default probabilityThreshold is 0
-const options = { probabilityThreshold: 0.7 };
+const options = { probabilityThreshold: 0.97 };
 // Two variable to hold the label and confidence of the result
 let label;
 let confidence;
@@ -46,6 +46,12 @@ setup();
 
 
 // A function to run when we get any errors and the results
+// var socket = io('https://pi-robot-car.duckdns.org');
+var socket = io({
+  transports: ['websocket']
+});
+var interval;
+var ping = 0;
 function gotResult(error, results) {
   // Display error in the console
   if (error) {
@@ -55,15 +61,47 @@ function gotResult(error, results) {
   //console.log(results);
   // Show the first label and confidence
   label.textContent = 'Label: ' + results[0].label;
-  confidence.textContent = 'Confidence: ' + results[0].confidence.toFixed(4); 
+  confidence.textContent = 'Confidence: ' + results[0].confidence.toFixed(4);
+  socket.emit('command', {
+    command: label.textContent,
+    confidence: confidence.textContent
+  });
+  console.log(`Send command: ${label.textContent}`);
 }
-const socket = io('https://pi-robot-car.duckdns.org');
+socket.on('reconnect_attempt', () => {
+  socket.io.opts.transports = ['polling', 'websocket'];
+});
 socket.on('connect', function() {
   console.log('Connected');
+  if (interval) {
+    clearInterval(interval);
+    interval = null;
+  }
+  interval = setInterval(() => {
+    console.log(`Sending PING ${ping}`);
+    socket.emit('PING', {
+      ping: ping++
+    });
+  }, 10000);
+});
+socket.on('PONG', (data) => {
+  console.log(`Received PONG ${data.pong}`);
 });
 socket.on('event', function(data) {
   console.log('Data');
 });
+socket.on('info', function(data) {
+  console.log(`Info received: ${data}`);
+});
+socket.on('pong', () => {
+  console.log('Pong received -----');
+});
+
 socket.on('disconnect', function() {
+  if (interval) {
+    clearInterval(interval);
+    interval = null;
+    ping = 0;
+  }
   console.log('Disconnected')
 });

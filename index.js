@@ -8,18 +8,10 @@ const LedStrip = require('./ledStrip');
 const Beeper = require('./beeper');
 const EchoSensor = require('./echoSensor');
 const ServoCam = require('./servoCam');
-const app = require('express')();
-const server = require('http').Server(app);
-const path = require('path');
-const PORT = process.env.PORT || 3128;
-const io = require('socket.io')(server);
-io.on('connection', (ws) => {
-    console.log('Connected');
-    io.on('message', (message) => {
-        logger.debug(`[WSS]: Received: ${message}`);
-    });
-});
+const Server = require('./server');
 
+// Server pot
+const PORT = process.env.PORT || 3128;
 // Configure logger
 const logger = bunyan.createLogger({
     name: 'robot',
@@ -33,6 +25,7 @@ const beeper = new Beeper(logger);
 const echoSensor = new EchoSensor(logger);
 const servoCam = new ServoCam(logger);
 const motorDriver = new MotorDriver(logger);
+const server = new Server(logger, PORT);
 
 let testInterval;
 
@@ -72,23 +65,9 @@ logger.debug('[ROBOT] Initializing robot...');
     try {
         logger.info('[ROBOT] Initializing robot...');
         const bot = new Bot();
-        //await bot.test();
         logger.info('[ROBOT] Initialize server...');
-        server.listen(PORT, function() {
-            console.log(`App running on localhost:${PORT}`);
-        });
-        
-        app.get('/', function (req, res) {
-            console.log('GET to /');
-            res.sendFile(path.join(`${__dirname}/index.html`));
-        });
-        app.get('/client.js', function (req, res) {
-            console.log('GET to /');
-            res.sendFile(path.join(`${__dirname}/client.js`));
-        });
-        // app.get('/socket.io/', function (req, res) {
-        //     console.log('GET to socket.oi');
-        // });
+        server.initialize();
+        //await bot.test();
     } catch (e) {
         clearOnClose();
         logger.error(`[ROBOT] bot failed ${e.message}`);
