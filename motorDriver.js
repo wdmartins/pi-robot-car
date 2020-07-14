@@ -1,14 +1,13 @@
 'use strict';
 
 const bunyan = require('bunyan');
-const rpiGpio = require('rpi-gpio');
 const GpioDef = require('./rpiGpioDef.js');
 const sleep = require('sleep-promise');
 const Gpio = require('pigpio').Gpio;
 
-const DEFAULT_GPIO_MOTOR_LATCH = GpioDef.PHY.GPIO29;        // Pin 40
-const DEFAULT_GPIO_MOTOR_CLOCK = GpioDef.PHY.GPIO28;        // Pin 38
-const DEFAULT_GPIO_MOTOR_DATA = GpioDef.PHY.GPIO27;         // Pin 36
+const DEFAULT_GPIO_MOTOR_LATCH = GpioDef.BCM.GPIO29;        // Pin 40
+const DEFAULT_GPIO_MOTOR_CLOCK = GpioDef.BCM.GPIO28;        // Pin 38
+const DEFAULT_GPIO_MOTOR_DATA = GpioDef.BCM.GPIO27;         // Pin 36
 const DEFAULT_GPIO_PWM_LEFT_REAR = GpioDef.BCM.GPIO21;      // Pin 29
 const DEFAULT_GPIO_PWM_RIGHT_REAR = GpioDef.BCM.GPIO22;     // Pin 31
 const DEFAULT_GPIO_PWM_LEFT_FRONT = GpioDef.BCM.GPIO23;     // Pin 33
@@ -76,29 +75,25 @@ let MotorDriver = function(log) {
         return new Promise(async (resolve, reject) => {
             logger.info(`[MOTORDRIVER] Set Register to ${byte}`);
 
-            const setupController = function() {
-                return new Promise((resolve, reject) => {
-                    rpiGpio.write(motorLatchPin, false, (err) => {
-                        if (err) reject(err);
-                        rpiGpio.write(motorDataPin, false, (err) => {
-                            if (err) reject(err);
-                            resolve();
-                        });
+            const setupController = async function() {
+                return new Promise(async (resolve) => {
+                    motorLatchPin.digitalWrite(0);
+                    await sleep(DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS).then(async () => {
+                        motorDataPin.digitalWrite(0);
+                        await sleep(DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS).then(resolve);
                     });
                 });
             };
 
-            const writeRegister = function (data) {
+            const writeRegister = async function (data) {
                 return new Promise( async (resolve, reject) => {
-                    await sleep(DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS);
-                    rpiGpio.write(motorClockPin, false, (err) => {
-                        if (err) reject(err);
-                        rpiGpio.write(motorDataPin, data, async (err) => {
-                            if (err) reject(err);
-                            await sleep(DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS);
-                            rpiGpio.write(motorClockPin, true, (err) => {
-                                if (err) reject(err);
-                                resolve();
+                    await sleep(DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS).then(async () => {
+                        motorClockPin.digitalWrite(0);
+                        await sleep(DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS).then(async () => {
+                            motorDataPin.digitalWrite(data);
+                            await sleep(DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS).then(async () => {
+                                motorClockPin.digitalWrite(1);
+                                await sleep(DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS).then(resolve);
                             });
                         });
                     });
@@ -111,10 +106,8 @@ let MotorDriver = function(log) {
                 await writeRegister(byte & BIT[7-i] ? true : false);
             }
 
-            rpiGpio.write(motorLatchPin, true,  (err) => {
-                if(err) reject(err);
-                resolve();
-            });
+            motorLatchPin.digitalWrite(1);
+            resolve();
         });
     };
 
@@ -127,32 +120,10 @@ let MotorDriver = function(log) {
         rightRearPwm = new Gpio(config.rightRearPwm || DEFAULT_GPIO_PWM_RIGHT_REAR, {mode: Gpio.OUTPUT});
 
         // Initialize shift register to control individual DC Motors
-        motorDataPin = config.dataGpio || DEFAULT_GPIO_MOTOR_DATA;
-        motorLatchPin = config.latchGpio || DEFAULT_GPIO_MOTOR_LATCH;
-        motorClockPin = config.clockGpio || DEFAULT_GPIO_MOTOR_CLOCK;
+        motorDataPin = new Gpio(config.dataGpio || DEFAULT_GPIO_MOTOR_DATA, { mode: Gpio.OUTPUT});
+        motorLatchPin = new Gpio(config.latchGpio || DEFAULT_GPIO_MOTOR_LATCH, { mode: Gpio.OUTPUT});
+        motorClockPin = new Gpio(config.clockGpio || DEFAULT_GPIO_MOTOR_CLOCK, { mode: Gpio.OUTPUT});
 
-        const gpioSetup = function () {
-            return new Promise((resolve) => {
-                // rpiGpio.setMode(rpiGpio.MODE_RPI);
-                rpiGpio.setup(motorDataPin, rpiGpio.DIR_OUT, function(err) {
-                    if (err) throw err;
-                    logger.info(`[MotorDriver] Set Data Pin ${motorDataPin}`);
-                    rpiGpio.setup(motorLatchPin, rpiGpio.DIR_OUT, function(err) {
-                        if (err) throw err;
-                        logger.info(`[MotorDriver] Set Latch Pin ${motorLatchPin}`);
-                        rpiGpio.setup(motorClockPin, rpiGpio.DIR_OUT, function(err) {
-                            if (err) throw err;
-                            logger.info(`[MotorDriver] Set Clock Pin ${motorClockPin}`);
-                            resolve();
-                            logger.info('[TEST] Resolving gpioSetup...');
-                        });
-                    });
-                });
-            });
-        };
-        logger.info('[TEST] Before gpioSetup...');
-        await gpioSetup();
-        logger.info('[TEST] After gpioSetup...');
         setSpeed(0);
         return setRegister(MOVE_REGISTER.STOP);
     };
