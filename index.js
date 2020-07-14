@@ -48,10 +48,18 @@ const Bot = function() {
               increment = 100;
             }
         }, 100);
+        motorDriver.moveForward(150, 1000, () => {
+            motorDriver.moveLeft(150, 1000, () => {
+                motorDriver.moveRight(150, 1000, () => {
+                    motorDriver.moveBackward(150, 1000, () => {
+                        motorDriver.stopAllMotors();
+                    });
+                });
+            });
+        });
         setTimeout(async () => {
             ledStrip.render(0, 0, 0);
             beeper.beepOff();
-            await motorDriver.stopAllMotors();
             logger.info('[ROBOT] End hardware test.');
             clearInterval(testInterval);
             logger.info(`[ROBOT] Echo Sensor reporting ${echoSensor.getDistanceCm()}`);
@@ -67,12 +75,11 @@ logger.debug('[ROBOT] Initializing robot...');
         const bot = new Bot();
         logger.info('[ROBOT] Initialize server...');
         server.initialize();
-        //await bot.test();
+        await bot.test();
     } catch (e) {
-        clearOnClose();
         logger.error(`[ROBOT] bot failed ${e.message}`);
         logger.error(e.stack);
-        process.exit(1);
+        clearOnClose();
     }
 })();
 

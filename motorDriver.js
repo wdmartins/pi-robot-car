@@ -144,12 +144,15 @@ let MotorDriver = function(log) {
                             if (err) throw err;
                             logger.info(`[MotorDriver] Set Clock Pin ${motorClockPin}`);
                             resolve();
+                            logger.info('[TEST] Resolving gpioSetup...');
                         });
                     });
                 });
             });
         };
+        logger.info('[TEST] Before gpioSetup...');
         await gpioSetup();
+        logger.info('[TEST] After gpioSetup...');
         setSpeed(0);
         return setRegister(MOVE_REGISTER.STOP);
     };
@@ -162,6 +165,7 @@ let MotorDriver = function(log) {
             clearTimeout(_moveTimer);
             _moveTimer = null;
         }
+        logger.debug('Runing at speed', speed);
         setSpeed(speed);
         if (time) {
             _moveTimer = setTimeout(() => {
