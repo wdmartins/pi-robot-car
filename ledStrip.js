@@ -1,6 +1,6 @@
 'use strict';
 
-const ws281x = require('rpi-ws281x-v2');
+const ws281x = require('rpi-ws281x-native');
 const GpioDef = require('./rpiGpioDef');
 const bunyan = require('bunyan');
 
@@ -19,10 +19,9 @@ let LedStrip = function (log, numberOfLeds, dma, gpio) {
     numberOfLeds = numberOfLeds || DEFAULT_NUMBER_OF_LEDS;
     const pixels = new Uint32Array(numberOfLeds);
 
-    ws281x.configure({
-        leds: numberOfLeds,
-        dma: dma || DEFAULT_DMA,
-        gpio: gpio || DEFAULT_GPIO
+    ws281x.init(numberOfLeds, {
+        gpioPin: gpio || DEFAULT_GPIO,
+        dmaNum: dma || DEFAULT_DMA
     });
 
     this.render = (red, green, blue) => {
@@ -32,7 +31,7 @@ let LedStrip = function (log, numberOfLeds, dma, gpio) {
         ws281x.render(pixels);
     }
 
-    this.red = () => {
+    this.greem = () => {
         _that.render(255, 0, 0);        
     };
 
@@ -40,7 +39,7 @@ let LedStrip = function (log, numberOfLeds, dma, gpio) {
         _that.render(0, 0, 255);
     };
 
-    this.green = () => {
+    this.red = () => {
         _that.render(0, 255, 0);
     };
     logger.info('[LedStrip] Initialized');

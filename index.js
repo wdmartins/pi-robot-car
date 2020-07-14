@@ -4,7 +4,7 @@ const bunyan = require('bunyan');
 const piGpio = require('pigpio');
 const MotorDriver = require('./motorDriver');
 const RUN_MODE = MotorDriver.RUN_MODE;
-// const LedStrip = require('./ledStrip');
+const LedStrip = require('./ledStrip');
 const Beeper = require('./beeper');
 const EchoSensor = require('./echoSensor');
 const ServoCam = require('./servoCam');
@@ -20,7 +20,7 @@ const logger = bunyan.createLogger({
 
 // Initialize Gpio and Controllers
 piGpio.initialize();
-// const ledStrip = new LedStrip(logger);
+const ledStrip = new LedStrip(logger);
 const beeper = new Beeper(logger);
 const echoSensor = new EchoSensor(logger);
 const servoCam = new ServoCam(logger);
@@ -32,7 +32,7 @@ let testInterval;
 const Bot = function() {
     this.test = async function () {
         logger.info('[ROBOT] Starting hardware test...');
-        // ledStrip.render(255,255,255);
+        ledStrip.render(255,255,255);
         beeper.beep(100, 500);
         let pulseWidth = 1000;
         let increment = 100;
@@ -48,17 +48,17 @@ const Bot = function() {
               increment = 100;
             }
         }, 100);
-        motorDriver.moveForward(150, 1000, () => {
-            motorDriver.moveLeft(150, 1000, () => {
-                motorDriver.moveRight(150, 1000, () => {
-                    motorDriver.moveBackward(150, 1000, () => {
-                        motorDriver.stopAllMotors();
-                    });
-                });
-            });
-        });
+        // motorDriver.moveForward(150, 1000, () => {
+        //     motorDriver.moveLeft(150, 1000, () => {
+        //         motorDriver.moveRight(150, 1000, () => {
+        //             motorDriver.moveBackward(150, 1000, () => {
+        //                 motorDriver.stopAllMotors();
+        //             });
+        //         });
+        //     });
+        // });
         setTimeout(async () => {
-            // ledStrip.render(0, 0, 0);
+            ledStrip.render(0, 0, 0);
             beeper.beepOff();
             logger.info('[ROBOT] End hardware test.');
             clearInterval(testInterval);
