@@ -14,15 +14,11 @@
   "author": "Walter Martins",
   "license": "ISC",
   "dependencies": {
-    "@vue/cli": "^4.1.2",
-    "bunyan": "^1.8.12",
-    "express": "^4.17.1",
-    "node-wiring-pi": "0.0.5",
+    "@vue/cli": "4.4.6",
+    "bunyan": "1.8.14",
+    "express": "4.17.1",
     "pigpio": "3.2.3",
-    "rpi-ws281x-v2": "^1.3.4",
-    "sleep-promise": "^8.0.1",
-    "socket.io": "^2.3.0",
-    "wiring-pi": "^2.2.1",
-    "wiringpi-node": "^2.4.4"
+    "sleep-promise": "8.0.1",
+    "socket.io": "2.3.0"
   }
 }
