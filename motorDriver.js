@@ -6,6 +6,7 @@ const GpioDef = require('./rpiGpioDef.js');
 const sleep = require('sleep-promise');
 const { Gpio } = require('pigpio');
 
+// Default values for the motors controller.
 const DEFAULT_GPIO_MOTOR_LATCH = GpioDef.BCM.GPIO29;        // Pin 40
 const DEFAULT_GPIO_MOTOR_CLOCK = GpioDef.BCM.GPIO28;        // Pin 38
 const DEFAULT_GPIO_MOTOR_DATA = GpioDef.BCM.GPIO27;         // Pin 36
@@ -17,6 +18,7 @@ const DEFAULT_GPIO_PWM_RIGHT_FRONT = GpioDef.BCM.GPIO24;    // Pin 35
 const DEFAULT_SPEED = 255; // Max Speed
 const DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS = 1; // Shift register clock
 
+// Values for the shift register of the motor controller.
 const MOVE_REGISTER = {
     STOP: 0,        // 00000000
     FORWARD: 57,    // 00111001
@@ -25,6 +27,7 @@ const MOVE_REGISTER = {
     LEFT: 149       // 10010101
 };
 
+// Bit array
 const BIT = [
     1,   // 00000001
     2,   // 00000010
@@ -36,6 +39,11 @@ const BIT = [
     128  // 10000000
 ];
 
+/**
+ * Controls the wheels' motors driver.
+ *
+ * @param {object} log - The logger object.
+ */
 const MotorDriver = function (log) {
     let motorLatchPin;
     let motorDataPin;
