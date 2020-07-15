@@ -1,4 +1,3 @@
 node_modules/**
 client.js
-motorDriver.js
 server.js

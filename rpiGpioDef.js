@@ -22,10 +22,6 @@
 //  24              19      GPIO24      35 | 36     GPIO27      16               27
 //  25              26      GPIO25      37 | 38     GPIO28      20               28
 //   -               -       0v         39 | 40     GPIO29      21               29
-// onOff uses the BCM GPIO port numbers, for instance, GPIO0 is actually 17.
-// ws281x uses the BCM GPIO port numbers as well
-// usonic uses wiringPi pin numbers so GPIO0 is 0
-// rpi-gpio uses physical pin numbers so GPIO0 is 11;
 const GPIO0_WPI = 0; const GPIO0_BCM = 17; const GPIO0_PHY = 11;
 const GPIO1_WPI = 1; const GPIO1_BCM = 18; const GPIO1_PHY = 12;
 const GPIO2_WPI = 2; const GPIO2_BCM = 27; const GPIO2_PHY = 13;

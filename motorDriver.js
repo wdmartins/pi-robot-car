@@ -1,9 +1,10 @@
+/* eslint-disable no-bitwise */
 'use strict';
 
 const bunyan = require('bunyan');
 const GpioDef = require('./rpiGpioDef.js');
 const sleep = require('sleep-promise');
-const Gpio = require('pigpio').Gpio;
+const { Gpio } = require('pigpio');
 
 const DEFAULT_GPIO_MOTOR_LATCH = GpioDef.BCM.GPIO29;        // Pin 40
 const DEFAULT_GPIO_MOTOR_CLOCK = GpioDef.BCM.GPIO28;        // Pin 38
@@ -32,18 +33,10 @@ const BIT = [
     16,  // 00010000
     32,  // 00100000
     64,  // 01000000
-    128, // 10000000
+    128  // 10000000
 ];
 
-const RUN_MODE = {
-    FORWARD: 1,
-    BACKWARD: 2,
-    BRAKE: 3,
-    RELEASE: 4
-};
-
-let MotorDriver = function(log) {
-    let _that = this;
+const MotorDriver = function (log) {
     let motorLatchPin;
     let motorDataPin;
     let motorClockPin;
@@ -54,75 +47,65 @@ let MotorDriver = function(log) {
     let _currentSpeed = 0;
     let _moveTimer;
 
-    const logger = log ||  bunyan.createLogger({
+    const logger = log || bunyan.createLogger({
         name: 'motorDriver',
         stream: process.stdout
     });
+
+    const digitalWritePromise = async (pin, value, time) => {
+        time = time || 0;
+        pin.digitalWrite(value);
+        await sleep(time);
+    };
 
     const setSpeed = (leftRear, leftFront, rightRear, rightFront) => {
         let defaultSpeed = DEFAULT_SPEED;
         if (arguments.length === 2) {
             defaultSpeed = leftRear;
         }
-        leftRearPwm.pwmWrite(leftRear == undefined ? defaultSpeed : leftRear);
-        rightRearPwm.pwmWrite(rightRear == undefined ? defaultSpeed : rightRear);
-        leftFrontPwm.pwmWrite(leftFront == undefined ? defaultSpeed : leftFront);
-        rightFrontPwm.pwmWrite(rightFront == undefined ? defaultSpeed : rightFront);
+        leftRearPwm.pwmWrite(leftRear || defaultSpeed);
+        rightRearPwm.pwmWrite(rightRear || defaultSpeed);
+        leftFrontPwm.pwmWrite(leftFront || defaultSpeed);
+        rightFrontPwm.pwmWrite(rightFront || defaultSpeed);
         _currentSpeed = defaultSpeed;
     };
 
-    const setRegister = (byte) => {
-        return new Promise(async (resolve, reject) => {
-            logger.info(`[MOTORDRIVER] Set Register to ${byte}`);
+    const setRegister = async byte => {
+        logger.info(`[MOTORDRIVER] Set Register to ${byte}`);
 
-            const setupController = async function() {
-                return new Promise(async (resolve) => {
-                    motorLatchPin.digitalWrite(0);
-                    await sleep(DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS).then(async () => {
-                        motorDataPin.digitalWrite(0);
-                        await sleep(DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS).then(resolve);
-                    });
-                });
-            };
+        const setupController = async function () {
+            await digitalWritePromise(motorLatchPin, 0, DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS)
+                .then(digitalWritePromise(motorDataPin, 0, DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS));
+        };
 
-            const writeRegister = async function (data) {
-                return new Promise( async (resolve, reject) => {
-                    await sleep(DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS).then(async () => {
-                        motorClockPin.digitalWrite(0);
-                        await sleep(DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS).then(async () => {
-                            motorDataPin.digitalWrite(data);
-                            await sleep(DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS).then(async () => {
-                                motorClockPin.digitalWrite(1);
-                                await sleep(DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS).then(resolve);
-                            });
-                        });
-                    });
-                });
-            };
+        const writeRegister = async function (data) {
+            await digitalWritePromise(motorClockPin, 0, DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS)
+                .then(digitalWritePromise(motorDataPin, data, DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS)
+                    .then(digitalWritePromise(motorClockPin, 1, DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS)));
+        };
 
-            await setupController();
+        await setupController();
 
-            for (let i=0; i < 8; i++) {
-                await writeRegister(byte & BIT[7-i] ? true : false);
-            }
+        for (let i = 0; i < 8; i++) {
+            // eslint-disable-next-line no-unneeded-ternary
+            writeRegister(byte & BIT[7 - i] ? true : false);
+        }
 
-            motorLatchPin.digitalWrite(1);
-            resolve();
-        });
+        await digitalWritePromise(motorLatchPin, 1, DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS);
     };
 
-    this.initializeController = async (config) => {
+    this.initializeController = async config => {
         config = config || {};
         // Initialize PWM
-        leftFrontPwm = new Gpio(config.leftFrontPwm || DEFAULT_GPIO_PWM_LEFT_FRONT, {mode: Gpio.OUTPUT});
-        leftRearPwm = new Gpio(config.leftRearPwm || DEFAULT_GPIO_PWM_LEFT_REAR, {mode: Gpio.OUTPUT});
-        rightFrontPwm = new Gpio(config.rightFrontPwm || DEFAULT_GPIO_PWM_RIGHT_FRONT, {mode: Gpio.OUTPUT});
-        rightRearPwm = new Gpio(config.rightRearPwm || DEFAULT_GPIO_PWM_RIGHT_REAR, {mode: Gpio.OUTPUT});
+        leftFrontPwm = new Gpio(config.leftFrontPwm || DEFAULT_GPIO_PWM_LEFT_FRONT, { mode: Gpio.OUTPUT });
+        leftRearPwm = new Gpio(config.leftRearPwm || DEFAULT_GPIO_PWM_LEFT_REAR, { mode: Gpio.OUTPUT });
+        rightFrontPwm = new Gpio(config.rightFrontPwm || DEFAULT_GPIO_PWM_RIGHT_FRONT, { mode: Gpio.OUTPUT });
+        rightRearPwm = new Gpio(config.rightRearPwm || DEFAULT_GPIO_PWM_RIGHT_REAR, { mode: Gpio.OUTPUT });
 
         // Initialize shift register to control individual DC Motors
-        motorDataPin = new Gpio(config.dataGpio || DEFAULT_GPIO_MOTOR_DATA, { mode: Gpio.OUTPUT});
-        motorLatchPin = new Gpio(config.latchGpio || DEFAULT_GPIO_MOTOR_LATCH, { mode: Gpio.OUTPUT});
-        motorClockPin = new Gpio(config.clockGpio || DEFAULT_GPIO_MOTOR_CLOCK, { mode: Gpio.OUTPUT});
+        motorDataPin = new Gpio(config.dataGpio || DEFAULT_GPIO_MOTOR_DATA, { mode: Gpio.OUTPUT });
+        motorLatchPin = new Gpio(config.latchGpio || DEFAULT_GPIO_MOTOR_LATCH, { mode: Gpio.OUTPUT });
+        motorClockPin = new Gpio(config.clockGpio || DEFAULT_GPIO_MOTOR_CLOCK, { mode: Gpio.OUTPUT });
 
         setSpeed(0);
         return setRegister(MOVE_REGISTER.STOP);
@@ -146,21 +129,13 @@ let MotorDriver = function(log) {
         return setRegister(direction);
     };
 
-    this.moveForward = async (speed, time, cbEnd) => {
-        return run(MOVE_REGISTER.FORWARD, speed, time, cbEnd);
-    };
+    this.moveForward = async (speed, time, cbEnd) => run(MOVE_REGISTER.FORWARD, speed, time, cbEnd);
 
-    this.moveBackward = async (speed, time, cbEnd) => {
-        return run(MOVE_REGISTER.BACKWARD, speed, time, cbEnd);
-    };
+    this.moveBackward = async (speed, time, cbEnd) => run(MOVE_REGISTER.BACKWARD, speed, time, cbEnd);
 
-    this.moveLeft = async (speed, time, cbEnd) => {
-        return run(MOVE_REGISTER.LEFT, speed, time, cbEnd);
-    };
+    this.moveLeft = async (speed, time, cbEnd) => run(MOVE_REGISTER.LEFT, speed, time, cbEnd);
 
-    this.moveRight = async (speed, time, cbEnd) => {
-        return run(MOVE_REGISTER.RIGHT, speed, time, cbEnd);
-    };
+    this.moveRight = async (speed, time, cbEnd) => run(MOVE_REGISTER.RIGHT, speed, time, cbEnd);
 
     this.stopAllMotors = () => {
         if (_moveTimer) {

@@ -47,10 +47,10 @@ const Bot = function () {
                 increment = 100;
             }
         }, 100);
-        motorDriver.moveForward(150, 1000, () => {
-            motorDriver.moveLeft(150, 1000, () => {
-                motorDriver.moveRight(150, 1000, () => {
-                    motorDriver.moveBackward(150, 1000, () => {
+        motorDriver.moveForward(20, 1000, () => {
+            motorDriver.moveLeft(20, 1000, () => {
+                motorDriver.moveRight(20, 1000, () => {
+                    motorDriver.moveBackward(20, 1000, () => {
                         motorDriver.stopAllMotors();
                     });
                 });
