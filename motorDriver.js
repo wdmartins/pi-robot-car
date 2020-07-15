@@ -52,12 +52,27 @@ const MotorDriver = function (log) {
         stream: process.stdout
     });
 
+    /**
+     * Writes the given digital value to the given GPIO number and resolves the promise after the given time.
+     *
+     * @param {number} pin - The GPIO pin number.
+     * @param {number} value - The digital value.
+     * @param {number} time - The time before resolving the promise.
+     */
     const digitalWritePromise = async (pin, value, time) => {
         time = time || 0;
         pin.digitalWrite(value);
         await sleep(time);
     };
 
+    /**
+     * Sets the speed of the individual wheel motors.
+     *
+     * @param {number} leftRear - The speed of the left rear wheel motor.
+     * @param {number} leftFront - The speed of the left front wheel motor.
+     * @param {number} rightRear - The speed of the right read wheel motor.
+     * @param {number} rightFront - The speed of the right front wheel motor.
+     */
     const setSpeed = (leftRear, leftFront, rightRear, rightFront) => {
         let defaultSpeed = DEFAULT_SPEED;
         if (arguments.length === 2) {
@@ -70,6 +85,11 @@ const MotorDriver = function (log) {
         _currentSpeed = defaultSpeed;
     };
 
+    /**
+     * Sets the given value to the motor driver register.
+     *
+     * @param {number} byte - The motor driver register value.
+     */
     const setRegister = async byte => {
         logger.info(`[MOTORDRIVER] Set Register to ${byte}`);
 
@@ -94,6 +114,16 @@ const MotorDriver = function (log) {
         await digitalWritePromise(motorLatchPin, 1, DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS);
     };
 
+    /**
+     * Configures the motor driver controller and sets the motors to a stop.
+     *
+     * @param {object} config - The motor driver configuration object.
+     * @param {number} config.leftFrontPwm - The GPIO to configure a PWM for the left front wheel motor.
+     * @param {number} config.leftRearPwm - The GPIO to configure a PWM for the left rear wheel motor.
+     * @param {number} config.rightFrontPwm - The GPIO to configure a PWM for the right front wheel motor.
+     * @param {number} config.rightRearPwm - The GPIO to configure a PWM for the right read wheel motor.
+     * @returns {Promise} - A promise that resolves when the controller configuration is finalized.
+     */
     this.initializeController = async config => {
         config = config || {};
         // Initialize PWM
@@ -111,6 +141,15 @@ const MotorDriver = function (log) {
         return setRegister(MOVE_REGISTER.STOP);
     };
 
+    /**
+     * Sets the motor diver controller so it moves in the given direction at the given speed.
+     *
+     * @param {MOVE_REGISTER} direction - The moving direction.
+     * @param {number} speed - The moving speed.
+     * @param {number} time - The moving time.
+     * @param {Function} cbEnd - The callback to be invoked when the given time has elapsed.
+     * @returns {Promise} - A promise that resolved when the motor driver controller setup is completed.
+     */
     const run = (direction, speed, time, cbEnd) => {
         speed = speed || _currentSpeed || DEFAULT_SPEED;
         direction = direction || MOVE_REGISTER.FORWARD;
@@ -129,14 +168,51 @@ const MotorDriver = function (log) {
         return setRegister(direction);
     };
 
+    /**
+     * Sets the motor diver controller so it moves in the forward direction at the given speed.
+     *
+     * @param {number} speed - The moving speed.
+     * @param {number} time - The moving time.
+     * @param {Function} cbEnd - The callback to be invoked when the given time has elapsed.
+     * @returns {Promise} - A promise that resolved when the motor driver controller setup is completed.
+     */
     this.moveForward = async (speed, time, cbEnd) => run(MOVE_REGISTER.FORWARD, speed, time, cbEnd);
 
+    /**
+     * Sets the motor diver controller so it moves in the backward direction at the given speed.
+     *
+     * @param {number} speed - The moving speed.
+     * @param {number} time - The moving time.
+     * @param {Function} cbEnd - The callback to be invoked when the given time has elapsed.
+     * @returns {Promise} - A promise that resolved when the motor driver controller setup is completed.
+     */
     this.moveBackward = async (speed, time, cbEnd) => run(MOVE_REGISTER.BACKWARD, speed, time, cbEnd);
 
+    /**
+     * Sets the motor diver controller so it moves to the left at the given speed.
+     *
+     * @param {number} speed - The moving speed.
+     * @param {number} time - The moving time.
+     * @param {Function} cbEnd - The callback to be invoked when the given time has elapsed.
+     * @returns {Promise} - A promise that resolved when the motor driver controller setup is completed.
+     */
     this.moveLeft = async (speed, time, cbEnd) => run(MOVE_REGISTER.LEFT, speed, time, cbEnd);
 
+    /**
+     * Sets the motor diver controller so it moves to the right at the given speed.
+     *
+     * @param {number} speed - The moving speed.
+     * @param {number} time - The moving time.
+     * @param {Function} cbEnd - The callback to be invoked when the given time has elapsed.
+     * @returns {Promise} - A promise that resolved when the motor driver controller setup is completed.
+     */
     this.moveRight = async (speed, time, cbEnd) => run(MOVE_REGISTER.RIGHT, speed, time, cbEnd);
 
+    /**
+     * Sets the motor driver controller so it stops all motors.
+     *
+     * @returns {Promise} - A promise that resolved when the motor driver controller setup is completed.
+     */
     this.stopAllMotors = () => {
         if (_moveTimer) {
             clearTimeout(_moveTimer);
