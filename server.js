@@ -8,7 +8,13 @@ const io = require('socket.io')(server);
 
 const PORT = process.env.PORT || 3128;
 
-let Server = function (log, port) {
+/**
+ * Instantiates the backend server object.
+ *
+ * @param {object} log - The logger object.
+ * @param {number} port - The server port.
+ */
+const Server = function (log, port) {
     let interval = null;
     let pong = 0;
     const logger = log || bunyan.createLogger({
@@ -18,8 +24,13 @@ let Server = function (log, port) {
     logger.info('[Server] Instantiating...');
     port = port || PORT;
 
+    /**
+     * Initializes and starts the backend server.
+     */
     this.initialize = function () {
         logger.info('[Server] Initializing...');
+
+        // Register websocket connection handler.
         io.on('connection', ws => {
             ws.on('command', message => {
                 logger.info(`[Server]: Received: ${JSON.stringify(message)}`);
@@ -41,21 +52,28 @@ let Server = function (log, port) {
             }, 10000);
         });
 
+        // Register websocket disconnection handler.
         io.on('disconnection', () => {
             logger.info('[Server]: WS Disconnected');
         });
+
+        //TODO: Let NGINX Handle this.
+        app.get('/', (req, res) => {
+            logger.info('[Server]: GET to /');
+            res.sendFile(path.join(`${__dirname}/index.html`));
+        });
+
+        //TODO: Let NGINX Handle this.
+        app.get('/client.js', (req, res) => {
+            logger.info('[Server]: GET to /client.js');
+            res.sendFile(path.join(`${__dirname}/client.js`));
+        });
+
+        // Start listening on configured port.
         server.listen(port, () => {
             logger.info(`[Server]: App running on localhost:${port}`);
         });
 
-        app.get('/', function (req, res) {
-            logger.info('[Server]: GET to /');
-            res.sendFile(path.join(`${__dirname}/index.html`));
-        });
-        app.get('/client.js', function (req, res) {
-            logger.info('[Server]: GET to /client.js');
-            res.sendFile(path.join(`${__dirname}/client.js`));
-        });
     };
 };
 
