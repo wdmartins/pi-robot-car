@@ -1,3 +1,4 @@
+/* eslint-disable no-bitwise */
 'use strict';
 
 const ws281x = require('rpi-ws281x-native');
@@ -8,9 +9,9 @@ const DEFAULT_NUMBER_OF_LEDS = 16;
 const DEFAULT_DMA = 10;
 const DEFAULT_GPIO = GpioDef.BCM.GPIO1;
 
-let LedStrip = function (log, numberOfLeds, dma, gpio) {
+const LedStrip = function (log, numberOfLeds, dma, gpio) {
     const _that = this;
-    const logger = log ||  bunyan.createLogger({
+    const logger = log || bunyan.createLogger({
         name: 'motorDriver',
         stream: process.stdout
     });
@@ -26,13 +27,13 @@ let LedStrip = function (log, numberOfLeds, dma, gpio) {
 
     this.render = (red, green, blue) => {
         for (let i = 0; i < numberOfLeds; i++) {
-            pixels[i] = (red << 16) | (green << 8)| blue;
+            pixels[i] = (red << 16) | (green << 8) | blue;
         }
         ws281x.render(pixels);
-    }
+    };
 
     this.greem = () => {
-        _that.render(255, 0, 0);        
+        _that.render(255, 0, 0);
     };
 
     this.blue = () => {
@@ -43,6 +44,6 @@ let LedStrip = function (log, numberOfLeds, dma, gpio) {
         _that.render(0, 255, 0);
     };
     logger.info('[LedStrip] Initialized');
-}
+};
 
 module.exports = LedStrip;

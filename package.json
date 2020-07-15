@@ -4,7 +4,8 @@
   "description": "Robot Car controlled through Circuit call",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint *.js"
   },
   "keywords": [
     "Robot",
@@ -21,5 +22,11 @@
     "rpi-ws281x-native": "^0.10.0",
     "sleep-promise": "8.0.1",
     "socket.io": "2.3.0"
+  },
+  "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.4.0",
+    "eslint-plugin-babel": "^5.3.1",
+    "eslint-plugin-jsdoc": "^29.2.0"
   }
 }

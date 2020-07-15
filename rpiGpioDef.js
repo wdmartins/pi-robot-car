@@ -1,7 +1,9 @@
+'use strict';
+
 // Raspberry PI definitions
 // wiringPi  -   BCM_GPIO -  Name    -   Header  -   Name -  BCM_GPIO    -   WiringPi
-//   -               -       3.3v        1 | 2       5v          -               - 
-//   8           R1:0/R2:2   SDA0        3 | 4       5v          -               - 
+//   -               -       3.3v        1 | 2       5v          -               -
+//   8           R1:0/R2:2   SDA0        3 | 4       5v          -               -
 //   9           R1:1/R2:3   SCL0        5 | 6       0v          -               -
 //   7               4       GPIO7       7 | 8       TxD        14               15
 //   -               -        0v         9 | 10      RxD        15               16
@@ -44,60 +46,60 @@ const GPIO29_WPI = 29; const GPIO29_BCM = 21; const GPIO29_PHY = 40;
 
 module.exports = {
     WPI: {
-        GPIO0: GPIO0_WPI, 
-        GPIO1: GPIO1_WPI, 
-        GPIO2: GPIO2_WPI, 
-        GPIO3: GPIO3_WPI, 
-        GPIO4: GPIO4_WPI, 
-        GPIO5: GPIO5_WPI, 
-        GPIO6: GPIO6_WPI, 
-        GPIO7: GPIO7_WPI, 
-        GPIO21: GPIO21_WPI, 
-        GPIO22: GPIO22_WPI, 
-        GPIO23: GPIO23_WPI, 
-        GPIO24: GPIO24_WPI, 
-        GPIO25: GPIO25_WPI, 
-        GPIO26: GPIO26_WPI, 
-        GPIO27: GPIO27_WPI, 
-        GPIO28: GPIO28_WPI, 
+        GPIO0: GPIO0_WPI,
+        GPIO1: GPIO1_WPI,
+        GPIO2: GPIO2_WPI,
+        GPIO3: GPIO3_WPI,
+        GPIO4: GPIO4_WPI,
+        GPIO5: GPIO5_WPI,
+        GPIO6: GPIO6_WPI,
+        GPIO7: GPIO7_WPI,
+        GPIO21: GPIO21_WPI,
+        GPIO22: GPIO22_WPI,
+        GPIO23: GPIO23_WPI,
+        GPIO24: GPIO24_WPI,
+        GPIO25: GPIO25_WPI,
+        GPIO26: GPIO26_WPI,
+        GPIO27: GPIO27_WPI,
+        GPIO28: GPIO28_WPI,
         GPIO29: GPIO29_WPI
     },
     BCM: {
-        GPIO0: GPIO0_BCM, 
-        GPIO1: GPIO1_BCM, 
-        GPIO2: GPIO2_BCM, 
-        GPIO3: GPIO3_BCM, 
-        GPIO4: GPIO4_BCM, 
-        GPIO5: GPIO5_BCM, 
-        GPIO6: GPIO6_BCM, 
-        GPIO7: GPIO7_BCM, 
-        GPIO21: GPIO21_BCM, 
-        GPIO22: GPIO22_BCM, 
-        GPIO23: GPIO23_BCM, 
-        GPIO24: GPIO24_BCM, 
-        GPIO25: GPIO25_BCM, 
-        GPIO26: GPIO26_BCM, 
-        GPIO27: GPIO27_BCM, 
-        GPIO28: GPIO28_BCM, 
+        GPIO0: GPIO0_BCM,
+        GPIO1: GPIO1_BCM,
+        GPIO2: GPIO2_BCM,
+        GPIO3: GPIO3_BCM,
+        GPIO4: GPIO4_BCM,
+        GPIO5: GPIO5_BCM,
+        GPIO6: GPIO6_BCM,
+        GPIO7: GPIO7_BCM,
+        GPIO21: GPIO21_BCM,
+        GPIO22: GPIO22_BCM,
+        GPIO23: GPIO23_BCM,
+        GPIO24: GPIO24_BCM,
+        GPIO25: GPIO25_BCM,
+        GPIO26: GPIO26_BCM,
+        GPIO27: GPIO27_BCM,
+        GPIO28: GPIO28_BCM,
         GPIO29: GPIO29_BCM
     },
     PHY: {
-        GPIO0: GPIO0_PHY, 
-        GPIO1: GPIO1_PHY, 
-        GPIO2: GPIO2_PHY, 
-        GPIO3: GPIO3_PHY, 
-        GPIO4: GPIO4_PHY, 
-        GPIO5: GPIO5_PHY, 
-        GPIO6: GPIO6_PHY, 
-        GPIO7: GPIO7_PHY, 
-        GPIO21: GPIO21_PHY, 
-        GPIO22: GPIO22_PHY, 
-        GPIO23: GPIO23_PHY, 
-        GPIO24: GPIO24_PHY, 
-        GPIO25: GPIO25_PHY, 
-        GPIO26: GPIO26_PHY, 
-        GPIO27: GPIO27_PHY, 
-        GPIO28: GPIO28_PHY, 
+        GPIO0: GPIO0_PHY,
+        GPIO1: GPIO1_PHY,
+        GPIO2: GPIO2_PHY,
+        GPIO3: GPIO3_PHY,
+        GPIO4: GPIO4_PHY,
+        GPIO5: GPIO5_PHY,
+        GPIO6: GPIO6_PHY,
+        GPIO7: GPIO7_PHY,
+        GPIO21: GPIO21_PHY,
+        GPIO22: GPIO22_PHY,
+        GPIO23: GPIO23_PHY,
+        GPIO24: GPIO24_PHY,
+        GPIO25: GPIO25_PHY,
+        GPIO26: GPIO26_PHY,
+        GPIO27: GPIO27_PHY,
+        GPIO28: GPIO28_PHY,
         GPIO29: GPIO29_PHY
     }
-}
+};

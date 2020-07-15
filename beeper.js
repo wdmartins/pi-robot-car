@@ -1,25 +1,26 @@
 'use strict';
 
-const Gpio = require('pigpio').Gpio;
+const { Gpio } = require('pigpio');
 const GpioDef = require('./rpiGpioDef');
+const bunyan = require('bunyan');
 
 const DEFAULT_GPIO = GpioDef.BCM.GPIO26;
 const STATUS_OFF = 0;
 const STATUS_ON = 1;
 
-let Beeper = function(log, gpio) {
+const Beeper = function (log, gpio) {
     const _that = this;
-    const logger = log ||  bunyan.createLogger({
+    const logger = log || bunyan.createLogger({
         name: 'beeper',
         stream: process.stdout
     });
     logger.info('[Beeper] Initializing...');
 
-    const beep = new Gpio(gpio || DEFAULT_GPIO, {mode: Gpio.OUTPUT});
+    const beep = new Gpio(gpio || DEFAULT_GPIO, { mode: Gpio.OUTPUT });
     let beepLenghtTimer = null;
     let beepPeriodTimer = null;
 
-    let clearTimers = () => {
+    const clearTimers = () => {
         if (beepPeriodTimer) {
             clearInterval(beepPeriodTimer);
             beepPeriodTimer = null;
@@ -41,7 +42,7 @@ let Beeper = function(log, gpio) {
     };
 
     this.beep = (time, interval) => {
-        let beepTime =  () => {
+        const beepTime = () => {
             beepLenghtTimer = setTimeout(() => {
                 beep.digitalWrite(STATUS_OFF);
             }, time);
@@ -61,7 +62,7 @@ let Beeper = function(log, gpio) {
 
 
     logger.info('[Beeper] Initialized');
-}
+};
 
 module.exports = Beeper;
 

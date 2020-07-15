@@ -3,7 +3,6 @@
 const bunyan = require('bunyan');
 const piGpio = require('pigpio');
 const MotorDriver = require('./motorDriver');
-const RUN_MODE = MotorDriver.RUN_MODE;
 const LedStrip = require('./ledStrip');
 const Beeper = require('./beeper');
 const EchoSensor = require('./echoSensor');
@@ -29,10 +28,10 @@ const server = new Server(logger, PORT);
 
 let testInterval;
 
-const Bot = function() {
+const Bot = function () {
     this.test = async function () {
         logger.info('[ROBOT] Starting hardware test...');
-        ledStrip.render(255,255,255);
+        ledStrip.render(255, 255, 255);
         beeper.beep(100, 500);
         let pulseWidth = 1000;
         let increment = 100;
@@ -43,20 +42,20 @@ const Bot = function() {
             servoCam.move(pulseWidth, pulseWidth);
             pulseWidth += increment;
             if (pulseWidth >= 2000) {
-              increment = -100;
+                increment = -100;
             } else if (pulseWidth <= 1000) {
-              increment = 100;
+                increment = 100;
             }
         }, 100);
-        // motorDriver.moveForward(150, 1000, () => {
-        //     motorDriver.moveLeft(150, 1000, () => {
-        //         motorDriver.moveRight(150, 1000, () => {
-        //             motorDriver.moveBackward(150, 1000, () => {
-        //                 motorDriver.stopAllMotors();
-        //             });
-        //         });
-        //     });
-        // });
+        motorDriver.moveForward(150, 1000, () => {
+            motorDriver.moveLeft(150, 1000, () => {
+                motorDriver.moveRight(150, 1000, () => {
+                    motorDriver.moveBackward(150, 1000, () => {
+                        motorDriver.stopAllMotors();
+                    });
+                });
+            });
+        });
         setTimeout(async () => {
             ledStrip.render(0, 0, 0);
             beeper.beepOff();
@@ -64,11 +63,18 @@ const Bot = function() {
             clearInterval(testInterval);
             logger.info(`[ROBOT] Echo Sensor reporting ${echoSensor.getDistanceCm()}`);
         }, 2000);
-        return;
-    }
+    };
 };
 
 logger.debug('[ROBOT] Initializing robot...');
+const clearOnClose = async function () {
+    beeper.beepOff();
+    // ledStrip.render(0, 0, 0);
+    //await motorDriver.stopAllMotors();
+    piGpio.terminate();
+    process.exit(1);
+};
+
 (async () => {
     try {
         logger.info('[ROBOT] Initializing robot...');
@@ -83,11 +89,4 @@ logger.debug('[ROBOT] Initializing robot...');
     }
 })();
 
-let clearOnClose = async function() {
-    beeper.beepOff();
-    // ledStrip.render(0, 0, 0);
-    //await motorDriver.stopAllMotors();
-    piGpio.terminate();
-    process.exit(1);
-}
 process.on('SIGINT', clearOnClose);

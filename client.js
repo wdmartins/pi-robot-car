@@ -1,3 +1,5 @@
+'use strict';
+
 function initUI (onCallUserCb, onSearchStringUpdated, onTranscriptionStarted) {
     app = new Vue({
         el: "#app",
