@@ -1,5 +1,5 @@
 'use strict';
-
+let app;
 function initUI (onCallUserCb, onSearchStringUpdated, onTranscriptionStarted) {
     app = new Vue({
         el: "#app",
@@ -94,9 +94,6 @@ socket.on('event', function(data) {
 });
 socket.on('info', function(data) {
   console.log(`Info received: ${data}`);
-});
-socket.on('pong', () => {
-  console.log('Pong received -----');
 });
 
 socket.on('disconnect', function() {
