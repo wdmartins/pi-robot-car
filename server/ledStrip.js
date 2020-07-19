@@ -8,6 +8,9 @@ const GpioDef = require('./rpiGpioDef');
 const DEFAULT_NUMBER_OF_LEDS = 16;
 const DEFAULT_DMA = 10;
 const DEFAULT_GPIO = GpioDef.BCM.GPIO1;
+const DEFAULT_FLASHING_TIME = 2000;
+const DEFAULT_FLASHING_PERIOD = 100;
+const DEFAULT_FLASHING_COLOR = 'red';
 
 /**
  * Instantiates a LED strip wrapper object.
@@ -63,6 +66,26 @@ const LedStrip = function (numberOfLeds, dma, gpio) {
     this.red = () => {
         _that.render(0, 255, 0);
     };
+
+    this.off = () => {
+        _that.render(0, 0, 0);
+    };
+
+    this.flash = (color = DEFAULT_FLASHING_COLOR, flashingTime = DEFAULT_FLASHING_TIME, flashinInterval = DEFAULT_FLASHING_PERIOD) => {
+        if (color !== 'red' && color !== 'blue' && color !== 'gree') {
+            return;
+        }
+        let isOn = false;
+        const interval = setInterval(() => {
+            isOn ? _that.off() : _that[color]();
+            isOn = !isOn;
+        }, flashinInterval);
+        setTimeout(() => {
+            clearInterval(interval);
+            _that.off();
+        }, flashingTime);
+    };
+
     logger.info('Initialized ledStrip');
 };
 

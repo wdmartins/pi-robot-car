@@ -35,6 +35,7 @@ const Server = function (port) {
                 logger.info(`Received: ${JSON.stringify(command)}`);
                 if (command.confidence < 0.98) {
                     logger.info('No enough confidence to process command');
+                    carbot.flashLed('red');
                     return;
                 }
                 let degress = 0;
@@ -49,7 +50,6 @@ const Server = function (port) {
                         break;
                 }
                 carbot.moveCamera(command.command, degress);
-
             });
             logger.info('WS Connected');
             ws.on('PING', data => {

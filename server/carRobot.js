@@ -42,6 +42,10 @@ const CarRobot = function () {
         }
     };
 
+    this.flashLed = color => {
+        ledStrip.flash(color);
+    };
+
     this.test = async function () {
         logger.info('Starting hardware test...');
         ledStrip.render(255, 255, 255);
