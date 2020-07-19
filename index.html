@@ -2,7 +2,6 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="assets/css/common.css">
     <title>PI-ROBOT-CAR</title>
     <!-- Vue.js -->
     <style>[v-cloak] {display: none; }</style>
@@ -13,7 +12,12 @@
     <div id="app">
       <!-- audio id="remoteAudio" autoplay></audio -->
       <!-- Camera Stream -->
-      <img src="http://192.168.1.187:8081?action=stream" />
+      <div>
+        <img src="http://192.168.1.187:8081?action=stream" />
+      </div>
+      <div>
+        Speech: {{speechRecognitionResult.label}}:{{speechRecognitionResult.confidence}}
+      </div>
     </div>
     <!-- Vue.js development CDN -->
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
