@@ -15,6 +15,7 @@ const PORT = process.env.PORT || 3128;
  * @param {number} port - The server port.
  */
 const Server = function (log, port) {
+    let carbot = null;
     let interval = null;
     let pong = 0;
     const logger = log || bunyan.createLogger({
@@ -27,13 +28,30 @@ const Server = function (log, port) {
     /**
      * Initializes and starts the backend server.
      */
-    this.initialize = function () {
+    this.initialize = function (bot) {
         logger.info('[Server] Initializing...');
-
+        carbot = bot;
         // Register websocket connection handler.
         io.on('connection', ws => {
-            ws.on('command', message => {
-                logger.info(`[Server]: Received: ${JSON.stringify(message)}`);
+            ws.on('command', command => {
+                logger.info(`[Server]: Received: ${JSON.stringify(command)}`);
+                if (command.confidence < 0.98) {
+                    logger.info('[Server]: No enough confidence to process command');
+                    return;
+                }
+                let degress = 0;
+                switch (command.command) {
+                    case 'up':
+                    case 'left':
+                        degress = -100;
+                        break;
+                    case 'down':
+                    case 'right':
+                        degress = +100;
+                        break;
+                }
+                carbot.moveCamera(command.command, degress);
+
             });
             logger.info('[Server]: WS Connected');
             ws.on('PING', data => {

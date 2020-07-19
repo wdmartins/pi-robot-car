@@ -29,33 +29,30 @@ const server = new Server(logger, PORT);
 let testInterval;
 
 const Bot = function () {
+
+    this.moveCamera = async (direction, degress) => {
+        if (direction === 'up' || direction === 'down') {
+            servoCam.move(degress, 0);
+        } else {
+            servoCam.move(0, degress);
+        }
+    };
+
     this.test = async function () {
         logger.info('[ROBOT] Starting hardware test...');
         ledStrip.render(255, 255, 255);
         beeper.beep(100, 500);
-        let pulseWidth = 1000;
-        let increment = 100;
         await motorDriver.initializeController();
         logger.info(`[ROBOT] Echo Sensor reporting ${echoSensor.getDistanceCm()}`);
-        testInterval = setInterval(() => {
-            logger.info(`[ROBOT] Testing servo motors with pulseWidth ${pulseWidth}`);
-            servoCam.move(pulseWidth, pulseWidth);
-            pulseWidth += increment;
-            if (pulseWidth >= 2000) {
-                increment = -100;
-            } else if (pulseWidth <= 1000) {
-                increment = 100;
-            }
-        }, 100);
-        motorDriver.moveForward(20, 1000, () => {
-            motorDriver.moveLeft(20, 1000, () => {
-                motorDriver.moveRight(20, 1000, () => {
-                    motorDriver.moveBackward(20, 1000, () => {
-                        motorDriver.stopAllMotors();
-                    });
-                });
-            });
-        });
+        // motorDriver.moveForward(20, 1000, () => {
+        //     motorDriver.moveLeft(20, 1000, () => {
+        //         motorDriver.moveRight(20, 1000, () => {
+        //             motorDriver.moveBackward(20, 1000, () => {
+        //                 motorDriver.stopAllMotors();
+        //             });
+        //         });
+        //     });
+        // });
         setTimeout(async () => {
             ledStrip.render(0, 0, 0);
             beeper.beepOff();
@@ -80,7 +77,7 @@ const clearOnClose = async function () {
         logger.info('[ROBOT] Initializing robot...');
         const bot = new Bot();
         logger.info('[ROBOT] Initialize server...');
-        server.initialize();
+        server.initialize(bot);
         await bot.test();
     } catch (e) {
         logger.error(`[ROBOT] bot failed ${e.message}`);

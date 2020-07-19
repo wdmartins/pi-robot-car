@@ -65,8 +65,8 @@ function gotResult(error, results) {
   label.textContent = 'Label: ' + results[0].label;
   confidence.textContent = 'Confidence: ' + results[0].confidence.toFixed(4);
   socket.emit('command', {
-    command: label.textContent,
-    confidence: confidence.textContent
+    command: results[0].label,
+    confidence: results[0].confidence.toFixed(4)
   });
   console.log(`Send command: ${label.textContent}`);
 }
