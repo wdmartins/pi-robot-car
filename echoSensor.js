@@ -2,7 +2,7 @@
 'use strict';
 
 const { Gpio } = require('pigpio');
-const bunyan = require('bunyan');
+const logger = require('./logger').logger('ECHO');
 const GpioDef = require('./rpiGpioDef');
 
 // Default value for the ECHO and the TRIGGER GPIO Pins of the echo sensor.
@@ -18,19 +18,14 @@ const MICROSECDONDS_PER_CM = 1e6 / 34321;
 /**
  * Instantiates the echo sensor wrapper object.
  *
- * @param {object} log - The logger object.
  * @param {object} config - The echo sensor configuration object.
  * @param {number} config.trigger - The GPIO pin number for the echo sensor trigger.
  * @param {number} config.echo - The GPIO pin number for the echo receptor.
  */
-const EchoSensor = function (log, config) {
+const EchoSensor = function (config) {
     config = config || {};
-    const logger = log || bunyan.createLogger({
-        name: 'echo',
-        stream: process.stdout
-    });
 
-    logger.info('[Echo] Initializing...');
+    logger.info('Initializing...');
 
     const trigger = new Gpio(config.trigger || DEFAULT_TRIGGER_GPIO, { mode: Gpio.OUTPUT });
     const echo = new Gpio(config.echo || DEFAULT_ECHO_GPIO, { mode: Gpio.INPUT, alert: true });

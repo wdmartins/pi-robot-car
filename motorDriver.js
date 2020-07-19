@@ -1,7 +1,7 @@
 /* eslint-disable no-bitwise */
 'use strict';
 
-const bunyan = require('bunyan');
+const logger = require('./logger').logger('MOTOR-DRV');
 const GpioDef = require('./rpiGpioDef.js');
 const sleep = require('sleep-promise');
 const { Gpio } = require('pigpio');
@@ -42,9 +42,8 @@ const BIT = [
 /**
  * Controls the wheels' motors driver.
  *
- * @param {object} log - The logger object.
  */
-const MotorDriver = function (log) {
+const MotorDriver = function () {
     let motorLatchPin;
     let motorDataPin;
     let motorClockPin;
@@ -54,11 +53,6 @@ const MotorDriver = function (log) {
     let rightRearPwm;
     let _currentSpeed = 0;
     let _moveTimer;
-
-    const logger = log || bunyan.createLogger({
-        name: 'motorDriver',
-        stream: process.stdout
-    });
 
     /**
      * Writes the given digital value to the given GPIO number and resolves the promise after the given time.
@@ -99,7 +93,7 @@ const MotorDriver = function (log) {
      * @param {number} byte - The motor driver register value.
      */
     const setRegister = async byte => {
-        logger.info(`[MOTORDRIVER] Set Register to ${byte}`);
+        logger.info(`Set Register to ${byte}`);
 
         const setupController = async function () {
             await digitalWritePromise(motorLatchPin, 0, DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS)

@@ -2,7 +2,7 @@
 
 const { Gpio } = require('pigpio');
 const GpioDef = require('./rpiGpioDef');
-const bunyan = require('bunyan');
+const logger = require('./logger').logger('BEEPER');
 
 // Default value for the GPIO pin for the beeper.
 const DEFAULT_GPIO = GpioDef.BCM.GPIO26;
@@ -19,11 +19,7 @@ const STATUS_ON = 1;
  */
 const Beeper = function (log, gpio) {
     const _that = this;
-    const logger = log || bunyan.createLogger({
-        name: 'beeper',
-        stream: process.stdout
-    });
-    logger.info('[Beeper] Initializing...');
+    logger.info('Initializing...');
 
     const beep = new Gpio(gpio || DEFAULT_GPIO, { mode: Gpio.OUTPUT });
     let beepLenghtTimer = null;
@@ -85,7 +81,7 @@ const Beeper = function (log, gpio) {
     };
 
 
-    logger.info('[Beeper] Initialized');
+    logger.info('Initialized');
 };
 
 module.exports = Beeper;
