@@ -25,7 +25,7 @@ const MICROSECDONDS_PER_CM = 1e6 / 34321;
 const EchoSensor = function (config) {
     config = config || {};
 
-    logger.info('Initializing...');
+    logger.info('Initializing echoSensor...');
 
     const trigger = new Gpio(config.trigger || DEFAULT_TRIGGER_GPIO, { mode: Gpio.OUTPUT });
     const echo = new Gpio(config.echo || DEFAULT_ECHO_GPIO, { mode: Gpio.INPUT, alert: true });
@@ -57,6 +57,8 @@ const EchoSensor = function (config) {
      * @returns {number} - The measured distance in centimeters.
      */
     this.getDistanceCm = () => distance;
+
+    logger.info('Initialized echoSensor');
 };
 
 module.exports = EchoSensor;

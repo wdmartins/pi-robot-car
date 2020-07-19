@@ -12,16 +12,15 @@ const STATUS_OFF = 0;
 const STATUS_ON = 1;
 
 /**
- * Wrapper to control a beeper.
+ * Instantiates a wrapper object to control a beeper.
  *
- * @param {object} log - The logger object.
- * @param {number} gpio - The GPIO number for the beeper.
+ * @param {number} [gpio=DEFAULT_GPIO] - The GPIO number for the beeper.
  */
-const Beeper = function (log, gpio) {
+const Beeper = function (gpio = DEFAULT_GPIO) {
     const _that = this;
-    logger.info('Initializing...');
+    logger.info('Initializing beeper...');
 
-    const beep = new Gpio(gpio || DEFAULT_GPIO, { mode: Gpio.OUTPUT });
+    const beep = new Gpio(gpio, { mode: Gpio.OUTPUT });
     let beepLenghtTimer = null;
     let beepPeriodTimer = null;
 
@@ -80,8 +79,7 @@ const Beeper = function (log, gpio) {
         }
     };
 
-
-    logger.info('Initialized');
+    logger.info('Initialized beeper');
 };
 
 module.exports = Beeper;

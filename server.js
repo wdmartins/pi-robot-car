@@ -18,7 +18,7 @@ const Server = function (port) {
     let pong = 0;
     let carbot;
 
-    logger.info('Instantiating...');
+    logger.info('Initializing server...');
     port = port || PORT;
 
     /**
@@ -90,6 +90,7 @@ const Server = function (port) {
             logger.info(`App running on localhost:${port}`);
         });
 
+        logger.info('Initialized server');
     };
 };
 

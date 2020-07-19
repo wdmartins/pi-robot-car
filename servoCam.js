@@ -12,15 +12,23 @@ const DEFAULT_VERTICAL_CENTER = 1500;
 const MIN_SERVO_WRITE_VALUE = 500;
 const MAX_SERVO_WRITE_VALUE = 2500;
 
-// Instantiates a servo camera motors object.
-const ServoCam = function (hServoGpio, vServoGpio) {
+/**
+ * Initializes the servo motors to control the position of the camera.
+ *
+ * @param {number} [hServoGpio=DEFAULT_GPIO_CAM_H_SERVO] - The GPIO number to control the horizontal servo motor.
+ * @param {number} [vServoGpio=DEFAULT_GPIO_CAM_V_SERVO] - The GPIO number to control the vertical servo motor.
+ */
+const ServoCam = function (hServoGpio = DEFAULT_GPIO_CAM_H_SERVO, vServoGpio = DEFAULT_GPIO_CAM_V_SERVO) {
     let currentHPos;
     let currentVPos;
-    logger.info('Initializing...');
+    logger.info('Initializing servoCam...');
     const _that = this;
-    const vCamServo = new Gpio(hServoGpio || DEFAULT_GPIO_CAM_H_SERVO, { mode: Gpio.OUTPUT });
-    const hCamServo = new Gpio(vServoGpio || DEFAULT_GPIO_CAM_V_SERVO, { mode: Gpio.OUTPUT });
+    const vCamServo = new Gpio(hServoGpio, { mode: Gpio.OUTPUT });
+    const hCamServo = new Gpio(vServoGpio, { mode: Gpio.OUTPUT });
 
+    /**
+     * Sets the position of the camera based on current servo calues.
+     */
     function setPosition() {
         logger.info(`Setting servoCam position to H ${currentHPos}, V ${currentVPos}`);
         hCamServo.servoWrite(currentHPos);
@@ -49,7 +57,7 @@ const ServoCam = function (hServoGpio, vServoGpio) {
 
     _that.absolutePosition(DEFAULT_HORIZONTAL_CENTER, DEFAULT_VERTICAL_CENTER);
 
-    logger.info('Initialized');
+    logger.info('Initialized servoCam');
 };
 
 module.exports = ServoCam;

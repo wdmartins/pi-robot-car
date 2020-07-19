@@ -18,7 +18,7 @@ const DEFAULT_GPIO = GpioDef.BCM.GPIO1;
  */
 const LedStrip = function (numberOfLeds, dma, gpio) {
     const _that = this;
-    logger.info('Initializing...');
+    logger.info('Initializing ledStrip...');
 
     numberOfLeds = numberOfLeds || DEFAULT_NUMBER_OF_LEDS;
     const pixels = new Uint32Array(numberOfLeds);
@@ -63,7 +63,7 @@ const LedStrip = function (numberOfLeds, dma, gpio) {
     this.red = () => {
         _that.render(0, 255, 0);
     };
-    logger.info('Initialized');
+    logger.info('Initialized ledStrip');
 };
 
 module.exports = LedStrip;

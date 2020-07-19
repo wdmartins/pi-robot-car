@@ -54,6 +54,7 @@ const MotorDriver = function () {
     let _currentSpeed = 0;
     let _moveTimer;
 
+    logger.info('Initializing motorDriver...');
     /**
      * Writes the given digital value to the given GPIO number and resolves the promise after the given time.
      *
@@ -222,6 +223,8 @@ const MotorDriver = function () {
         }
         return setRegister(MOVE_REGISTER.STOP);
     };
+
+    logger.info('Initialized motorDriver');
 };
 
 module.exports = MotorDriver;

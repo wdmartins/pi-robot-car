@@ -8,10 +8,9 @@ let carRobot;
 
 (async () => {
     try {
+        logger.info('Initializing application...');
         resetGpio();
-        logger.info('Initializing car robot...');
         carRobot = new CarRobot();
-        logger.info('Initializing server...');
         const server = new Server();
         server.initialize(carRobot);
         await carRobot.test();

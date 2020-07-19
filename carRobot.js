@@ -18,7 +18,11 @@ const resetGpio = function () {
 };
 module.exports.resetGpio = resetGpio;
 
+/**
+ * Instanstiates a CarRobot object.
+ */
 const CarRobot = function () {
+    logger.info('Initializing carRobot...');
 
     // Initialize Gpio and Controllers
     piGpio.initialize();
@@ -61,7 +65,9 @@ const CarRobot = function () {
         }, 2000);
     };
 
-    logger.debug('Initializing robot...');
+    /**
+     * Set hardware to default status (Beeper, Leds and Motors off).
+     */
     this.clearOnClose = async function () {
         beeper.beepOff();
         ledStrip.render(0, 0, 0);
@@ -69,6 +75,7 @@ const CarRobot = function () {
         piGpio.terminate();
     };
 
+    logger.debug('Initialized carRobot');
 };
 
 module.exports.CarRobot = CarRobot;
