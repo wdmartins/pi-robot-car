@@ -1,30 +1,57 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <meta charset="UTF-8">
+    <!-- Required metatags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
     <title>PI-ROBOT-CAR</title>
+
     <!-- Vue.js -->
     <style>[v-cloak] {display: none; }</style>
+
     <!-- Bootstrap.js CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
   </head>
   <body>
-    <div id="app">
-      <!-- audio id="remoteAudio" autoplay></audio -->
-      <!-- Camera Stream -->
-      <div>
-        <img src="http://192.168.1.187:8081?action=stream" />
-      </div>
-      <div>
-        Speech: {{speechRecognitionResult.label}}:{{speechRecognitionResult.confidence}}
+    <div v-cloak  id="app">
+      <!-- Top Navigation bar -->
+      <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-2 shadow">
+      </nav>
+      <!-- Main Section -->
+      <div class="container-fluid p-0">
+        <div class="row m-0">
+          <!-- Side Navigation bar -->
+          <nav id="sidebarMenu" class="bg-dark sidebar col-2 p-0">
+            <div class="sidebar-sticky ">
+            </div>
+          </nav>
+          <main role="main" class="col p-0">
+            <!-- Camera Stream -->
+            <img class="img-fluid mx-auto d-block" src="http://192.168.1.187:8081?action=stream" />
+          </main>
+          <div class="bg-dark col-1"></div>
+        </div>
+        <div class="bg-dark row-4 m-0">
+          <div v-if="!!speechRecognitionResult.label">
+            Speech: {{speechRecognitionResult.label}}:{{speechRecognitionResult.confidence}}
+          </div>
+        </div>
       </div>
     </div>
+
+
     <!-- Vue.js development CDN -->
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <!-- ml5 Voice Recognition CDN -->
     <script src="https://unpkg.com/ml5@0.5.0/dist/ml5.min.js"></script>
     <!-- Socket IO -->
     <script src="/socket.io/socket.io.js"></script>
+    <!-- jQuery required by Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>  </body>
     <!-- app client -->
     <script type="text/javascript" src="./client.js"></script>
   </body>

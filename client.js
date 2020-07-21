@@ -1,5 +1,72 @@
 'use strict';
+//-------------------------------------------------------------------------------------------------------
+// Instatiate a websocket object 
+//-------------------------------------------------------------------------------------------------------
+const socket = io({
+    transports: ['websocket']
+});
 
+//-------------------------------------------------------------------------------------------------------
+// Command Functions
+//-------------------------------------------------------------------------------------------------------
+const KEY_EVENT_TYPE = {
+    DOWN: 'down',
+    UP: 'up'
+};
+const COMMANDS = {
+    STOP: 'stop',
+    FORWARD: 'forward',
+    BACKWARD: 'backward',
+    TURN_RIGHT: 'turn-right',
+    TURN_LEFT: 'turn-left',
+    SPEED_UP: 'speed-up',
+    SPEED_DOWN: 'speed-down',
+    HONK: 'honk',
+    LEFT: 'left',
+    RIGHT: 'right',
+    UP: 'up',
+    DOWN: 'down'
+};
+const KEY_TO_RUN_COMMAND_MAP = {
+    'ArrowUp' : COMMANDS.FORWARD,
+    'ArrowDown': COMMANDS.BACKWARD,
+    'ArrowLeft': COMMANDS.TURN_LEFT,
+    'ArrowRight': COMMANDS.TURN_RIGHT
+};
+
+const KEY_TO_COMMAND_MAP = {
+    'Enter': COMMANDS.HONK,
+    'a': COMMANDS.SPEED_UP,
+    'z': COMMANDS.SPEED_DOWN
+};
+
+const KEY_TO_CAM_COMMAND_MAP = {
+    'ArrowUp' : COMMANDS.UP,
+    'ArrowDown': COMMANDS.DOWN,
+    'ArrowLeft': COMMANDS.LEFT,
+    'ArrowRight': COMMANDS.RIGHT
+}
+function processKeyEvent(type, key, shift) {
+    if (!KEY_TO_RUN_COMMAND_MAP[key] && !KEY_TO_CAM_COMMAND_MAP[key] && !KEY_TO_COMMAND_MAP[key]) {
+        console.log('Not a valid key');
+        return;
+    }
+    const command = {
+        command: 'stop',
+        confidence: 1
+    }
+    if (!shift && KEY_TO_RUN_COMMAND_MAP[key] && type === KEY_EVENT_TYPE.UP) {
+        // Stop running. Default command.
+    } else {
+        if (shift) {
+            command.command = KEY_TO_CAM_COMMAND_MAP[key];
+        } else {
+            command.command = KEY_TO_RUN_COMMAND_MAP[key] || KEY_TO_COMMAND_MAP[key];
+        }
+    }
+    console.log('Sending command: ', command);
+    socket.emit('command', command);
+}
 //-------------------------------------------------------------------------------------------------------
 // Vue.js setup
 //-------------------------------------------------------------------------------------------------------
@@ -9,19 +76,28 @@ const data = {
         label: '',
         confidence: ''
     }
+};
+const methods = {
+    updateSpeechRecognitionResults: function(results) {
+        this.speechRecognitionResult = results;
+    }
 }
+const mounted = function () {
+    window.addEventListener('keydown', function (evt) {
+        console.log(`Key event: down ${evt.shiftKey ? 'Shift-' : ''}${evt.key}`);
+        processKeyEvent(KEY_EVENT_TYPE.DOWN, evt.key, evt.shiftKey);
+    });
+    window.addEventListener('keyup', function (evt) {
+        console.log(`Key event: up ${evt.shiftKey ? 'Shift-' : ''}${evt.key}`);
+        processKeyEvent(KEY_EVENT_TYPE.UP, evt.key, evt.shiftKey);
+    });
+};
 app = new Vue({
     el: "#app",
-    data
+    data,
+    methods,
+    mounted
 });
-
-//-------------------------------------------------------------------------------------------------------
-// Instatiate a websocket object 
-//-------------------------------------------------------------------------------------------------------
-const socket = io({
-    transports: ['websocket']
-});
-
 
 //-------------------------------------------------------------------------------------------------------
 // Speech Recognition handling
@@ -46,7 +122,8 @@ function gotResult(error, results) {
     socket.emit('command', command);
     
     console.log('Send command: ', command);
-    app.speechRecognitionResult = result;
+    app.updateSpeechRecognitionResults(results[0]);
+    // app.speechRecognitionResult = result;
 }
 
 // Setup ml5

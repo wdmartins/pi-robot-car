@@ -1,3 +1,4 @@
+/* eslint-disable no-unneeded-ternary */
 /* eslint-disable no-bitwise */
 'use strict';
 
@@ -107,14 +108,22 @@ const MotorDriver = function () {
                     .then(digitalWritePromise(motorClockPin, 1, DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS)));
         };
 
-        await setupController();
+        await setupController()
+            .then(writeRegister(byte & BIT[7] ? true : false))
+            .then(writeRegister(byte & BIT[6] ? true : false))
+            .then(writeRegister(byte & BIT[5] ? true : false))
+            .then(writeRegister(byte & BIT[4] ? true : false))
+            .then(writeRegister(byte & BIT[3] ? true : false))
+            .then(writeRegister(byte & BIT[2] ? true : false))
+            .then(writeRegister(byte & BIT[1] ? true : false))
+            .then(writeRegister(byte & BIT[0] ? true : false))
+            .then(digitalWritePromise(motorLatchPin, 1, DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS));
 
-        for (let i = 0; i < 8; i++) {
-            // eslint-disable-next-line no-unneeded-ternary
-            writeRegister(byte & BIT[7 - i] ? true : false);
-        }
+        // for (let i = 0; i < 8; i++) {
+        //     writeRegister(byte & BIT[7 - i] ? true : false);
+        // }
 
-        await digitalWritePromise(motorLatchPin, 1, DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS);
+        // await digitalWritePromise(motorLatchPin, 1, DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS);
     };
 
     /**
