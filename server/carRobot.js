@@ -33,6 +33,7 @@ const CarRobot = function () {
     const echoSensor = new EchoSensor();
     const servoCam = new ServoCam();
     const motorDriver = new MotorDriver();
+    const currentSpeed = 100;
 
     this.moveCamera = async (direction, degress) => {
         if (direction === 'up' || direction === 'down') {
@@ -52,15 +53,6 @@ const CarRobot = function () {
         beeper.beep(100, 500);
         await motorDriver.initializeController();
         logger.info(`Echo Sensor reporting ${echoSensor.getDistanceCm()}`);
-        // motorDriver.moveForward(20, 1000, () => {
-        //     motorDriver.moveLeft(20, 1000, () => {
-        //         motorDriver.moveRight(20, 1000, () => {
-        //             motorDriver.moveBackward(20, 1000, () => {
-        //                 motorDriver.stopAllMotors();
-        //             });
-        //         });
-        //     });
-        // });
         setTimeout(async () => {
             ledStrip.render(0, 0, 0);
             beeper.beepOff();
@@ -77,6 +69,30 @@ const CarRobot = function () {
         ledStrip.render(0, 0, 0);
         await motorDriver.stopAllMotors();
         piGpio.terminate();
+    };
+
+    this.stop = async function () {
+        await motorDriver.stopAllMotors();
+    };
+
+    this.forward = async function () {
+        await motorDriver.moveForward(currentSpeed);
+    };
+
+    this.backward = async function () {
+        await motorDriver.moveBackward(currentSpeed);
+    };
+
+    this.turnRight = async function () {
+        await motorDriver.moveRight(currentSpeed);
+    };
+
+    this.turnLeft = async function () {
+        await motorDriver.moveLeft(currentSpeed);
+    };
+
+    this.honk = async function () {
+        beeper.beep(1500, 500);
     };
 
     logger.debug('Initialized carRobot');

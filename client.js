@@ -13,20 +13,7 @@ const KEY_EVENT_TYPE = {
     DOWN: 'down',
     UP: 'up'
 };
-const COMMANDS = {
-    STOP: 'stop',
-    FORWARD: 'forward',
-    BACKWARD: 'backward',
-    TURN_RIGHT: 'turn-right',
-    TURN_LEFT: 'turn-left',
-    SPEED_UP: 'speed-up',
-    SPEED_DOWN: 'speed-down',
-    HONK: 'honk',
-    LEFT: 'left',
-    RIGHT: 'right',
-    UP: 'up',
-    DOWN: 'down'
-};
+
 const KEY_TO_RUN_COMMAND_MAP = {
     'ArrowUp' : COMMANDS.FORWARD,
     'ArrowDown': COMMANDS.BACKWARD,
