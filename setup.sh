@@ -20,6 +20,6 @@ echo "Copying files to $ROOT..."
 sudo cp index.html $ROOT
 sudo cp client.js $ROOT
 sudo cp common/common.js $ROOT
-sudo cp assets/img/* $ROOT/assets/img
+sudo cp -r assets/* $ROOT/assets
 
 echo "Done!"

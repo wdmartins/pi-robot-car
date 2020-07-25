@@ -1,0 +1,13 @@
+.arrow {
+    width: 2em;
+    height: 2em;
+}
+.arrow .topDown {
+    margin: 5px 20px 5px 30px;
+}
+.arrow .leftRight {
+    margin: 5px 13px;
+}
+.filler {
+    width: 2em;
+}
