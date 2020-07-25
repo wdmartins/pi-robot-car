@@ -3,7 +3,6 @@
 const logger = require('./logger').logger('SERVER');
 const app = require('express')();
 const server = require('http').Server(app);
-const path = require('path');
 const io = require('socket.io')(server);
 const { DRIVE_COMMAND, CAMERA_COMMAND, BEEPER_COMMAND, COMMAND_TYPE, getCommandType } = require('../common/common.js');
 
@@ -125,18 +124,6 @@ const Server = function (port) {
         // Register websocket disconnection handler.
         io.on('disconnection', () => {
             logger.info('WS Disconnected');
-        });
-
-        //TODO: Let NGINX Handle this.
-        app.get('/', (req, res) => {
-            logger.info('GET to /');
-            res.sendFile(path.join(`${__dirname}/index.html`));
-        });
-
-        //TODO: Let NGINX Handle this.
-        app.get('/client.js', (req, res) => {
-            logger.info('GET to /client.js');
-            res.sendFile(path.join(`${__dirname}/client.js`));
         });
 
         // Start listening on configured port.

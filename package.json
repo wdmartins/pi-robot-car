@@ -16,6 +16,7 @@
   "license": "ISC",
   "dependencies": {
     "@vue/cli": "4.4.6",
+    "bootstrap-icons": "^1.0.0-alpha5",
     "bunyan": "1.8.14",
     "express": "4.17.1",
     "pigpio": "3.2.3",

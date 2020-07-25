@@ -16,28 +16,113 @@
   </head>
   <body>
     <div v-cloak  id="app">
-      <!-- Top Navigation bar -->
-      <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-2 shadow">
-      </nav>
       <!-- Main Section -->
       <div class="container-fluid p-0">
+        <!-- Top Navigation bar -->
+        <nav class="navbar navbar-dark sticky-top flex-md-nowrap p-2 shadow">
+          <h2> Raspberry PI Car Robot</h2>
+        </nav>
         <div class="row m-0">
           <!-- Side Navigation bar -->
-          <nav id="sidebarMenu" class="bg-dark sidebar col-2 p-0">
+          <nav id="sidebarMenu" class="sidebar col-2 p-0">
             <div class="sidebar-sticky ">
             </div>
           </nav>
           <main role="main" class="col p-0">
             <!-- Camera Stream -->
-            <img class="img-fluid mx-auto d-block" src="http://192.168.1.187:8081?action=stream" />
+            <div class="row">
+              <img style="max-width: 80%;" class="mx-auto d-block" src="http://192.168.1.187:8081?action=stream" />
+            </div>
+            <!-- Control pane -->
+            <div class="row">
+              <div class="col-4">
+                filler
+              </div>
+              <!-- Camera control -->
+              <div class="col-4">
+                <div class="container">
+                  <div class="row">
+                    <div style="width: 45px" class="col-md-auto p-0">
+                      <!-- filler                       -->
+                    </div>
+                    <div class="col-md-auto p-0">
+                      <img width="40" height="40" style="margin: 5px 20px 5px 30px" src="assets/img/arrow-up-square-fill.svg">
+                    </div>
+                    <div class="col-md-auto p-0">
+                      <!-- filler                       -->
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-auto p-0">
+                      <img width="40" height="40" style="margin: 5px 13px" src="assets/img/arrow-left-square-fill.svg">
+                    </div>
+                    <div class="col-md-auto p-0">
+                      <img width="40" height="40" style="margin: 5px 13px" src="assets/img/camera-video.svg">
+                    </div>
+                    <div class="col-md-auto p-0">
+                      <img width="40" height="40" style="margin: 5px 13px" src="assets/img/arrow-right-square-fill.svg">
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div style="width: 45px" class="col-md-auto p-0">
+                      <!-- filler                       -->
+                    </div>
+                    <div class="col-md-auto p-0">
+                      <img width="40" height="40" style="margin: 5px 20px 5px 30px" src="assets/img/arrow-down-square-fill.svg">
+                    </div>
+                    <div class="col-md-auto p-0">
+                      <!-- filler                       -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Drive control -->
+              <div class="col-4">
+                <div class="container">
+                  <div class="row">
+                    <div style="width: 45px" class="col-md-auto p-0">
+                      <!-- filler                       -->
+                    </div>
+                    <div class="col-md-auto p-0">
+                      <img width="40" height="40" style="margin: 5px 20px 5px 30px" src="assets/img/arrow-up-square-fill.svg">
+                    </div>
+                    <div class="col-md-auto p-0">
+                      <!-- filler                       -->
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-auto p-0">
+                      <img width="40" height="40" style="margin: 5px 13px" src="assets/img/arrow-left-square-fill.svg">
+                    </div>
+                    <div class="col-md-auto p-0">
+                      <img width="40" height="40" style="margin: 5px 13px" src="assets/img/truck.svg">
+                    </div>
+                    <div class="col-md-auto p-0">
+                      <img width="40" height="40" style="margin: 5px 13px" src="assets/img/arrow-right-square-fill.svg">
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div style="width: 45px" class="col-md-auto p-0">
+                      <!-- filler                       -->
+                    </div>
+                    <div class="col-md-auto p-0">
+                      <img width="40" height="40" style="margin: 5px 20px 5px 30px" src="assets/img/arrow-down-square-fill.svg">
+                    </div>
+                    <div class="col-md-auto p-0">
+                      <!-- filler                       -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </main>
-          <div class="bg-dark col-1"></div>
+          <div class="col-1"></div>
         </div>
-        <div class="bg-dark row-4 m-0">
+        <!-- <div class="bg-dark row-4 m-0">
           <div v-if="!!speechRecognitionResult.label">
             Speech: {{speechRecognitionResult.label}}:{{speechRecognitionResult.confidence}}
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
 
@@ -53,7 +138,7 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>  </body>
     <!-- app client -->
-    <script type="text/javascript" src="./common/common.js"></script>
-    <script type="text/javascript" src="./client.js"></script>
+    <script type="text/javascript" src="/common.js"></script>
+    <script type="text/javascript" src="/client.js"></script>
   </body>
 </html>

@@ -6,10 +6,6 @@ Note: Some of the node modules use for GPIO are not longer supported. Therefore 
 
 Setup Guide: Raspberry Pi | MJPEG Streamer Install & Setup & FFMpeg Recording <https://github.com/cncjs/cncjs/wiki/Setup-Guide:-Raspberry-Pi-%7C-MJPEG-Streamer-Install-&-Setup-&-FFMpeg-Recording>
 
-## Start Server
-
-    sudo node index.js | ./node_modules/.bin/bunyan
-
 ### NGINX installation
 
 #### If needed remove apache if installed to avoid port conflicts
@@ -77,4 +73,4 @@ To obtain a new or tweaked version of this certificate in the future, simply run
 
 ## Start backend server
 
-    sudo node index.js
+    npm start
