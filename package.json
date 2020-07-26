@@ -1,33 +1,70 @@
 {
   "name": "pi-robot-car",
   "version": "1.0.0",
+  "private": true,
   "description": "Robot Car controlled through Circuit call",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint *.js",
-    "start": "sudo node ./server/index.js | ./node_modules/.bin/bunyan"
+  "author": {
+    "name": "Walter Martins"
   },
-  "keywords": [
-    "Robot",
-    "Raspberry"
-  ],
-  "author": "Walter Martins",
-  "license": "ISC",
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint",
+    "start": "sudo node ./server/index.js | ./node_modules/.bin/bunyan",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "main": "index.js",
   "dependencies": {
     "@vue/cli": "4.4.6",
     "bootstrap-icons": "^1.0.0-alpha5",
     "bunyan": "1.8.14",
+    "core-js": "^3.6.5",
     "express": "4.17.1",
     "pigpio": "3.2.3",
     "rpi-ws281x-native": "^0.10.0",
     "sleep-promise": "8.0.1",
-    "socket.io": "2.3.0"
+    "socket.io": "2.3.0",
+    "vue": "^2.6.11",
+    "vue-router": "^3.2.0"
   },
   "devDependencies": {
+    "@vue/cli-plugin-babel": "~4.4.0",
+    "@vue/cli-plugin-eslint": "~4.4.0",
+    "@vue/cli-plugin-router": "~4.4.0",
+    "@vue/cli-service": "~4.4.0",
+    "@vue/eslint-config-airbnb": "^5.0.2",
     "babel-eslint": "^10.1.0",
-    "eslint": "^7.4.0",
+    "eslint": "^6.7.2",
     "eslint-plugin-babel": "^5.3.1",
-    "eslint-plugin-jsdoc": "^29.2.0"
-  }
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-jsdoc": "^29.2.0",
+    "eslint-plugin-vue": "^6.2.2",
+    "vue-template-compiler": "^2.6.11"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "@vue/airbnb"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
+    "rules": {}
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ],
+  "_id": "pi-robot-car@1.0.0",
+  "keywords": [
+    "Robot",
+    "Raspberry"
+  ],
+  "license": "ISC",
+  "readme": "ERROR: No README data found!"
 }
