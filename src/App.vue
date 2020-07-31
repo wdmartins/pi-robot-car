@@ -9,6 +9,7 @@
 </template>
 
 <script>
+
 //-------------------------------------------------------------------------------------------------
 // Command Functions
 //-------------------------------------------------------------------------------------------------
@@ -65,33 +66,39 @@ const KEY_TO_CAM_COMMAND_MAP = {
   ArrowRight: COMMANDS.RIGHT,
 };
 
-const mounted = () => {
-  window.addEventListener('keydown', (evt) => {
-    console.log(`Key event: down ${evt.shiftKey ? 'Shift-' : ''}${evt.key}`);
-    this.processKeyEvent(KEY_EVENT_TYPE.DOWN, evt.key, evt.shiftKey);
-  });
-  window.addEventListener('keyup', (evt) => {
-    console.log(`Key event: up ${evt.shiftKey ? 'Shift-' : ''}${evt.key}`);
-    this.processKeyEvent(KEY_EVENT_TYPE.UP, evt.key, evt.shiftKey);
-  });
+const addSocketEventListeners = function (app) {
+  app.sockets.listener.subscribe('connect', app.onSocketConnected);
+  app.sockets.listener.subscribe('PONG', app.onPong);
+  app.sockets.listener.subscribe('disconnect', app.onSocketDisconnected);
+};
+
+const addWindowEventListeners = (app) => {
+  window.addEventListener('keydown', app.onKeyDown);
+  window.addEventListener('keyup', app.onKeyUp);
+};
+
+const mounted = function () {
+  addWindowEventListeners(this);
+  addSocketEventListeners(this);
 };
 
 export default {
   name: 'app',
   mounted,
-  sockets: {
-    connect() {
-
-    },
-    disconnect() {
-
-    },
-    messageChannel(data) {
-      console.log('Received data: ', data);
-    },
-  },
+  data: () => ({
+    ping: 0,
+    pingInterval: null,
+  }),
   methods: {
-    processKeyEvent(eventType, eventKey, shiftKey) {
+    onKeyDown(evt) {
+      this.onKeyEvent(KEY_EVENT_TYPE.DOWN, evt.key, evt.shiftKey);
+    },
+    onKeyUp(evt) {
+      this.onKeyEvent(KEY_EVENT_TYPE.UP, evt.key, evt.shiftKey);
+    },
+    onKeyEvent(eventType, eventKey, shiftKey) {
+      console.log(`Key event: ${eventType} ${shiftKey ? 'Shift-' : ''}${eventKey}`);
+
       if (!KEY_TO_RUN_COMMAND_MAP[eventKey] && !KEY_TO_CAM_COMMAND_MAP[eventKey]
         && !KEY_TO_COMMAND_MAP[eventKey]) {
         console.log('Not a valid key');
@@ -103,14 +110,31 @@ export default {
         confidence: 1,
       };
 
-      if (!shiftKey && KEY_TO_RUN_COMMAND_MAP[eventKey] && eventType === KEY_EVENT_TYPE.UP) {
-        // Stop running. Default command.
-      } else {
+      if (shiftKey || !KEY_TO_RUN_COMMAND_MAP[eventKey] || eventType !== KEY_EVENT_TYPE.UP) {
         command.command = shiftKey ? KEY_TO_CAM_COMMAND_MAP[eventKey]
           : KEY_TO_RUN_COMMAND_MAP[eventKey] || KEY_TO_COMMAND_MAP[eventKey];
       }
       console.log('Sending command: ', command);
       this.$socket.emit('command', command);
+    },
+    onSocketConnected() {
+      if (this.pingInterval) {
+        clearInterval(this.pingInterval);
+        this.pingInterval = null;
+      }
+
+      // Start pinging the server every 10 seconds
+      this.pingInterval = setInterval(() => {
+        console.log(`Sending PING ${this.ping}`);
+        this.$socket.emit('PING', {
+          ping: this.ping,
+        });
+        this.ping += 1;
+      }, 10000);
+    },
+    onPong() {
+    },
+    onSocketDisconnected() {
     },
   },
 };

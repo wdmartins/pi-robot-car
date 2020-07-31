@@ -1,16 +1,16 @@
 import Vue from 'vue';
-import sockeio from 'socket.io';
+import sockeio from 'socket.io-client';
 import VueSocketIO from 'vue-socket.io';
 import App from './App.vue';
 import router from './router';
 
-const SocketInstance = sockeio('http://localhost:3128');
-
-export default {
-  SocketInstance,
-};
-
-Vue.use(VueSocketIO, SocketInstance);
+// Add websockets to Vue components
+Vue.use(new VueSocketIO({
+  debug: true,
+  connection: sockeio('http://192.168.1.187:3128', {
+    transports: ['websocket'],
+  }),
+}));
 
 Vue.config.productionTip = false;
 
