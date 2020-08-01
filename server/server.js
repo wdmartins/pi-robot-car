@@ -4,9 +4,19 @@ const logger = require('./logger').logger('SERVER');
 const app = require('express')();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
-const { DRIVE_COMMAND, CAMERA_COMMAND, BEEPER_COMMAND, COMMAND_TYPE, getCommandType } = require('../common/common.js');
+const { DRIVE_COMMAND, CAMERA_COMMAND, BEEPER_COMMAND, COMMAND_TYPE } = require('../common/common.js');
 
 const PORT = process.env.PORT || 3128;
+
+const getCommandType = (command) => {
+    if (DRIVE_COMMAND.hasOwnProperty(command.toUpperCase())) {
+        return COMMAND_TYPE.DRIVE;
+    }
+    if (CAMERA_COMMAND.hasOwnProperty(command.toUpperCase())) {
+        return COMMAND_TYPE.CAMERA;
+    }
+    return COMMAND_TYPE.BEEPER;
+};
 
 /**
  * Instantiates the backend server object.
@@ -84,11 +94,8 @@ const Server = function (port) {
                     carbot.flashLed('red');
                     return;
                 }
-                logger.info('Camera Commands ', CAMERA_COMMAND);
-                logger.info('This command ', CAMERA_COMMAND[command.command]);
                 const commandType = getCommandType(command.command);
                 logger.info('Get Command Type: ', commandType);
-                logger.info('Camera command is: ', COMMAND_TYPE.CAMERA_COMMAND);
                 switch (commandType) {
                     case COMMAND_TYPE.DRIVE:
                         executeDriveCommand(command.command);
@@ -105,20 +112,6 @@ const Server = function (port) {
                 }
             });
             logger.info('WS Connected');
-            ws.on('PING', data => {
-                logger.info(`Received PING ${data.ping}`);
-            });
-            if (interval) {
-                clearInterval(interval);
-                interval = null;
-                pong = 0;
-            }
-            interval = setInterval(() => {
-                logger.info(`Sending PONG ${pong}`);
-                ws.emit('PONG', {
-                    pong: pong++
-                });
-            }, 10000);
         });
 
         // Register websocket disconnection handler.

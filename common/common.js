@@ -1,5 +1,3 @@
-'use strict';
-
 const STOP = 'stop';
 const FORWARD = 'forward';
 const BACKWARD = 'backward';
@@ -14,58 +12,44 @@ const UP = 'up';
 const DOWN = 'down';
 
 const COMMAND_TYPE = {
-    DRIVE: 'drive',
-    CAMERA: 'camera',
-    BEEPER: 'beeper'
+  DRIVE: 'drive',
+  CAMERA: 'camera',
+  BEEPER: 'beeper',
 };
 
 const COMMANDS = {
-    STOP,
-    FORWARD,
-    BACKWARD,
-    TURN_RIGHT,
-    TURN_LEFT,
-    SPEED_UP,
-    SPEED_DOWN,
-    HONK,
-    LEFT,
-    RIGHT,
-    UP,
-    DOWN
+  STOP,
+  FORWARD,
+  BACKWARD,
+  TURN_RIGHT,
+  TURN_LEFT,
+  SPEED_UP,
+  SPEED_DOWN,
+  HONK,
+  LEFT,
+  RIGHT,
+  UP,
+  DOWN,
 };
 const DRIVE_COMMAND = {
-    STOP,
-    FORWARD,
-    BACKWARD,
-    TURN_RIGHT,
-    TURN_LEFT
+  STOP,
+  FORWARD,
+  BACKWARD,
+  TURN_RIGHT,
+  TURN_LEFT,
 };
 const CAMERA_COMMAND = {
-    LEFT,
-    RIGHT,
-    UP,
-    DOWN
+  LEFT,
+  RIGHT,
+  UP,
+  DOWN,
 };
 const BEEPER_COMMAND = {
-    HONK
+  HONK,
 };
 
-const getCommandType = command => {
-    if (DRIVE_COMMAND.hasOwnProperty(command.toUpperCase())) {
-        return COMMAND_TYPE.DRIVE;
-    }
-    if (CAMERA_COMMAND.hasOwnProperty(command.toUpperCase())) {
-        return COMMAND_TYPE.CAMERA;
-    }
-    return COMMAND_TYPE.BEEPER;
-};
-
-(function (exports) {
-    exports.COMMANDS = COMMANDS;
-    exports.DRIVE_COMMAND = DRIVE_COMMAND;
-    exports.CAMERA_COMMAND = CAMERA_COMMAND;
-    exports.BEEPER_COMMAND = BEEPER_COMMAND;
-    exports.COMMAND_TYPE = COMMAND_TYPE;
-    exports.getCommandType = getCommandType;
-})(typeof exports === 'undefined' ? this.common = {} : exports);
-
+exports.COMMANDS = COMMANDS;
+exports.DRIVE_COMMAND = DRIVE_COMMAND;
+exports.CAMERA_COMMAND = CAMERA_COMMAND;
+exports.BEEPER_COMMAND = BEEPER_COMMAND;
+exports.COMMAND_TYPE = COMMAND_TYPE;
