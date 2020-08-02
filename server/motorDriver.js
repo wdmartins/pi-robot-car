@@ -18,6 +18,8 @@ const DEFAULT_GPIO_PWM_RIGHT_FRONT = GpioDef.BCM.GPIO24;    // Pin 35
 
 const DEFAULT_SPEED = 255; // Max Speed
 const DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS = 1; // Shift register clock
+const MINIMUM_SPEED = 10;
+const MAXIMUM_SPEED = 255;
 
 // Values for the shift register of the motor controller.
 const MOVE_REGISTER = {
@@ -232,6 +234,18 @@ const MotorDriver = function () {
         }
         return setRegister(MOVE_REGISTER.STOP);
     };
+
+    /**
+     * Returns the minimum speed.
+     * @returns {number} - The minimum speed
+     */
+    this.getMinimumSpeed = () => MINIMUM_SPEED;
+
+    /**
+     * Returns the maximum speed.
+     * @returns {number} - The maximum speed
+     */
+    this.getMaximunSpeed = () => MAXIMUM_SPEED;
 
     logger.info('Initialized motorDriver');
 };

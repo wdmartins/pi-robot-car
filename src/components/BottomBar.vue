@@ -6,11 +6,11 @@
     </div>
     <!-- Camera control -->
     <div class="col-4">
-        <FourWayControl type="camera" :action="action"/>
+        <FourWayControl @move="move" type="camera" :action="action"/>
     </div>
     <!-- Drive control -->
     <div class="col-4">
-        <FourWayControl type="drive" :action="action"/>
+        <FourWayControl @move="move" type="drive" :action="action"/>
     </div>
   </div>
 </template>
@@ -87,37 +87,44 @@ export default {
   methods: {
     onKeyDown(evt) {
       this.onKeyEvent(KEY_EVENT_TYPE.DOWN, evt.key, evt.shiftKey);
-      this.action = setAction(evt.key, evt.shiftKey);
     },
     onKeyUp(evt) {
       this.onKeyEvent(KEY_EVENT_TYPE.UP, evt.key, evt.shiftKey);
-      this.action = clearAction();
     },
     onKeyEvent(eventType, eventKey, shiftKey) {
       console.log(`Key event: ${eventType} ${shiftKey ? 'Shift-' : ''}${eventKey}`);
 
       if (!KEY_TO_RUN_COMMAND_MAP[eventKey] && !KEY_TO_CAM_COMMAND_MAP[eventKey]
-        && !KEY_TO_COMMAND_MAP[eventKey]) {
-        console.log('Not a valid key');
+        && (!KEY_TO_COMMAND_MAP[eventKey] || eventType === KEY_EVENT_TYPE.UP)) {
+        // Key has no associated action
         return;
       }
 
-      const command = {
-        confidence: 1,
-      };
+      // Set action to update UI
+      this.action = eventType === KEY_EVENT_TYPE.UP ? clearAction() : setAction(eventKey, shiftKey);
+
+      // Set command to send to server
+      let command = COMMANDS.STOP;
 
       if (shiftKey || !KEY_TO_RUN_COMMAND_MAP[eventKey] || eventType !== KEY_EVENT_TYPE.UP) {
-        command.command = shiftKey ? KEY_TO_CAM_COMMAND_MAP[eventKey]
+        command = shiftKey ? KEY_TO_CAM_COMMAND_MAP[eventKey]
           : KEY_TO_RUN_COMMAND_MAP[eventKey] || KEY_TO_COMMAND_MAP[eventKey];
-        this.action.command = command.command;
-      } else {
-        command.command = COMMANDS.STOP;
       }
-      this.$socket.emit('command', command);
+      this.sendCommand(command, 1);
+    },
+    sendCommand(command, confidence) {
+      this.$socket.emit('command', {
+        command,
+        confidence,
+      });
     },
     onSocketConnected() {
     },
     onSocketDisconnected() {
+    },
+    move(eventKey, eventType, componentType) {
+      console.log(`Move event with Direction ${eventKey}, eventType ${eventType} and componentType ${componentType}`);
+      this.onKeyEvent(eventType, eventKey, componentType === 'camera');
     },
   },
 };

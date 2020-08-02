@@ -61,20 +61,24 @@ const Beeper = function (gpio = DEFAULT_GPIO) {
      * @param {number} interval - If provided the interval to beep in miliseconds.
      */
     this.beep = (time, interval) => {
-        const beepTime = () => {
-            beepLenghtTimer = setTimeout(() => {
-                beep.digitalWrite(STATUS_OFF);
-            }, time);
-        };
+        if (beepLenghtTimer || beepPeriodTimer) {
+            logger.warn('Beep in progress. Ignore new beep');
+            return;
+        }
+
+        if (!time || (interval && interval >= time)) {
+            logger.error(`Invalid parameters: time ${time}, interval ${interval}`);
+            return;
+        }
 
         _that.beepOn();
-        if (time) {
-            beepTime();
-        }
+        beepLenghtTimer = setTimeout(() => {
+            _that.beepOff();
+        }, time);
+
         if (interval) {
             beepPeriodTimer = setInterval(() => {
-                beep.digitalWrite(STATUS_ON);
-                beepTime();
+                beep.digitalWrite(beep.digitalRead() ? STATUS_OFF : STATUS_ON);
             }, interval);
         }
     };

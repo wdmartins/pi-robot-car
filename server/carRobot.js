@@ -8,6 +8,7 @@ const LedStrip = require('./ledStrip');
 const Beeper = require('./beeper');
 const EchoSensor = require('./echoSensor');
 const ServoCam = require('./servoCam');
+const SPEED_STEP = 20;
 
 const resetGpio = function () {
     try {
@@ -33,7 +34,7 @@ const CarRobot = function () {
     const echoSensor = new EchoSensor();
     const servoCam = new ServoCam();
     const motorDriver = new MotorDriver();
-    const currentSpeed = 100;
+    let currentSpeed = 100;
 
     this.moveCamera = async (direction, degress) => {
         if (direction === 'up' || direction === 'down') {
@@ -50,7 +51,7 @@ const CarRobot = function () {
     this.test = async function () {
         logger.info('Starting hardware test...');
         ledStrip.render(255, 255, 255);
-        beeper.beep(100, 500);
+        beeper.beep(500, 100);
         await motorDriver.initializeController();
         logger.info(`Echo Sensor reporting ${echoSensor.getDistanceCm()}`);
         setTimeout(async () => {
@@ -91,7 +92,17 @@ const CarRobot = function () {
         await motorDriver.moveLeft(currentSpeed);
     };
 
-    this.honk = async function () {
+    this.speedUp = function () {
+        currentSpeed = Math.min(currentSpeed += SPEED_STEP, motorDriver.getMaximunSpeed());
+        logger.info(`Current speed set to ${currentSpeed}`);
+    };
+
+    this.speedDown = function () {
+        currentSpeed = Math.max(currentSpeed -= SPEED_STEP, motorDriver.getMinimumSpeed());
+        logger.info(`Current speed set to ${currentSpeed}`);
+    }
+
+    this.honk = function () {
         beeper.beep(1500, 500);
     };
 

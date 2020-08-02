@@ -24,8 +24,6 @@ const getCommandType = (command) => {
  * @param {number} port - The server port.
  */
 const Server = function (port) {
-    let interval = null;
-    let pong = 0;
     let carbot;
 
     logger.info('Initializing server...');
@@ -74,6 +72,12 @@ const Server = function (port) {
                 break;
             case DRIVE_COMMAND.STOP:
                 carbot.stop();
+                break;
+            case DRIVE_COMMAND.SPEED_UP:
+                carbot.speedUp();
+                break;
+            case DRIVE_COMMAND.SPEED_DOWN:
+                carbot.speedDown();
                 break;
         }
     };
