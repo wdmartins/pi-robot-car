@@ -16,7 +16,9 @@
   "main": "index.js",
   "dependencies": {
     "@vue/cli": "4.4.6",
+    "bootstrap": "^4.5.0",
     "bootstrap-icons": "1.0.0-alpha5",
+    "bootstrap-vue": "^2.16.0",
     "bunyan": "1.8.14",
     "core-js": "3.6.5",
     "express": "4.17.1",
