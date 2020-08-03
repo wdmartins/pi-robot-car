@@ -1,8 +1,5 @@
 <template>
-  <main role="main" class="col p-0 main">
-    <div class="row camera">
-      <img src="http://192.168.1.187:8081?action=stream" />
-    </div>
+  <div>
     <div class="row controls">
       <!-- Filler for now -->
       <div class="col-4">
@@ -17,7 +14,7 @@
           <FourWayControl @move="move" type="drive" :action="action"/>
       </div>
     </div>
-  </main>
+  </div>
 </template>
 
 <script>
@@ -136,24 +133,8 @@ export default {
 </script>
 
 <style>
-.main {
-  position: relative;
-  z-index: 1;
-}
 .controls {
   z-index: 3;
   position: relative;
-}
-.camera {
-  width: 100vw;
-  height: 100vh;
-  max-width: 100%;
-  position: absolute;
-  z-index: 2;
-}
-img {
-  max-width: 100%;
-  height: auto;
-  max-height: 100%;
 }
 </style>
