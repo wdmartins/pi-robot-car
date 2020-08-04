@@ -1,18 +1,16 @@
 <template>
   <div>
-    <div class="row controls">
-      <!-- Filler for now -->
-      <div class="col-4">
-          filler
-      </div>
-      <!-- Camera control -->
-      <div class="col-4">
-          <FourWayControl @move="move" type="camera" :action="action"/>
-      </div>
-      <!-- Drive control -->
-      <div class="col-4">
-          <FourWayControl @move="move" type="drive" :action="action"/>
-      </div>
+    <!-- Filler for now -->
+    <div class="col p-2">
+      <h5>Control Panel</h5>
+    </div>
+    <!-- Camera control -->
+    <div class="col p-2">
+        <FourWayControl @move="move" type="camera" :action="action"/>
+    </div>
+    <!-- Drive control -->
+    <div class="col p-2">
+        <FourWayControl @move="move" type="drive" :action="action"/>
     </div>
   </div>
 </template>
@@ -131,10 +129,3 @@ export default {
   },
 };
 </script>
-
-<style>
-.controls {
-  z-index: 3;
-  position: relative;
-}
-</style>

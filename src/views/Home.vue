@@ -1,10 +1,11 @@
 <template>
-  <div class="home">
-  <main role="main" class="col p-0 main">
-    <VideoCamera/>
-    <ControlBar/>
+  <main role="main">
+    <div class="container-fluid p-1 m-0 row border">
+      <VideoCamera class="col"/>
+      <ControlBar class="col-md-auto p-1 border"/>
+    </div>
+    <div class="container-fluid p-1 m-0 row border">Information Box</div>
   </main>
-  </div>
 </template>
 
 <script>
@@ -21,8 +22,7 @@ export default {
 };
 </script>
 <style>
-.main {
-  position: relative;
-  z-index: 1;
+html {
+  background-color: rgb(159, 186, 204);
 }
 </style>
