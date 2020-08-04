@@ -8,6 +8,7 @@ const LedStrip = require('./ledStrip');
 const Beeper = require('./beeper');
 const EchoSensor = require('./echoSensor');
 const ServoCam = require('./servoCam');
+const { LineTracker } = require('./lineTracker');
 const SPEED_STEP = 20;
 
 const resetGpio = function () {
@@ -34,6 +35,8 @@ const CarRobot = function () {
     const echoSensor = new EchoSensor();
     const servoCam = new ServoCam();
     const motorDriver = new MotorDriver();
+    const lineTracker = new LineTracker();
+
     let currentSpeed = 100;
 
     this.moveCamera = async (direction, degress) => {
@@ -54,6 +57,7 @@ const CarRobot = function () {
         beeper.beep(500, 100);
         await motorDriver.initializeController();
         logger.info(`Echo Sensor reporting ${echoSensor.getDistanceCm()}`);
+        logger.info('Line tracker sensor values ', lineTracker.getSensorValues());
         setTimeout(async () => {
             ledStrip.render(0, 0, 0);
             beeper.beepOff();
