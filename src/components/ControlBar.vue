@@ -1,16 +1,24 @@
 <template>
   <div>
     <!-- Filler for now -->
-    <div class="col p-2">
+    <div class="col">
       <h5>Control Panel</h5>
     </div>
     <!-- Camera control -->
-    <div class="col p-2">
+    <div class="col">
         <FourWayControl @move="move" type="camera" :action="action"/>
     </div>
     <!-- Drive control -->
-    <div class="col p-2">
+    <div class="col">
         <FourWayControl @move="move" type="drive" :action="action"/>
+    </div>
+    <!-- Enable Obstacle Avoidance -->
+    <div class="col mt-5">
+        <Toggle command="automatic" label="Automatic"/>
+    </div>
+    <!-- Line Tracking -->
+    <div class="col">
+        <Toggle command="line" label="Line Tracking"/>
     </div>
   </div>
 </template>
@@ -18,6 +26,7 @@
 <script>
 // @ is an alias to /src
 import FourWayControl from '@/components/FourWayControl.vue';
+import Toggle from '@/components/Toggle.vue';
 import { COMMANDS, COMMAND_TYPE } from '../../common/common';
 
 const KEY_EVENT_TYPE = {
@@ -74,6 +83,7 @@ export default {
   name: 'BottomBar',
   components: {
     FourWayControl,
+    Toggle,
   },
   mounted() {
     addWindowEventListeners(this);
