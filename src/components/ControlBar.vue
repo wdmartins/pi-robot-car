@@ -14,11 +14,11 @@
     </div>
     <!-- Enable Obstacle Avoidance -->
     <div class="col mt-5">
-        <Toggle command="automatic" label="Automatic"/>
+        <Toggle @toggle="toggle" command="automatic" label="Automatic"/>
     </div>
     <!-- Line Tracking -->
     <div class="col">
-        <Toggle command="line" label="Line Tracking"/>
+        <Toggle @toggle="toggle" command="line" label="Line Tracking"/>
     </div>
   </div>
 </template>
@@ -135,6 +135,16 @@ export default {
     move(eventKey, eventType, componentType) {
       console.log(`Move event with Direction ${eventKey}, eventType ${eventType} and componentType ${componentType}`);
       this.onKeyEvent(eventType, eventKey, componentType === 'camera');
+    },
+    toggle(command, status) {
+      console.log(`ControlBar: command ${command}, status ${status}`);
+      this[command](status);
+    },
+    automatic(status) {
+      console.log(`Automatic mode set to: ${status}`);
+    },
+    line(status) {
+      console.log(`Line Tracking set to: ${status}`);
     },
   },
 };

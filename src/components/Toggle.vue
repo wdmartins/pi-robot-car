@@ -17,11 +17,13 @@ export default {
   },
   data: () => ({
     status: false,
+    enable: true,
   }),
   methods: {
     toggle(status) {
+      console.log(`Toggle: ${this.command}, ${this.label}, ${this.status}, ${this.enable}`);
       this.status = status;
-      this.$emit(this.command, status);
+      this.$emit('toggle', this.command, status);
     },
   },
 };
