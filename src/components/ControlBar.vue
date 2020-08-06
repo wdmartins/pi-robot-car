@@ -12,8 +12,34 @@
     <div class="col">
         <FourWayControl @move="move" type="drive" :action="action"/>
     </div>
+    <!-- Miscellaneous Controls -->
+    <div class="col mt-3">
+      <div class="row">
+        <!-- Speed Control -->
+        <h6 class="col p-0 mx-auto">Speed
+          <div class="col mx-auto">
+            <img class="control-img" src="../assets/plus-square-fill.svg" />
+          </div>
+          <div class="col mx-auto">
+            <img class="control-img" src="../assets/dash-square-fill.svg" />
+          </div>
+        </h6>
+        <!-- Honk the horn -->
+        <h6 class="col p-0 mx-auto">Horn
+          <div class="col mx-auto">
+            <img class="control-img" src="../assets/volume-up-fill.svg" />
+          </div>
+        </h6>
+        <!-- Flash lights -->
+        <h6 class="col p-0 mx-auto">Flash
+          <div class="col mx-auto">
+            <img class="control-img" src="../assets/lightning-fill.svg" />
+          </div>
+        </h6>
+      </div>
+    </div>
     <!-- Enable Obstacle Avoidance -->
-    <div class="col mt-5">
+    <div class="col mt-3">
         <Toggle @toggle="toggle" command="automatic" label="Automatic"/>
     </div>
     <!-- Line Tracking -->
@@ -149,3 +175,16 @@ export default {
   },
 };
 </script>
+
+<style>
+.control-img {
+  width: 2em;
+  height: 2em;
+  cursor: pointer;
+  margin: 0.2em;
+}
+.active {
+    background-color: red;
+}
+
+</style>>

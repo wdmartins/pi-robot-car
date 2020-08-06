@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container p-0">
     <div @click="toggle(!status)" class="float-left">
       <img v-if="status" class="large" src="../assets/toggle-on.svg" />
       <img v-else class="large" src="../assets/toggle-off.svg" />

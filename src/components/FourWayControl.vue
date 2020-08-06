@@ -19,7 +19,7 @@
             </div>
             <div class="col p-0 mx-auto>">
                 <img class="arrow leftRight" v-if="type === 'camera'"
-                    src="../assets/camera-video.svg" />
+                    src="../assets/camera.svg" />
                 <img class="arrow leftRight" v-else src="../assets/truck.svg" />
             </div>
             <div class="col p-0 mx-auto>">
