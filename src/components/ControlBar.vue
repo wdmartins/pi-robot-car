@@ -26,14 +26,24 @@
         </h6>
         <!-- Honk the horn -->
         <h6 class="col p-0 mx-auto">Horn
-          <div class="col mx-auto">
-            <img class="control-img" src="../assets/volume-up-fill.svg" />
+          <div class="col mx-auto" @click="honk()">
+            <img class="control-img" :class="{'invisible': hornInvisible}"
+              src="../assets/volume-up-fill.svg" />
           </div>
         </h6>
         <!-- Flash lights -->
         <h6 class="col p-0 mx-auto">Flash
-          <div class="col mx-auto">
-            <img class="control-img" src="../assets/lightning-fill.svg" />
+          <div class="col mx-auto" @click="flash('red')">
+            <img class="control-img"  :class="{'invisible': redInvisible}"
+              src="../assets/lightning-fill-red.svg" />
+          </div>
+          <div class="col mx-auto" @click="flash('green')">
+            <img class="control-img" :class="{'invisible': greenInvisible}"
+              src="../assets/lightning-fill-green.svg" />
+          </div>
+          <div class="col mx-auto" @click="flash('white')">
+            <img class="control-img" :class="{'invisible': whiteInvisible}"
+              src="../assets/lightning-fill-white.svg" />
           </div>
         </h6>
       </div>
@@ -53,7 +63,7 @@
 // @ is an alias to /src
 import FourWayControl from '@/components/FourWayControl.vue';
 import Toggle from '@/components/Toggle.vue';
-import { COMMANDS, COMMAND_TYPE } from '../../common/common';
+import { COMMANDS, COMMAND_TYPE, BEEPER_COMMAND } from '../../common/common';
 
 const KEY_EVENT_TYPE = {
   DOWN: 'down',
@@ -119,6 +129,10 @@ export default {
     ping: 0,
     pingInterval: null,
     action: {},
+    redInvisible: false,
+    greenInvisible: false,
+    whiteInvisible: false,
+    hornInvisible: false,
   }),
   methods: {
     onKeyDown(evt) {
@@ -171,6 +185,24 @@ export default {
     },
     line(status) {
       console.log(`Line Tracking set to: ${status}`);
+    },
+    flashIcon(icon) {
+      let flashInterval;
+      setTimeout(() => {
+        this[icon] = false;
+        clearInterval(flashInterval);
+      }, 2000);
+      flashInterval = setInterval(() => {
+        this[icon] = !this[icon];
+      }, 200);
+    },
+    flash(color) {
+      this.sendCommand(`flash_${color}`, 1);
+      this.flashIcon(`${color}Invisible`);
+    },
+    honk() {
+      this.sendCommand(BEEPER_COMMAND.HONK, 1);
+      this.flashIcon('hornInvisible');
     },
   },
 };

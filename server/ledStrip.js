@@ -5,6 +5,11 @@ const logger = require('./logger').logger('LED-STRIP');
 const ws281x = require('rpi-ws281x-native');
 const GpioDef = require('./rpiGpioDef');
 
+const COLOR_BLUE = 'blue';
+const COLOR_GREEN = 'green';
+const COLOR_RED = 'red';
+const COLOR_WHITE = 'white';
+
 const DEFAULT_NUMBER_OF_LEDS = 16;
 const DEFAULT_DMA = 10;
 const DEFAULT_GPIO = GpioDef.BCM.GPIO1;
@@ -67,12 +72,23 @@ const LedStrip = function (numberOfLeds, dma, gpio) {
         _that.render(0, 255, 0);
     };
 
+    /**
+     * Renders white color.
+     */
+    this.white = () => {
+        _that.render(255, 255, 255);
+    };
+
+    /**
+     * Turns leds off
+     */
     this.off = () => {
         _that.render(0, 0, 0);
     };
 
     this.flash = (color = DEFAULT_FLASHING_COLOR, flashingTime = DEFAULT_FLASHING_TIME, flashinInterval = DEFAULT_FLASHING_PERIOD) => {
-        if (color !== 'red' && color !== 'blue' && color !== 'gree') {
+        if (color !== 'red' && color !== 'blue' && color !== 'green' && color !== 'white') {
+            logger.error(`Not supported color: ${color}`);
             return;
         }
         let isOn = false;
@@ -89,4 +105,11 @@ const LedStrip = function (numberOfLeds, dma, gpio) {
     logger.info('Initialized ledStrip');
 };
 
-module.exports = LedStrip;
+module.exports = {
+    LedStrip,
+    COLOR_BLUE,
+    COLOR_GREEN,
+    COLOR_RED,
+    COLOR_WHITE
+};
+

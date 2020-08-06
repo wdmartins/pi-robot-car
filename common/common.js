@@ -10,11 +10,15 @@ const LEFT = 'left';
 const RIGHT = 'right';
 const UP = 'up';
 const DOWN = 'down';
+const FLASH_RED = 'flash_red';
+const FLASH_GREEN = 'flash_green';
+const FLASH_WHITE = 'flash_white';
 
 const COMMAND_TYPE = {
   DRIVE: 'drive',
   CAMERA: 'camera',
   BEEPER: 'beeper',
+  FLASH: 'flash',
 };
 
 const COMMANDS = {
@@ -30,6 +34,9 @@ const COMMANDS = {
   RIGHT,
   UP,
   DOWN,
+  FLASH_RED,
+  FLASH_GREEN,
+  FLASH_WHITE,
 };
 const DRIVE_COMMAND = {
   STOP,
@@ -49,11 +56,17 @@ const CAMERA_COMMAND = {
 const BEEPER_COMMAND = {
   HONK,
 };
+const FLASH_COMMAND = {
+  FLASH_GREEN,
+  FLASH_RED,
+  FLASH_WHITE,
+};
 
 module.exports = {
-  COMMANDS,
-  DRIVE_COMMAND,
-  CAMERA_COMMAND,
   BEEPER_COMMAND,
+  CAMERA_COMMAND,
+  COMMANDS,
   COMMAND_TYPE,
+  DRIVE_COMMAND,
+  FLASH_COMMAND,
 };

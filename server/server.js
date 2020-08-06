@@ -4,7 +4,8 @@ const logger = require('./logger').logger('SERVER');
 const app = require('express')();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
-const { DRIVE_COMMAND, CAMERA_COMMAND, BEEPER_COMMAND, COMMAND_TYPE } = require('../common/common.js');
+const { DRIVE_COMMAND, CAMERA_COMMAND, BEEPER_COMMAND, COMMAND_TYPE, FLASH_COMMAND } = require('../common/common.js');
+const LedStrip = require('./ledStrip');
 
 const PORT = process.env.PORT || 3128;
 
@@ -14,6 +15,9 @@ const getCommandType = (command) => {
     }
     if (CAMERA_COMMAND.hasOwnProperty(command.toUpperCase())) {
         return COMMAND_TYPE.CAMERA;
+    }
+    if (FLASH_COMMAND.hasOwnProperty(command.toUpperCase())) {
+        return COMMAND_TYPE.FLASH;
     }
     return COMMAND_TYPE.BEEPER;
 };
@@ -28,6 +32,24 @@ const Server = function (port) {
 
     logger.info('Initializing server...');
     port = port || PORT;
+
+    const executeFlashCommand = command => {
+        logger.info('Executing flash command', command);
+        switch (command) {
+            case FLASH_COMMAND.FLASH_GREEN:
+                carbot.flashLed(LedStrip.COLOR_GREEN);
+                break;
+            case FLASH_COMMAND.FLASH_RED:
+                carbot.flashLed(LedStrip.COLOR_RED);
+                break;
+            case FLASH_COMMAND.FLASH_WHITE:
+                carbot.flashLed(LedStrip.COLOR_WHITE);
+                break;
+            default:
+                logger.error(`Unkown flash command: ${command}`);
+                break;
+        }
+    };
 
     const executeBeeperCommand = command => {
         logger.info('Executing beeper command', command);
@@ -109,6 +131,9 @@ const Server = function (port) {
                         break;
                     case COMMAND_TYPE.BEEPER:
                         executeBeeperCommand(command.command);
+                        break;
+                    case COMMAND_TYPE.FLASH:
+                        executeFlashCommand(command.command);
                         break;
                     default:
                         logger.info('Invalid command type: ', commandType);

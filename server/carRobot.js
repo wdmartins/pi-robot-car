@@ -4,7 +4,7 @@
 const logger = require('./logger').logger('CAR-ROBOT');
 const piGpio = require('pigpio');
 const MotorDriver = require('./motorDriver');
-const LedStrip = require('./ledStrip');
+const { LedStrip } = require('./ledStrip');
 const Beeper = require('./beeper');
 const EchoSensor = require('./echoSensor');
 const ServoCam = require('./servoCam');
