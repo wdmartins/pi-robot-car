@@ -29,6 +29,7 @@ const getCommandType = (command) => {
  */
 const Server = function (port) {
     let carbot;
+    let reportingInterval;
 
     logger.info('Initializing server...');
     port = port || PORT;
@@ -103,6 +104,13 @@ const Server = function (port) {
                 break;
         }
     };
+
+    const getStatus = () => {
+        const status = carbot.getStatus();
+        logger.info('Sending status socket event with ', status);
+        return status;
+    };
+
     /**
      * Initializes and starts the backend server.
      *
@@ -141,11 +149,20 @@ const Server = function (port) {
                 }
             });
             logger.info('WS Connected');
+            if (reportingInterval) {
+                clearInterval(reportingInterval);
+            }
+            reportingInterval = setInterval(() => {
+                ws.emit('STATUS', getStatus());
+            }, 2000);
         });
 
         // Register websocket disconnection handler.
         io.on('disconnection', () => {
             logger.info('WS Disconnected');
+            if (reportingInterval) {
+                clearInterval(reportingInterval);
+            }
         });
 
         // Start listening on configured port.

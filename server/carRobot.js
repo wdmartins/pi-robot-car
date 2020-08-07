@@ -9,6 +9,7 @@ const Beeper = require('./beeper');
 const EchoSensor = require('./echoSensor');
 const ServoCam = require('./servoCam');
 const { LineTracker } = require('./lineTracker');
+const { STATUS_KEYS } = require('../common/common')
 const SPEED_STEP = 20;
 
 const resetGpio = function () {
@@ -110,6 +111,15 @@ const CarRobot = function () {
         beeper.beep(1500, 500);
     };
 
+    this.getStatus = function () {
+        const status = {};
+        status[STATUS_KEYS.BEEPER_STATUS] = beeper.getStatus();
+        status[STATUS_KEYS.LED_STATUS] = ledStrip.getStatus();
+        status[STATUS_KEYS.ECHO_STATUS] = echoSensor.getDistanceCm();
+        status[STATUS_KEYS.CAMERA_STATUS] = servoCam.getStatus();
+        status[STATUS_KEYS.CAR_DEVIATION] = lineTracker.getDeviation();
+        return status;
+    };
     logger.debug('Initialized carRobot');
 };
 

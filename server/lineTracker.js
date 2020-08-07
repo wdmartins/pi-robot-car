@@ -11,10 +11,10 @@ const DEFAULT_CENTER_SENSOR = GpioDef.BCM.GPIO2;
 const DEFAULT_RIGHT_SENSOR = GpioDef.BCM.GPIO3;
 
 const DEVIATION = {
-    UNKNOWN: 'unknown',
-    NONE: 'none',
-    LEFT: 'left',
-    RIGHT: 'right',
+    UNKNOWN: 'Unknown',
+    NONE: 'None',
+    LEFT: 'Left',
+    RIGHT: 'Right',
 };
 
 /**

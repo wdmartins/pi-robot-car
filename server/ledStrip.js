@@ -30,6 +30,11 @@ const LedStrip = function (numberOfLeds, dma, gpio) {
 
     numberOfLeds = numberOfLeds || DEFAULT_NUMBER_OF_LEDS;
     const pixels = new Uint32Array(numberOfLeds);
+    let colors = {
+        red: 0,
+        green: 0,
+        blue: 0
+    };
 
     // Initialize the LED strip controller.
     ws281x.init(numberOfLeds, {
@@ -49,6 +54,7 @@ const LedStrip = function (numberOfLeds, dma, gpio) {
             pixels[i] = (red << 16) | (green << 8) | blue;
         }
         ws281x.render(pixels);
+        colors = {red, green, blue};
     };
 
     /**
@@ -100,6 +106,10 @@ const LedStrip = function (numberOfLeds, dma, gpio) {
             clearInterval(interval);
             _that.off();
         }, flashingTime);
+    };
+
+    this.getStatus = () => {
+        return colors;
     };
 
     logger.info('Initialized ledStrip');

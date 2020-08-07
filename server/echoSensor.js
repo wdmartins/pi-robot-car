@@ -42,7 +42,7 @@ const EchoSensor = function (config) {
         } else {
             const endTick = tick;
             const diff = (endTick >> 0) - (startTick >> 0); // Unsigned 32 bit arithmetic
-            distance = diff / 2 / MICROSECDONDS_PER_CM;
+            distance = (diff / 2 / MICROSECDONDS_PER_CM).toFixed(2);
         }
     });
 

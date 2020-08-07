@@ -116,7 +116,7 @@ const setAction = (key, shiftKey) => ({
 });
 
 export default {
-  name: 'BottomBar',
+  name: 'ControlBar',
   components: {
     FourWayControl,
     Toggle,
@@ -126,8 +126,6 @@ export default {
     addSocketEventListeners(this);
   },
   data: () => ({
-    ping: 0,
-    pingInterval: null,
     action: {},
     redInvisible: false,
     greenInvisible: false,

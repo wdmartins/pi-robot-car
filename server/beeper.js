@@ -83,6 +83,9 @@ const Beeper = function (gpio = DEFAULT_GPIO) {
         }
     };
 
+    this.getStatus = () => {
+        return beep.digitalRead() ? STATUS_ON : STATUS_OFF;
+    };
     logger.info('Initialized beeper');
 };
 

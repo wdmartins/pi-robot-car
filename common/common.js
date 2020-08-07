@@ -1,3 +1,6 @@
+/**
+ * Commands
+ */
 const STOP = 'stop';
 const FORWARD = 'forward';
 const BACKWARD = 'backward';
@@ -62,6 +65,27 @@ const FLASH_COMMAND = {
   FLASH_WHITE,
 };
 
+/**
+ * Status keys
+ */
+const ECHO_STATUS = 'echo_status';
+const BEEPER_STATUS = 'beeper_status';
+const LED_STATUS = 'led_status';
+const CAR_SPEED = 'motor_speed';
+const CAR_DIRECTION = 'direction';
+const CAR_DEVIATION = 'deviation';
+const CAMERA_STATUS = 'camera_status';
+
+const STATUS_KEYS = {
+  ECHO_STATUS,
+  BEEPER_STATUS,
+  LED_STATUS,
+  CAR_DIRECTION,
+  CAR_DEVIATION,
+  CAR_SPEED,
+  CAMERA_STATUS,
+};
+
 module.exports = {
   BEEPER_COMMAND,
   CAMERA_COMMAND,
@@ -69,4 +93,5 @@ module.exports = {
   COMMAND_TYPE,
   DRIVE_COMMAND,
   FLASH_COMMAND,
+  STATUS_KEYS,
 };

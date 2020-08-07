@@ -55,6 +55,13 @@ const ServoCam = function (hServoGpio = DEFAULT_GPIO_CAM_H_SERVO, vServoGpio = D
         setPosition();
     };
 
+    this.getStatus = () => {
+        return {
+            horizontal: currentHPos,
+            vertical: currentVPos
+        };
+    };
+
     _that.absolutePosition(DEFAULT_HORIZONTAL_CENTER, DEFAULT_VERTICAL_CENTER);
 
     logger.info('Initialized servoCam');
