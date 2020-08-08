@@ -1,4 +1,3 @@
-
 'use strict';
 
 const logger = require('./logger').logger('CAR-ROBOT');
@@ -9,7 +8,7 @@ const Beeper = require('./beeper');
 const EchoSensor = require('./echoSensor');
 const ServoCam = require('./servoCam');
 const { LineTracker } = require('./lineTracker');
-const { STATUS_KEYS } = require('../common/common')
+const { STATUS_KEYS } = require('../common/common');
 const SPEED_STEP = 20;
 
 const resetGpio = function () {
@@ -27,7 +26,7 @@ const CarRobot = function () {
     logger.info('Initializing carRobot...');
     resetGpio();
 
-    let _onStatusChange = function() {};
+    let _onStatusChange = function () {};
     const _currentStatus = {};
 
     // Initialize Gpio and Controllers
@@ -96,7 +95,7 @@ const CarRobot = function () {
     this.speedDown = function () {
         currentSpeed = Math.max(currentSpeed -= SPEED_STEP, motorDriver.getMinimumSpeed());
         logger.info(`Current speed set to ${currentSpeed}`);
-    }
+    };
 
     this.honk = function () {
         beeper.beep(1500, 500);
@@ -124,7 +123,7 @@ const CarRobot = function () {
         ledStrip.flash(color);
     };
 
-    this.setOnStatusChange = (onStatusChange) => {
+    this.setOnStatusChange = onStatusChange => {
         if (typeof onStatusChange !== 'function') {
             logger.error('OnStatusChange listerner is not a function');
             return;
@@ -132,43 +131,43 @@ const CarRobot = function () {
         _onStatusChange = onStatusChange;
     };
 
-    this.onBeeperStatusChange = (beeperStatus) => {
+    this.onBeeperStatusChange = beeperStatus => {
         logger.info('Bepper status has changed to: ', beeperStatus);
         _currentStatus[STATUS_KEYS.BEEPER_STATUS] = beeperStatus;
         _onStatusChange(_currentStatus);
     };
 
-    this.onLedStripStatusChange = (ledStripStatus) => {
+    this.onLedStripStatusChange = ledStripStatus => {
         logger.info('LedStrip status has changed to: ', ledStripStatus);
         _currentStatus[STATUS_KEYS.LED_STATUS] = ledStripStatus;
         _onStatusChange(_currentStatus);
     };
 
-    this.onEchoSensorStatusChange = (echoSensorStatus) => {
+    this.onEchoSensorStatusChange = echoSensorStatus => {
         logger.info('EchoSensor status has changed to: ', echoSensorStatus);
         _currentStatus[STATUS_KEYS.ECHO_STATUS] = echoSensorStatus;
         _onStatusChange(_currentStatus);
     };
 
-    this.onLineTrackerStatusChange = (deviation) => {
+    this.onLineTrackerStatusChange = deviation => {
         logger.info('LineTracker status has changed deviation to: ', deviation);
         _currentStatus[STATUS_KEYS.CAR_DEVIATION] = deviation;
         _onStatusChange(_currentStatus);
     };
 
-    this.onServoCamStatusChange = (servoCamStatus) => {
+    this.onServoCamStatusChange = servoCamStatus => {
         logger.info('ServoCam status has changed to: ', servoCamStatus);
         _currentStatus[STATUS_KEYS.CAMERA_STATUS] = servoCamStatus;
         _onStatusChange(_currentStatus);
     };
 
-    this.onMotorDriverStatusChange = (motorDriverStatus) => {
+    this.onMotorDriverStatusChange = motorDriverStatus => {
         logger.info('MotorDriver status has changed to: ', motorDriverStatus);
         _currentStatus[STATUS_KEYS.CAR_MOVEMENT] = motorDriverStatus;
         _currentStatus[STATUS_KEYS.CAR_MOVEMENT][STATUS_KEYS.CAR_SET_SPEED] = currentSpeed;
         _onStatusChange(_currentStatus);
-    }
-    
+    };
+
     this.getStatus = () => _currentStatus;
 
     test();

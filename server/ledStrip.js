@@ -56,7 +56,7 @@ const LedStrip = function (numberOfLeds, dma, gpio) {
             pixels[i] = (red << 16) | (green << 8) | blue;
         }
         ws281x.render(pixels);
-        _currentColors = {red, green, blue};
+        _currentColors = { red, green, blue };
         _onStatusChange(_currentColors);
     };
 
@@ -89,7 +89,7 @@ const LedStrip = function (numberOfLeds, dma, gpio) {
     };
 
     /**
-     * Turns leds off
+     * Turns leds off.
      */
     this.off = () => {
         _that.render(0, 0, 0);
@@ -98,7 +98,7 @@ const LedStrip = function (numberOfLeds, dma, gpio) {
     /**
      * Flashes the LED Strip with the given color, time and interval.
      *
-     * @param {string} [color=DEFAULT_FLASHING_COLOR] - The color string, i.e. red, blue, green or white.
+     * @param {string} [color=DEFAULT_FLASHING_COLOR] - The color string, i.e. Red, blue, green or white.
      * @param {number} [flashingTime=DEFAULT_FLASHING_TIME] - The total time to flash the light in miliseconds.
      * @param {number} [flashinInterval=DEFAULT_FLASHING_PERIOD] - The flashing interval in miliseconds.
      */
@@ -120,25 +120,23 @@ const LedStrip = function (numberOfLeds, dma, gpio) {
 
     /**
      * Returns the current status of the LED strip.
-     * 
+     *
      * @returns {object} - The composition object of colors.
      */
-    this.getStatus = () => {
-        return _currentColors;
-    };
+    this.getStatus = () => _currentColors;
 
     /**
      * Sets the listener for led strip status changes.
      *
-     * @param {function} onStatusChange - The listener to invoke everytime the led strip status changes.
+     * @param {Function} onStatusChange - The listener to invoke everytime the led strip status changes.
      */
-    this.setOnStatusChange = (onStatusChange) => {
+    this.setOnStatusChange = onStatusChange => {
         if (typeof onStatusChange !== 'function') {
             logger.error('OnStatusChange listerner is not a function');
             return;
         }
         _onStatusChange = onStatusChange;
-    }
+    };
 
     logger.info('Initialized ledStrip');
 };

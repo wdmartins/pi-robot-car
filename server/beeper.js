@@ -41,8 +41,8 @@ const Beeper = function (gpio = DEFAULT_GPIO) {
 
     /**
      * Turns the beeper on.
-     * 
-     * @param {boolean} - Clear all timers and intervals if set to true.
+     *
+     * @param {boolean} stopTimers - Clear all timers and intervals if set to true.
      */
     this.beepOn = (stopTimers = true) => {
         stopTimers && clearTimers();
@@ -52,8 +52,8 @@ const Beeper = function (gpio = DEFAULT_GPIO) {
 
     /**
      * Turns the beeper off.
-     * 
-     * @param {boolean} - Clear all timers and intervals if set to true.
+     *
+     * @param {boolean} stopTimers - Clear all timers and intervals if set to true.
      */
     this.beepOff = (stopTimers = true) => {
         stopTimers && clearTimers();
@@ -95,22 +95,20 @@ const Beeper = function (gpio = DEFAULT_GPIO) {
      *
      * @returns {number} - 1 is the status is on, 0 otherwise.
      */
-    this.getStatus = () => {
-        return beep.digitalRead() ? STATUS_ON : STATUS_OFF;
-    };
+    this.getStatus = () => (beep.digitalRead() ? STATUS_ON : STATUS_OFF);
 
     /**
      * Sets the listener for beeper status changes.
      *
-     * @param {function} onStatusChange - The listener to invoke everytime the beeper status changes.
+     * @param {Function} onStatusChange - The listener to invoke everytime the beeper status changes.
      */
-    this.setOnStatusChange = (onStatusChange) => {
+    this.setOnStatusChange = onStatusChange => {
         if (typeof onStatusChange !== 'function') {
             logger.error('OnStatusChange listerner is not a function');
             return;
         }
         _onStatusChange = onStatusChange;
-    }
+    };
 
     // Complete beeper initialization
     logger.info('Initialized beeper');

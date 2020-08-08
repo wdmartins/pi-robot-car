@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function */
 /* eslint-disable no-unneeded-ternary */
 /* eslint-disable no-bitwise */
 'use strict';
@@ -36,7 +37,7 @@ const REGISTER_TO_DIRECTION = {
     57: 'Forward',
     198: 'Backward',
     106: 'Right',
-    149: 'Left',
+    149: 'Left'
 };
 
 // Bit array
@@ -253,32 +254,34 @@ const MotorDriver = function () {
 
     /**
      * Returns the minimum speed.
-     * @returns {number} - The minimum speed
+     *
+     * @returns {number} - The minimum speed.
      */
     this.getMinimumSpeed = () => MINIMUM_SPEED;
 
     /**
      * Returns the maximum speed.
-     * @returns {number} - The maximum speed
+     *
+     * @returns {number} - The maximum speed.
      */
     this.getMaximunSpeed = () => MAXIMUM_SPEED;
 
     /**
      * Sets the listener for motor driver status changes.
      *
-     * @param {function} onStatusChange - The listener to invoke everytime the motor driver status changes.
+     * @param {Function} onStatusChange - The listener to invoke everytime the motor driver status changes.
      */
-    this.setOnStatusChange = (onStatusChange) => {
+    this.setOnStatusChange = onStatusChange => {
         if (typeof onStatusChange !== 'function') {
             logger.error('OnStatusChange listerner is not a function');
             return;
         }
         _onStatusChange = onStatusChange;
-    }
+    };
 
     /**
-     * Gets the current status of the motor driver
-     * 
+     * Gets the current status of the motor driver.
+     *
      * @returns {object} - The motor driver current status object.
      */
     this.getStatus = () => currentStatus;

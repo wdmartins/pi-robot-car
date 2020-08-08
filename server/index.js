@@ -7,7 +7,7 @@ let server;
 
 const clearOnClose = async () => {
     await server.clearOnClose();
-}
+};
 
 (async () => {
     try {

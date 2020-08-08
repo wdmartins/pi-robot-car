@@ -44,7 +44,7 @@ const EchoSensor = function (config) {
         if (level === 1) {
             _startTick = tick;
         } else {
-            let forceOnStatusChange = !_previousDistance;
+            const forceOnStatusChange = !_previousDistance;
             const endTick = tick;
             const diff = (endTick >> 0) - (_startTick >> 0); // Unsigned 32 bit arithmetic
             _distance = (diff / 2 / MICROSECDONDS_PER_CM).toFixed(2);
@@ -70,8 +70,9 @@ const EchoSensor = function (config) {
     /**
      * Sets the listener for echo sensor status changes.
      *
-     * @param {function} onStatusChange - The listener to invoke everytime the measured distance changes.
-     * @param {number} [changeTrigger=DEFAULT_STATUS_CHANGE_TRIGGER] - The minimum difference in distance change (in centimeters) from previous measurement to trigger onStatusChange.
+     * @param {Function} onStatusChange - The listener to invoke everytime the measured distance changes.
+     * @param {number} [changeTrigger=DEFAULT_STATUS_CHANGE_TRIGGER] - The minimum difference in distance change (in centimeters)
+     * from previous measurement to trigger onStatusChange.
      */
     this.setOnStatusChange = (onStatusChange, changeTrigger = 1) => {
         if (typeof onStatusChange !== 'function') {
@@ -79,8 +80,8 @@ const EchoSensor = function (config) {
             return;
         }
         _onStatusChange = onStatusChange;
-        _changeTrigger = changeTrigger
-    }
+        _changeTrigger = changeTrigger;
+    };
 
     // Complete echoSensor initialization
     logger.info('Initialized echoSensor');

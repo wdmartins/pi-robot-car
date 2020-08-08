@@ -6,11 +6,11 @@ const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const { DRIVE_COMMAND, CAMERA_COMMAND, BEEPER_COMMAND, COMMAND_TYPE, FLASH_COMMAND } = require('../common/common.js');
 const LedStrip = require('./ledStrip');
-const { CarRobot, resetGpio } = require('./carRobot');
+const { CarRobot } = require('./carRobot');
 
 const PORT = process.env.PORT || 3128;
 
-const getCommandType = (command) => {
+const getCommandType = command => {
     if (DRIVE_COMMAND.hasOwnProperty(command.toUpperCase())) {
         return COMMAND_TYPE.DRIVE;
     }
@@ -142,7 +142,7 @@ const Server = function (port) {
             });
             logger.info('WS Connected');
             ws.emit('STATUS', carbot.getStatus());
-            carbot.setOnStatusChange((status) => {
+            carbot.setOnStatusChange(status => {
                 ws.emit('STATUS', status);
             });
         });
@@ -168,7 +168,7 @@ const Server = function (port) {
      */
     this.clearOnClose = async () => {
         await carbot.clearOnClose();
-    }
+    };
 };
 
 module.exports = Server;

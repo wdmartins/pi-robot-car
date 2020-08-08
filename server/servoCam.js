@@ -28,12 +28,10 @@ const ServoCam = function (hServoGpio = DEFAULT_GPIO_CAM_H_SERVO, vServoGpio = D
     const vCamServo = new Gpio(hServoGpio, { mode: Gpio.OUTPUT });
     const hCamServo = new Gpio(vServoGpio, { mode: Gpio.OUTPUT });
 
-    const getStatus = () => {
-        return {
-            horizontal: currentHPos,
-            vertical: currentVPos
-        };
-    };
+    const getStatus = () => ({
+        horizontal: currentHPos,
+        vertical: currentVPos
+    });
 
     /**
      * Sets the position of the camera based on current servo calues.
@@ -70,15 +68,15 @@ const ServoCam = function (hServoGpio = DEFAULT_GPIO_CAM_H_SERVO, vServoGpio = D
     /**
      * Sets the listener for servo status changes.
      *
-     * @param {function} onStatusChange - The listener to invoke everytime the servo status changes.
+     * @param {Function} onStatusChange - The listener to invoke everytime the servo status changes.
      */
-    this.setOnStatusChange = (onStatusChange) => {
+    this.setOnStatusChange = onStatusChange => {
         if (typeof onStatusChange !== 'function') {
             logger.error('OnStatusChange listerner is not a function');
             return;
         }
         _onStatusChange = onStatusChange;
-    }
+    };
 
     _that.absolutePosition(DEFAULT_HORIZONTAL_CENTER, DEFAULT_VERTICAL_CENTER);
 
