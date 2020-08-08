@@ -9,6 +9,7 @@ const GpioDef = require('./rpiGpioDef');
 const DEFAULT_LEFT_SENSOR = GpioDef.BCM.GPIO0;
 const DEFAULT_CENTER_SENSOR = GpioDef.BCM.GPIO2;
 const DEFAULT_RIGHT_SENSOR = GpioDef.BCM.GPIO3;
+const DEFAULT_LINE_TRACKING_INTERVAL = 200; // miliseconds
 
 const DEVIATION = {
     UNKNOWN: 'Unknown',
@@ -21,19 +22,23 @@ const DEVIATION = {
  * Instanstiates a LineTracker object.
  * 
  * @param {object} config - The line tracker configuration object.
- * @param {number} config.leftSensor - The GPIO pin number for the left sensor.
- * @param {number} config.centerSensor - The GPIO pin number for the center sensor.
- * @param {number} config.rightSensor - The GPIO pin number for the right sensor.
+ * @param {number} [config.leftSensor=DEFAULT_LEFT_SENSOR] - The GPIO pin number for the left sensor.
+ * @param {number} [config.centerSensor=DEFAULT_CENTER_SENSOR] - The GPIO pin number for the center sensor.
+ * @param {number} [config.rightSensor=DEFAULT_RIGHT_SENSOR] - The GPIO pin number for the right sensor.
+ * @param {number} [config.interval=DEFAULT_LINE_TRACKING_INTERVAL] - The line tracking interval in miliseconds.
  */
 const LineTracker = function(config) {
     config = config || {};
     const _that = this;
+    let _onStatusChange = function () {};
+    let _trackingInterval;
+    let _previousDeviation;
 
     logger.info('Initializing line tracker...');
 
-    const leftSensor = new Gpio( config.leftSensor || DEFAULT_LEFT_SENSOR, {mode: Gpio.INPUT});
-    const centerSensor = new Gpio( config.centerSensor || DEFAULT_CENTER_SENSOR, {mode: Gpio.INPUT});
-    const rightSensor = new Gpio( config.rightSensor || DEFAULT_RIGHT_SENSOR, {mode: Gpio.INPUT});
+    const _leftSensor = new Gpio( config.leftSensor || DEFAULT_LEFT_SENSOR, {mode: Gpio.INPUT});
+    const _centerSensor = new Gpio( config.centerSensor || DEFAULT_CENTER_SENSOR, {mode: Gpio.INPUT});
+    const _rightSensor = new Gpio( config.rightSensor || DEFAULT_RIGHT_SENSOR, {mode: Gpio.INPUT});
 
     /**
      * Gets the sensor values.
@@ -41,9 +46,9 @@ const LineTracker = function(config) {
      */
     this.getSensorValues = () => {
         return {
-            left: leftSensor.digitalRead(),
-            center: centerSensor.digitalRead(),
-            right: rightSensor.digitalRead()
+            left: _leftSensor.digitalRead(),
+            center: _centerSensor.digitalRead(),
+            right: _rightSensor.digitalRead()
         };
     };
 
@@ -68,6 +73,39 @@ const LineTracker = function(config) {
         }
         return DEVIATION.UNKNOWN;
     };
+
+    this.startLineTracking = (interval) => {
+        interval = interval || config.interval || DEFAULT_LINE_TRACKING_INTERVAL;
+        _trackingInterval = setInterval(() => {
+            const forceStatusChange = !_previousDeviation;
+            const currentDeviation = _that.getDeviation();
+            if (forceStatusChange || currentDeviation !== _previousDeviation) {
+                _onStatusChange(currentDeviation);
+            }
+            _previousDeviation = currentDeviation;
+        }, interval);
+    };
+
+    this.stopLineTracking = () => {
+        if (_trackingInterval) {
+            clearInterval(_trackingInterval);
+            _trackingInterval = null;
+        }
+        _previousDeviation = null;
+    };
+
+    /**
+     * Sets the listener for the line tracker status changes.
+     *
+     * @param {function} onStatusChange - The listener to invoke everytime the line tracker status changes.
+     */
+    this.setOnStatusChange = (onStatusChange) => {
+        if (typeof onStatusChange !== 'function') {
+            logger.error('OnStatusChange listerner is not a function');
+            return;
+        }
+        _onStatusChange = onStatusChange;
+    }
 
     logger.info('Initialized line tracker');
 };

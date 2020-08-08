@@ -53,9 +53,9 @@ const BIT = [
 
 /**
  * Controls the wheels' motors driver.
- *
  */
 const MotorDriver = function () {
+    let _onStatusChange = function () {};
     let motorLatchPin;
     let motorDataPin;
     let motorClockPin;
@@ -188,9 +188,11 @@ const MotorDriver = function () {
             _moveTimer = setTimeout(() => {
                 setRegister(MOVE_REGISTER.STOP).then(cbEnd);
                 currentStatus = { direction: REGISTER_TO_DIRECTION[MOVE_REGISTER.STOP], speed: 0 };
+                _onStatusChange(currentStatus);
             }, time);
         }
-        currentStatus = { direction: REGISTER_TO_DIRECTION[direction], speed } 
+        currentStatus = { direction: REGISTER_TO_DIRECTION[direction], speed };
+        _onStatusChange(currentStatus);
         return setRegister(direction);
     };
 
@@ -244,6 +246,8 @@ const MotorDriver = function () {
             clearTimeout(_moveTimer);
             _moveTimer = null;
         }
+        currentStatus = { direction: REGISTER_TO_DIRECTION[MOVE_REGISTER.STOP], speed: 0 };
+        _onStatusChange(currentStatus);
         return setRegister(MOVE_REGISTER.STOP);
     };
 
@@ -259,7 +263,27 @@ const MotorDriver = function () {
      */
     this.getMaximunSpeed = () => MAXIMUM_SPEED;
 
+    /**
+     * Sets the listener for motor driver status changes.
+     *
+     * @param {function} onStatusChange - The listener to invoke everytime the motor driver status changes.
+     */
+    this.setOnStatusChange = (onStatusChange) => {
+        if (typeof onStatusChange !== 'function') {
+            logger.error('OnStatusChange listerner is not a function');
+            return;
+        }
+        _onStatusChange = onStatusChange;
+    }
+
+    /**
+     * Gets the current status of the motor driver
+     * 
+     * @returns {object} - The motor driver current status object.
+     */
     this.getStatus = () => currentStatus;
+
+    // Motor driver initialization completed.
     logger.info('Initialized motorDriver');
 };
 

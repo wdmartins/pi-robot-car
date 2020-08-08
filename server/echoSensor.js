@@ -29,36 +29,35 @@ const EchoSensor = function (config) {
     let _onStatusChange = function () {};
     let _changeTrigger = DEFAULT_STATUS_CHANGE_TRIGGER;
     let _previousDistance;
+    let _distance = 0;
+    let _startTick;
 
     logger.info('Initializing echoSensor...');
 
-    const trigger = new Gpio(config.trigger || DEFAULT_TRIGGER_GPIO, { mode: Gpio.OUTPUT });
-    const echo = new Gpio(config.echo || DEFAULT_ECHO_GPIO, { mode: Gpio.INPUT, alert: true });
+    const _trigger = new Gpio(config.trigger || DEFAULT_TRIGGER_GPIO, { mode: Gpio.OUTPUT });
+    const _echo = new Gpio(config.echo || DEFAULT_ECHO_GPIO, { mode: Gpio.INPUT, alert: true });
 
-    trigger.digitalWrite(0);
-
-    let distance = 0;
-    let startTick;
+    _trigger.digitalWrite(0);
 
     // Register a listener for the 'alert' event.
-    echo.on('alert', (level, tick) => {
+    _echo.on('alert', (level, tick) => {
         if (level === 1) {
-            startTick = tick;
+            _startTick = tick;
         } else {
             let forceOnStatusChange = !_previousDistance;
             const endTick = tick;
-            const diff = (endTick >> 0) - (startTick >> 0); // Unsigned 32 bit arithmetic
-            distance = (diff / 2 / MICROSECDONDS_PER_CM).toFixed(2);
-            if (forceOnStatusChange || Math.abs(_previousDistance - distance) > _changeTrigger) {
-                _onStatusChange(distance);
+            const diff = (endTick >> 0) - (_startTick >> 0); // Unsigned 32 bit arithmetic
+            _distance = (diff / 2 / MICROSECDONDS_PER_CM).toFixed(2);
+            if (forceOnStatusChange || Math.abs(_previousDistance - _distance) > _changeTrigger) {
+                _onStatusChange(_distance);
             }
-            _previousDistance = distance;
+            _previousDistance = _distance;
         }
     });
 
     // Start a measurement interval
     setInterval(() => {
-        trigger.trigger(DEFAULT_TRIGGER_TIME, 1);
+        _trigger.trigger(DEFAULT_TRIGGER_TIME, 1);
     }, DEFAULT_MEASUREMENT_INTERVAL);
 
     /**
@@ -66,8 +65,7 @@ const EchoSensor = function (config) {
      *
      * @returns {number} - The measured distance in centimeters.
      */
-    this.getDistanceCm = () => distance;
-
+    this.getDistanceCm = () => _distance;
 
     /**
      * Sets the listener for echo sensor status changes.
@@ -83,6 +81,8 @@ const EchoSensor = function (config) {
         _onStatusChange = onStatusChange;
         _changeTrigger = changeTrigger
     }
+
+    // Complete echoSensor initialization
     logger.info('Initialized echoSensor');
 };
 

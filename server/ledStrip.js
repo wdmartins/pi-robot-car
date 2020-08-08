@@ -26,15 +26,17 @@ const DEFAULT_FLASHING_COLOR = 'red';
  */
 const LedStrip = function (numberOfLeds, dma, gpio) {
     const _that = this;
-    logger.info('Initializing ledStrip...');
-
-    numberOfLeds = numberOfLeds || DEFAULT_NUMBER_OF_LEDS;
-    const pixels = new Uint32Array(numberOfLeds);
-    let colors = {
+    let _onStatusChange = function () {};
+    let _currentColors = {
         red: 0,
         green: 0,
         blue: 0
     };
+
+    logger.info('Initializing ledStrip...');
+
+    numberOfLeds = numberOfLeds || DEFAULT_NUMBER_OF_LEDS;
+    const pixels = new Uint32Array(numberOfLeds);
 
     // Initialize the LED strip controller.
     ws281x.init(numberOfLeds, {
@@ -54,7 +56,8 @@ const LedStrip = function (numberOfLeds, dma, gpio) {
             pixels[i] = (red << 16) | (green << 8) | blue;
         }
         ws281x.render(pixels);
-        colors = {red, green, blue};
+        _currentColors = {red, green, blue};
+        _onStatusChange(_currentColors);
     };
 
     /**
@@ -92,6 +95,13 @@ const LedStrip = function (numberOfLeds, dma, gpio) {
         _that.render(0, 0, 0);
     };
 
+    /**
+     * Flashes the LED Strip with the given color, time and interval.
+     *
+     * @param {string} [color=DEFAULT_FLASHING_COLOR] - The color string, i.e. red, blue, green or white.
+     * @param {number} [flashingTime=DEFAULT_FLASHING_TIME] - The total time to flash the light in miliseconds.
+     * @param {number} [flashinInterval=DEFAULT_FLASHING_PERIOD] - The flashing interval in miliseconds.
+     */
     this.flash = (color = DEFAULT_FLASHING_COLOR, flashingTime = DEFAULT_FLASHING_TIME, flashinInterval = DEFAULT_FLASHING_PERIOD) => {
         if (color !== 'red' && color !== 'blue' && color !== 'green' && color !== 'white') {
             logger.error(`Not supported color: ${color}`);
@@ -108,9 +118,27 @@ const LedStrip = function (numberOfLeds, dma, gpio) {
         }, flashingTime);
     };
 
+    /**
+     * Returns the current status of the LED strip.
+     * 
+     * @returns {object} - The composition object of colors.
+     */
     this.getStatus = () => {
-        return colors;
+        return _currentColors;
     };
+
+    /**
+     * Sets the listener for led strip status changes.
+     *
+     * @param {function} onStatusChange - The listener to invoke everytime the led strip status changes.
+     */
+    this.setOnStatusChange = (onStatusChange) => {
+        if (typeof onStatusChange !== 'function') {
+            logger.error('OnStatusChange listerner is not a function');
+            return;
+        }
+        _onStatusChange = onStatusChange;
+    }
 
     logger.info('Initialized ledStrip');
 };

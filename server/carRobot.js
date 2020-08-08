@@ -19,15 +19,17 @@ const resetGpio = function () {
         logger.info('Gpio could not be reset. It may not have been initialized yet');
     }
 };
-module.exports.resetGpio = resetGpio;
 
 /**
  * Instanstiates a CarRobot object.
  */
-const CarRobot = function (onStatusChange) {
+const CarRobot = function () {
     logger.info('Initializing carRobot...');
+    resetGpio();
 
-    onStatusChange = onStatusChange || function() {};
+    let _onStatusChange = function() {};
+    const _currentStatus = {};
+
     // Initialize Gpio and Controllers
     piGpio.initialize();
 
@@ -41,23 +43,7 @@ const CarRobot = function (onStatusChange) {
 
     let currentSpeed = 100;
 
-    this.onStatusChange = () => {
-        // onStatusChange();
-    };
-
-    this.moveCamera = async (direction, degress) => {
-        if (direction === 'up' || direction === 'down') {
-            servoCam.move(degress, 0);
-        } else {
-            servoCam.move(0, degress);
-        }
-    };
-
-    this.flashLed = color => {
-        ledStrip.flash(color);
-    };
-
-    this.test = async function () {
+    const test = async function () {
         logger.info('Starting hardware test...');
         ledStrip.render(255, 255, 255);
         beeper.beep(500, 100);
@@ -116,17 +102,88 @@ const CarRobot = function (onStatusChange) {
         beeper.beep(1500, 500);
     };
 
-    this.getStatus = function () {
-        const status = {};
-        status[STATUS_KEYS.BEEPER_STATUS] = beeper.getStatus();
-        status[STATUS_KEYS.LED_STATUS] = ledStrip.getStatus();
-        status[STATUS_KEYS.ECHO_STATUS] = echoSensor.getDistanceCm();
-        status[STATUS_KEYS.CAMERA_STATUS] = servoCam.getStatus();
-        status[STATUS_KEYS.CAR_DEVIATION] = lineTracker.getDeviation();
-        status[STATUS_KEYS.CAR_MOVEMENT] = motorDriver.getStatus();
-        status[STATUS_KEYS.CAR_MOVEMENT][STATUS_KEYS.CAR_SET_SPEED] = currentSpeed;
-        return status;
+    const buildStatus = () => {
+        _currentStatus[STATUS_KEYS.BEEPER_STATUS] = beeper.getStatus();
+        _currentStatus[STATUS_KEYS.LED_STATUS] = ledStrip.getStatus();
+        _currentStatus[STATUS_KEYS.ECHO_STATUS] = echoSensor.getDistanceCm();
+        _currentStatus[STATUS_KEYS.CAMERA_STATUS] = servoCam.getStatus();
+        _currentStatus[STATUS_KEYS.CAR_DEVIATION] = lineTracker.getDeviation();
+        _currentStatus[STATUS_KEYS.CAR_MOVEMENT] = motorDriver.getStatus();
+        _currentStatus[STATUS_KEYS.CAR_MOVEMENT][STATUS_KEYS.CAR_SET_SPEED] = currentSpeed;
     };
+
+    this.moveCamera = async (direction, degress) => {
+        if (direction === 'up' || direction === 'down') {
+            servoCam.move(degress, 0);
+        } else {
+            servoCam.move(0, degress);
+        }
+    };
+
+    this.flashLed = color => {
+        ledStrip.flash(color);
+    };
+
+    this.setOnStatusChange = (onStatusChange) => {
+        if (typeof onStatusChange !== 'function') {
+            logger.error('OnStatusChange listerner is not a function');
+            return;
+        }
+        _onStatusChange = onStatusChange;
+    };
+
+    this.onBeeperStatusChange = (beeperStatus) => {
+        logger.info('Bepper status has changed to: ', beeperStatus);
+        _currentStatus[STATUS_KEYS.BEEPER_STATUS] = beeperStatus;
+        _onStatusChange(_currentStatus);
+    };
+
+    this.onLedStripStatusChange = (ledStripStatus) => {
+        logger.info('LedStrip status has changed to: ', ledStripStatus);
+        _currentStatus[STATUS_KEYS.LED_STATUS] = ledStripStatus;
+        _onStatusChange(_currentStatus);
+    };
+
+    this.onEchoSensorStatusChange = (echoSensorStatus) => {
+        logger.info('EchoSensor status has changed to: ', echoSensorStatus);
+        _currentStatus[STATUS_KEYS.ECHO_STATUS] = echoSensorStatus;
+        _onStatusChange(_currentStatus);
+    };
+
+    this.onLineTrackerStatusChange = (deviation) => {
+        logger.info('LineTracker status has changed deviation to: ', deviation);
+        _currentStatus[STATUS_KEYS.CAR_DEVIATION] = deviation;
+        _onStatusChange(_currentStatus);
+    };
+
+    this.onServoCamStatusChange = (servoCamStatus) => {
+        logger.info('ServoCam status has changed to: ', servoCamStatus);
+        _currentStatus[STATUS_KEYS.CAMERA_STATUS] = servoCamStatus;
+        _onStatusChange(_currentStatus);
+    };
+
+    this.onMotorDriverStatusChange = (motorDriverStatus) => {
+        logger.info('MotorDriver status has changed to: ', motorDriverStatus);
+        _currentStatus[STATUS_KEYS.CAR_MOVEMENT] = motorDriverStatus;
+        _currentStatus[STATUS_KEYS.CAR_MOVEMENT][STATUS_KEYS.CAR_SET_SPEED] = currentSpeed;
+        _onStatusChange(_currentStatus);
+    }
+    
+    this.getStatus = () => _currentStatus;
+
+    test();
+
+    // Build the current hardware status object.
+    buildStatus();
+
+    // Register hardware status changes listeners
+    beeper.setOnStatusChange(this.onBeeperStatusChange);
+    ledStrip.setOnStatusChange(this.onLedStripStatusChange);
+    echoSensor.setOnStatusChange(this.onEchoSensorStatusChange);
+    lineTracker.setOnStatusChange(this.onLineTrackerStatusChange);
+    servoCam.setOnStatusChange(this.onServoCamStatusChange);
+    motorDriver.setOnStatusChange(this.onMotorDriverStatusChange);
+
     logger.debug('Initialized carRobot');
 };
 

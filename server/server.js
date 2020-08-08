@@ -6,6 +6,7 @@ const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const { DRIVE_COMMAND, CAMERA_COMMAND, BEEPER_COMMAND, COMMAND_TYPE, FLASH_COMMAND } = require('../common/common.js');
 const LedStrip = require('./ledStrip');
+const { CarRobot, resetGpio } = require('./carRobot');
 
 const PORT = process.env.PORT || 3128;
 
@@ -28,7 +29,7 @@ const getCommandType = (command) => {
  * @param {number} port - The server port.
  */
 const Server = function (port) {
-    let carbot;
+    const carbot = new CarRobot();
     let reportingInterval;
 
     logger.info('Initializing server...');
@@ -105,20 +106,11 @@ const Server = function (port) {
         }
     };
 
-    const getStatus = () => {
-        const status = carbot.getStatus();
-        logger.info('Sending status socket event with ', status);
-        return status;
-    };
-
     /**
      * Initializes and starts the backend server.
-     *
-     * @param {object} bot - The robot car object.
      */
-    this.initialize = function (bot) {
+    this.initialize = function () {
         logger.info('Initializing...');
-        carbot = bot;
         // Register websocket connection handler.
         io.on('connection', ws => {
             ws.on('command', command => {
@@ -149,12 +141,10 @@ const Server = function (port) {
                 }
             });
             logger.info('WS Connected');
-            if (reportingInterval) {
-                clearInterval(reportingInterval);
-            }
-            reportingInterval = setInterval(() => {
-                ws.emit('STATUS', getStatus());
-            }, 2000);
+            ws.emit('STATUS', carbot.getStatus());
+            carbot.setOnStatusChange((status) => {
+                ws.emit('STATUS', status);
+            });
         });
 
         // Register websocket disconnection handler.
@@ -172,6 +162,13 @@ const Server = function (port) {
 
         logger.info('Initialized server');
     };
+
+    /**
+     * Cleanup before exiting the application.
+     */
+    this.clearOnClose = async () => {
+        await carbot.clearOnClose();
+    }
 };
 
 module.exports = Server;

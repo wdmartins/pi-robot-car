@@ -1,14 +1,14 @@
 <template>
   <div class="text-left row">
-    <div class="col-md-auto pl-5">
-      <div class="label">Beeper:
-        <span class="value">{{beeperStatus}}</span>
+    <div class="col-md-auto">
+      <div class="label">Speed:
+        <span class="value">{{currentSpeedStatus}}/{{setSpeedStatus}}</span>
       </div>
-      <div class="label">LED:
-        <span class="value">{{ledStatus}}</span>
+      <div class="label">Direction:
+        <span class="value">{{directionStatus}}</span>
       </div>
-      <div class="label">Echo:
-        <span class="value">{{echoStatus}} cm</span>
+      <div class="label">Deviation:
+        <span class="value">{{deviationStatus}}</span>
       </div>
     </div>
     <div class="col-md-auto">
@@ -22,15 +22,15 @@
         <span class="value">{{verticalStatus}}</span>
       </div>
     </div>
-    <div class="col-md-auto">
-      <div class="label">Speed:
-        <span class="value">{{currentSpeedStatus}}/{{setSpeedStatus}}</span>
+    <div class="col-md-auto pl-5">
+      <div class="label">Beeper:
+        <span class="value">{{beeperStatus}}</span>
       </div>
-      <div class="label">Direction:
-        <span class="value">{{directionStatus}}</span>
+      <div class="label">LED:
+        <span class="value">{{ledStatus}}</span>
       </div>
-      <div class="label">Deviation:
-        <span class="value">{{deviationStatus}}</span>
+      <div class="label">Echo:
+        <span class="value">{{echoStatus}} cm</span>
       </div>
     </div>
   </div>
