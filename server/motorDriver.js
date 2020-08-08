@@ -30,6 +30,15 @@ const MOVE_REGISTER = {
     LEFT: 149       // 10010101
 };
 
+// Register to direction
+const REGISTER_TO_DIRECTION = {
+    0: 'Stop',
+    57: 'Forward',
+    198: 'Backward',
+    106: 'Right',
+    149: 'Left',
+};
+
 // Bit array
 const BIT = [
     1,   // 00000001
@@ -56,6 +65,7 @@ const MotorDriver = function () {
     let rightRearPwm;
     let _currentSpeed = 0;
     let _moveTimer;
+    let currentStatus = { direction: REGISTER_TO_DIRECTION[MOVE_REGISTER.STOP], speed: 0 };
 
     logger.info('Initializing motorDriver...');
     /**
@@ -177,8 +187,10 @@ const MotorDriver = function () {
         if (time) {
             _moveTimer = setTimeout(() => {
                 setRegister(MOVE_REGISTER.STOP).then(cbEnd);
+                currentStatus = { direction: REGISTER_TO_DIRECTION[MOVE_REGISTER.STOP], speed: 0 };
             }, time);
         }
+        currentStatus = { direction: REGISTER_TO_DIRECTION[direction], speed } 
         return setRegister(direction);
     };
 
@@ -247,6 +259,7 @@ const MotorDriver = function () {
      */
     this.getMaximunSpeed = () => MAXIMUM_SPEED;
 
+    this.getStatus = () => currentStatus;
     logger.info('Initialized motorDriver');
 };
 

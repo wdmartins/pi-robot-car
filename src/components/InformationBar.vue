@@ -24,7 +24,7 @@
     </div>
     <div class="col-md-auto">
       <div class="label">Speed:
-        <span class="value">{{speedStatus}}</span>
+        <span class="value">{{currentSpeedStatus}}/{{setSpeedStatus}}</span>
       </div>
       <div class="label">Direction:
         <span class="value">{{directionStatus}}</span>
@@ -63,8 +63,9 @@ export default {
       this.horizontalStatus = status[STATUS_KEYS.CAMERA_STATUS].vertical;
       this.verticalStatus = status[STATUS_KEYS.CAMERA_STATUS].horizontal;
       this.deviationStatus = status[STATUS_KEYS.CAR_DEVIATION];
-      this.speedStatus = status[STATUS_KEYS.CAR_SPEED];
-      this.directionStatus = status[STATUS_KEYS.CAR_DIRECTION];
+      this.currentSpeedStatus = status[STATUS_KEYS.CAR_MOVEMENT][STATUS_KEYS.CAR_CURRENT_SPEED];
+      this.setSpeedStatus = status[STATUS_KEYS.CAR_MOVEMENT][STATUS_KEYS.CAR_SET_SPEED];
+      this.directionStatus = status[STATUS_KEYS.CAR_MOVEMENT][STATUS_KEYS.CAR_DIRECTION];
       console.log(status);
     },
   },

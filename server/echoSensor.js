@@ -14,6 +14,8 @@ const DEFAULT_TRIGGER_TIME = 10; // microseconds
 const DEFAULT_MEASUREMENT_INTERVAL = 100; // miliseconds
 // Microseconds it takes sound to travel 1cm at 20 degrees celcius
 const MICROSECDONDS_PER_CM = 1e6 / 34321;
+// The minimum difference in distance change from previous measurement to trigger onStatusChange.
+const DEFAULT_STATUS_CHANGE_TRIGGER = 1; // centimeters
 
 /**
  * Instantiates the echo sensor wrapper object.
@@ -24,6 +26,9 @@ const MICROSECDONDS_PER_CM = 1e6 / 34321;
  */
 const EchoSensor = function (config) {
     config = config || {};
+    let _onStatusChange = function () {};
+    let _changeTrigger = DEFAULT_STATUS_CHANGE_TRIGGER;
+    let _previousDistance;
 
     logger.info('Initializing echoSensor...');
 
@@ -40,9 +45,14 @@ const EchoSensor = function (config) {
         if (level === 1) {
             startTick = tick;
         } else {
+            let forceOnStatusChange = !_previousDistance;
             const endTick = tick;
             const diff = (endTick >> 0) - (startTick >> 0); // Unsigned 32 bit arithmetic
             distance = (diff / 2 / MICROSECDONDS_PER_CM).toFixed(2);
+            if (forceOnStatusChange || Math.abs(_previousDistance - distance) > _changeTrigger) {
+                _onStatusChange(distance);
+            }
+            _previousDistance = distance;
         }
     });
 
@@ -58,6 +68,21 @@ const EchoSensor = function (config) {
      */
     this.getDistanceCm = () => distance;
 
+
+    /**
+     * Sets the listener for echo sensor status changes.
+     *
+     * @param {function} onStatusChange - The listener to invoke everytime the measured distance changes.
+     * @param {number} [changeTrigger=DEFAULT_STATUS_CHANGE_TRIGGER] - The minimum difference in distance change (in centimeters) from previous measurement to trigger onStatusChange.
+     */
+    this.setOnStatusChange = (onStatusChange, changeTrigger = 1) => {
+        if (typeof onStatusChange !== 'function') {
+            logger.error('OnStatusChange listerner is not a function');
+            return;
+        }
+        _onStatusChange = onStatusChange;
+        _changeTrigger = changeTrigger
+    }
     logger.info('Initialized echoSensor');
 };
 

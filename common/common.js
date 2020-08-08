@@ -71,8 +71,10 @@ const FLASH_COMMAND = {
 const ECHO_STATUS = 'echo_status';
 const BEEPER_STATUS = 'beeper_status';
 const LED_STATUS = 'led_status';
-const CAR_SPEED = 'motor_speed';
+const CAR_CURRENT_SPEED = 'speed';
+const CAR_SET_SPEED = 'set_speed';
 const CAR_DIRECTION = 'direction';
+const CAR_MOVEMENT = 'car_movement';
 const CAR_DEVIATION = 'deviation';
 const CAMERA_STATUS = 'camera_status';
 
@@ -80,9 +82,11 @@ const STATUS_KEYS = {
   ECHO_STATUS,
   BEEPER_STATUS,
   LED_STATUS,
-  CAR_DIRECTION,
   CAR_DEVIATION,
-  CAR_SPEED,
+  CAR_DIRECTION,
+  CAR_MOVEMENT,
+  CAR_CURRENT_SPEED,
+  CAR_SET_SPEED,
   CAMERA_STATUS,
 };
 

@@ -24,9 +24,10 @@ module.exports.resetGpio = resetGpio;
 /**
  * Instanstiates a CarRobot object.
  */
-const CarRobot = function () {
+const CarRobot = function (onStatusChange) {
     logger.info('Initializing carRobot...');
 
+    onStatusChange = onStatusChange || function() {};
     // Initialize Gpio and Controllers
     piGpio.initialize();
 
@@ -39,6 +40,10 @@ const CarRobot = function () {
     const lineTracker = new LineTracker();
 
     let currentSpeed = 100;
+
+    this.onStatusChange = () => {
+        // onStatusChange();
+    };
 
     this.moveCamera = async (direction, degress) => {
         if (direction === 'up' || direction === 'down') {
@@ -118,6 +123,8 @@ const CarRobot = function () {
         status[STATUS_KEYS.ECHO_STATUS] = echoSensor.getDistanceCm();
         status[STATUS_KEYS.CAMERA_STATUS] = servoCam.getStatus();
         status[STATUS_KEYS.CAR_DEVIATION] = lineTracker.getDeviation();
+        status[STATUS_KEYS.CAR_MOVEMENT] = motorDriver.getStatus();
+        status[STATUS_KEYS.CAR_MOVEMENT][STATUS_KEYS.CAR_SET_SPEED] = currentSpeed;
         return status;
     };
     logger.debug('Initialized carRobot');

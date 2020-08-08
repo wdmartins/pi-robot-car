@@ -18,6 +18,7 @@ const STATUS_ON = 1;
  */
 const Beeper = function (gpio = DEFAULT_GPIO) {
     const _that = this;
+    let _onStatusChange = function () {};
     logger.info('Initializing beeper...');
 
     const beep = new Gpio(gpio, { mode: Gpio.OUTPUT });
@@ -40,18 +41,24 @@ const Beeper = function (gpio = DEFAULT_GPIO) {
 
     /**
      * Turns the beeper on.
+     * 
+     * @param {boolean} - Clear all timers and intervals if set to true.
      */
-    this.beepOn = () => {
-        clearTimers();
+    this.beepOn = (stopTimers = true) => {
+        stopTimers && clearTimers();
         beep.digitalWrite(STATUS_ON);
+        _onStatusChange(STATUS_ON);
     };
 
     /**
      * Turns the beeper off.
+     * 
+     * @param {boolean} - Clear all timers and intervals if set to true.
      */
-    this.beepOff = () => {
-        clearTimers();
+    this.beepOff = (stopTimers = true) => {
+        stopTimers && clearTimers();
         beep.digitalWrite(STATUS_OFF);
+        _onStatusChange(STATUS_OFF);
     };
 
     /**
@@ -78,14 +85,34 @@ const Beeper = function (gpio = DEFAULT_GPIO) {
 
         if (interval) {
             beepPeriodTimer = setInterval(() => {
-                beep.digitalWrite(beep.digitalRead() ? STATUS_OFF : STATUS_ON);
+                beep.digitalRead() ? _that.beepOff(false) : _that.beepOn(false);
             }, interval);
         }
     };
 
+    /**
+     * Returns the on/off status of the beeper.
+     *
+     * @returns {number} - 1 is the status is on, 0 otherwise.
+     */
     this.getStatus = () => {
         return beep.digitalRead() ? STATUS_ON : STATUS_OFF;
     };
+
+    /**
+     * Sets the listener for beeper status changes.
+     *
+     * @param {function} onStatusChange - The listener to invoke everytime the beeper status changes.
+     */
+    this.setOnStatusChange = (onStatusChange) => {
+        if (typeof onStatusChange !== 'function') {
+            logger.error('OnStatusChange listerner is not a function');
+            return;
+        }
+        _onStatusChange = onStatusChange;
+    }
+
+    // Complete beeper initialization
     logger.info('Initialized beeper');
 };
 
