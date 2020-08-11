@@ -50,11 +50,13 @@
     </div>
     <!-- Enable Obstacle Avoidance -->
     <div class="col mt-3">
-        <Toggle @toggle="toggle" command="automatic" label="Automatic"/>
+      <Toggle @toggle="toggle" command="automatic"
+        v-bind:selectedMode="selectedMode" label="Automatic"/>
     </div>
     <!-- Line Tracking -->
     <div class="col">
-        <Toggle @toggle="toggle" command="line" label="Line Tracking"/>
+      <Toggle @toggle="toggle" command="line"
+        v-bind:selectedMode="selectedMode" label="Line Tracking"/>
     </div>
   </div>
 </template>
@@ -131,6 +133,7 @@ export default {
     greenInvisible: false,
     whiteInvisible: false,
     hornInvisible: false,
+    selectedMode: 'none',
   }),
   methods: {
     onKeyDown(evt) {
@@ -176,6 +179,7 @@ export default {
     },
     toggle(command, status) {
       console.log(`ControlBar: command ${command}, status ${status}`);
+      this.selectedMode = status ? command : 'none';
       this[command](status);
     },
     automatic(status) {

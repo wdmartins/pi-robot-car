@@ -6,6 +6,10 @@ const Server = require('./server');
 let server;
 
 const clearOnClose = async () => {
+    if (!server) {
+        require('pigpio').terminate();
+        return;
+    }
     await server.clearOnClose();
 };
 

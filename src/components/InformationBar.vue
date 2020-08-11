@@ -51,6 +51,8 @@ export default {
     speedStatus: 'Unknown',
     directionStatus: 'Unknown',
     deviationStatus: 'Unknown',
+    setSpeedStatus: 'Unknown',
+    currentSpeedStatus: 'Unknown',
   }),
   mounted() {
     this.sockets.listener.subscribe('STATUS', this.onStatus);

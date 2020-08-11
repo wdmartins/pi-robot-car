@@ -1,5 +1,7 @@
+'use strict';
+
 /**
- * Commands
+ * Commands.
  */
 const STOP = 'stop';
 const FORWARD = 'forward';
@@ -18,55 +20,55 @@ const FLASH_GREEN = 'flash_green';
 const FLASH_WHITE = 'flash_white';
 
 const COMMAND_TYPE = {
-  DRIVE: 'drive',
-  CAMERA: 'camera',
-  BEEPER: 'beeper',
-  FLASH: 'flash',
+    DRIVE: 'drive',
+    CAMERA: 'camera',
+    BEEPER: 'beeper',
+    FLASH: 'flash'
 };
 
 const COMMANDS = {
-  STOP,
-  FORWARD,
-  BACKWARD,
-  TURN_RIGHT,
-  TURN_LEFT,
-  SPEED_UP,
-  SPEED_DOWN,
-  HONK,
-  LEFT,
-  RIGHT,
-  UP,
-  DOWN,
-  FLASH_RED,
-  FLASH_GREEN,
-  FLASH_WHITE,
+    STOP,
+    FORWARD,
+    BACKWARD,
+    TURN_RIGHT,
+    TURN_LEFT,
+    SPEED_UP,
+    SPEED_DOWN,
+    HONK,
+    LEFT,
+    RIGHT,
+    UP,
+    DOWN,
+    FLASH_RED,
+    FLASH_GREEN,
+    FLASH_WHITE
 };
 const DRIVE_COMMAND = {
-  STOP,
-  FORWARD,
-  BACKWARD,
-  TURN_RIGHT,
-  TURN_LEFT,
-  SPEED_UP,
-  SPEED_DOWN,
+    STOP,
+    FORWARD,
+    BACKWARD,
+    TURN_RIGHT,
+    TURN_LEFT,
+    SPEED_UP,
+    SPEED_DOWN
 };
 const CAMERA_COMMAND = {
-  LEFT,
-  RIGHT,
-  UP,
-  DOWN,
+    LEFT,
+    RIGHT,
+    UP,
+    DOWN
 };
 const BEEPER_COMMAND = {
-  HONK,
+    HONK
 };
 const FLASH_COMMAND = {
-  FLASH_GREEN,
-  FLASH_RED,
-  FLASH_WHITE,
+    FLASH_GREEN,
+    FLASH_RED,
+    FLASH_WHITE
 };
 
 /**
- * Status keys
+ * Status keys.
  */
 const ECHO_STATUS = 'echo_status';
 const BEEPER_STATUS = 'beeper_status';
@@ -79,23 +81,23 @@ const CAR_DEVIATION = 'deviation';
 const CAMERA_STATUS = 'camera_status';
 
 const STATUS_KEYS = {
-  ECHO_STATUS,
-  BEEPER_STATUS,
-  LED_STATUS,
-  CAR_DEVIATION,
-  CAR_DIRECTION,
-  CAR_MOVEMENT,
-  CAR_CURRENT_SPEED,
-  CAR_SET_SPEED,
-  CAMERA_STATUS,
+    ECHO_STATUS,
+    BEEPER_STATUS,
+    LED_STATUS,
+    CAR_DEVIATION,
+    CAR_DIRECTION,
+    CAR_MOVEMENT,
+    CAR_CURRENT_SPEED,
+    CAR_SET_SPEED,
+    CAMERA_STATUS
 };
 
 module.exports = {
-  BEEPER_COMMAND,
-  CAMERA_COMMAND,
-  COMMANDS,
-  COMMAND_TYPE,
-  DRIVE_COMMAND,
-  FLASH_COMMAND,
-  STATUS_KEYS,
+    BEEPER_COMMAND,
+    CAMERA_COMMAND,
+    COMMANDS,
+    COMMAND_TYPE,
+    DRIVE_COMMAND,
+    FLASH_COMMAND,
+    STATUS_KEYS
 };

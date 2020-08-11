@@ -90,11 +90,15 @@ const CarRobot = function () {
     this.speedUp = function () {
         currentSpeed = Math.min(currentSpeed += SPEED_STEP, motorDriver.getMaximunSpeed());
         logger.info(`Current speed set to ${currentSpeed}`);
+        _currentStatus[STATUS_KEYS.CAR_MOVEMENT][STATUS_KEYS.CAR_SET_SPEED] = currentSpeed;
+        _onStatusChange(_currentStatus);
     };
 
     this.speedDown = function () {
         currentSpeed = Math.max(currentSpeed -= SPEED_STEP, motorDriver.getMinimumSpeed());
         logger.info(`Current speed set to ${currentSpeed}`);
+        _currentStatus[STATUS_KEYS.CAR_MOVEMENT][STATUS_KEYS.CAR_SET_SPEED] = currentSpeed;
+        _onStatusChange(_currentStatus);
     };
 
     this.honk = function () {
