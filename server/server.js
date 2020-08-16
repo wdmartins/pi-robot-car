@@ -103,6 +103,12 @@ const Server = function (port) {
             case DRIVE_COMMAND.SPEED_DOWN:
                 carbot.speedDown();
                 break;
+            case DRIVE_COMMAND.AUTOMATIC:
+                carbot.startAvoidanceDrive();
+                break;
+            case DRIVE_COMMAND.LINE_TRACKING:
+                carbot.startLineTrackingDrive();
+                break;
         }
     };
 

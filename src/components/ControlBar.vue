@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- Filler for now -->
     <div class="col">
       <h5>Control Panel</h5>
     </div>
@@ -65,7 +64,12 @@
 // @ is an alias to /src
 import FourWayControl from '@/components/FourWayControl.vue';
 import Toggle from '@/components/Toggle.vue';
-import { COMMANDS, COMMAND_TYPE, BEEPER_COMMAND } from '../../common/common';
+import {
+  COMMANDS,
+  COMMAND_TYPE,
+  BEEPER_COMMAND,
+  DRIVE_COMMAND,
+} from '../../common/common';
 
 const KEY_EVENT_TYPE = {
   DOWN: 'down',
@@ -163,7 +167,7 @@ export default {
       }
       this.sendCommand(command, 1);
     },
-    sendCommand(command, confidence) {
+    sendCommand(command, confidence = 1) {
       this.$socket.emit('command', {
         command,
         confidence,
@@ -184,9 +188,11 @@ export default {
     },
     automatic(status) {
       console.log(`Automatic mode set to: ${status}`);
+      this.sendCommand(status ? DRIVE_COMMAND.AUTOMATIC : DRIVE_COMMAND.STOP);
     },
     line(status) {
       console.log(`Line Tracking set to: ${status}`);
+      this.sendCommand(status ? DRIVE_COMMAND.LINE_TRACKING : DRIVE_COMMAND.STOP);
     },
     flashIcon(icon) {
       let flashInterval;
@@ -199,11 +205,11 @@ export default {
       }, 200);
     },
     flash(color) {
-      this.sendCommand(`flash_${color}`, 1);
+      this.sendCommand(`flash_${color}`);
       this.flashIcon(`${color}Invisible`);
     },
     honk() {
-      this.sendCommand(BEEPER_COMMAND.HONK, 1);
+      this.sendCommand(BEEPER_COMMAND.HONK);
       this.flashIcon('hornInvisible');
     },
   },

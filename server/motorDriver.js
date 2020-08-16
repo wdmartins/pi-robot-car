@@ -5,7 +5,6 @@
 
 const logger = require('./logger').logger('MOTOR-DRV');
 const GpioDef = require('./rpiGpioDef.js');
-const sleep = require('sleep-promise');
 const { Gpio } = require('pigpio');
 
 // Default values for the motors controller.
@@ -17,27 +16,35 @@ const DEFAULT_GPIO_PWM_RIGHT_REAR = GpioDef.BCM.GPIO22;     // Pin 31
 const DEFAULT_GPIO_PWM_LEFT_FRONT = GpioDef.BCM.GPIO23;     // Pin 33
 const DEFAULT_GPIO_PWM_RIGHT_FRONT = GpioDef.BCM.GPIO24;    // Pin 35
 
-const DEFAULT_SPEED = 255; // Max Speed
+const DEFAULT_SPEED = 150;
 const DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS = 1; // Shift register clock
-const MINIMUM_SPEED = 10;
-const MAXIMUM_SPEED = 255;
+const MINIMUM_SPEED = 50;
+const MAXIMUM_SPEED = 200; // 255 will crash the Raspberry when running on batteries.
 
 // Values for the shift register of the motor controller.
 const MOVE_REGISTER = {
-    STOP: 0,        // 00000000
-    FORWARD: 57,    // 00111001
-    BACKWARD: 198,  // 11000110
-    RIGHT: 106,     // 01101010
-    LEFT: 149       // 10010101
+    STOP: 0,            // 00000000
+    FORWARD: 57,        // 00111001
+    BACKWARD: 198,      // 11000110
+    RIGHT: 106,         // 01101010
+    LEFT: 149,          // 10010101
+    FORWARD_LEFT: 17,   // 00010001
+    FORWARD_RIGHT: 40,  // 00101000
+    BACKWARD_LEFT: 66,  // 01000010
+    BACKWARD_RIGHT: 132 // 10000100
 };
 
 // Register to direction
 const REGISTER_TO_DIRECTION = {
-    0: 'Stop',
-    57: 'Forward',
-    198: 'Backward',
-    106: 'Right',
-    149: 'Left'
+    0: 'Stop',              // 00000000
+    57: 'Forward',          // 00111001
+    198: 'Backward',        // 11000110
+    106: 'Right',           // 01101010
+    149: 'Left',            // 10010101
+    17: 'Forward-Left',     // 00010001
+    40: 'Forward-Rigth',    // 00101000
+    66: 'Backward-Left',    // 01000010
+    132: 'Backward-Right'   // 10000100
 };
 
 // Bit array
@@ -69,17 +76,18 @@ const MotorDriver = function () {
     let currentStatus = { direction: REGISTER_TO_DIRECTION[MOVE_REGISTER.STOP], speed: 0 };
 
     logger.info('Initializing motorDriver...');
+
     /**
-     * Writes the given digital value to the given GPIO number and resolves the promise after the given time.
+     * Hard delay. Used only to clock or 'cool off' the shift register.
      *
-     * @param {number} pin - The GPIO pin number.
-     * @param {number} value - The digital value.
-     * @param {number} time - The time before resolving the promise.
+     * @param {number} time - The delay in milisecons.
      */
-    const digitalWritePromise = async (pin, value, time) => {
-        time = time || 0;
-        pin.digitalWrite(value);
-        await sleep(time);
+    const delay = (time = DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS) => {
+        let now = Date.now();
+        const end = now + time;
+        while (now < end) {
+            now = Date.now();
+        }
     };
 
     /**
@@ -90,9 +98,10 @@ const MotorDriver = function () {
      * @param {number} rightRear - The speed of the right read wheel motor.
      * @param {number} rightFront - The speed of the right front wheel motor.
      */
-    const setSpeed = (leftRear, leftFront, rightRear, rightFront) => {
+    const setSpeed = function (leftRear, leftFront, rightRear, rightFront) {
         let defaultSpeed = DEFAULT_SPEED;
-        if (arguments.length === 2) {
+        // Do not use arrow function as arguments will not be bound.
+        if (arguments.length === 1) {
             defaultSpeed = leftRear;
         }
         leftRearPwm.pwmWrite(leftRear || defaultSpeed);
@@ -107,36 +116,37 @@ const MotorDriver = function () {
      *
      * @param {number} byte - The motor driver register value.
      */
-    const setRegister = async byte => {
+    const setRegister = byte => {
         logger.info(`Set Register to ${byte}`);
 
-        const setupController = async function () {
-            await digitalWritePromise(motorLatchPin, 0, DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS)
-                .then(digitalWritePromise(motorDataPin, 0, DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS));
+        const setupController = function () {
+            motorLatchPin.digitalWrite(0);
+            delay();
+            motorDataPin.digitalWrite(0);
+            delay();
         };
 
-        const writeRegister = async function (data) {
-            await digitalWritePromise(motorClockPin, 0, DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS)
-                .then(digitalWritePromise(motorDataPin, data, DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS)
-                    .then(digitalWritePromise(motorClockPin, 1, DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS)));
+        const writeRegister = function (data) {
+            motorClockPin.digitalWrite(0);
+            delay();
+            motorDataPin.digitalWrite(data);
+            delay();
+            motorClockPin.digitalWrite(1);
+            delay();
         };
 
-        await setupController()
-            .then(writeRegister(byte & BIT[7] ? true : false))
-            .then(writeRegister(byte & BIT[6] ? true : false))
-            .then(writeRegister(byte & BIT[5] ? true : false))
-            .then(writeRegister(byte & BIT[4] ? true : false))
-            .then(writeRegister(byte & BIT[3] ? true : false))
-            .then(writeRegister(byte & BIT[2] ? true : false))
-            .then(writeRegister(byte & BIT[1] ? true : false))
-            .then(writeRegister(byte & BIT[0] ? true : false))
-            .then(digitalWritePromise(motorLatchPin, 1, DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS));
+        setupController();
+        writeRegister(byte & BIT[7] ? true : false);
+        writeRegister(byte & BIT[6] ? true : false);
+        writeRegister(byte & BIT[5] ? true : false);
+        writeRegister(byte & BIT[4] ? true : false);
+        writeRegister(byte & BIT[3] ? true : false);
+        writeRegister(byte & BIT[2] ? true : false);
+        writeRegister(byte & BIT[1] ? true : false);
+        writeRegister(byte & BIT[0] ? true : false);
+        motorLatchPin.digitalWrite(1);
+        delay();
 
-        // for (let i = 0; i < 8; i++) {
-        //     writeRegister(byte & BIT[7 - i] ? true : false);
-        // }
-
-        // await digitalWritePromise(motorLatchPin, 1, DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS);
     };
 
     /**
@@ -147,9 +157,8 @@ const MotorDriver = function () {
      * @param {number} config.leftRearPwm - The GPIO to configure a PWM for the left rear wheel motor.
      * @param {number} config.rightFrontPwm - The GPIO to configure a PWM for the right front wheel motor.
      * @param {number} config.rightRearPwm - The GPIO to configure a PWM for the right read wheel motor.
-     * @returns {Promise} - A promise that resolves when the controller configuration is finalized.
      */
-    this.initializeController = async config => {
+    this.initializeController = config => {
         config = config || {};
         // Initialize PWM
         leftFrontPwm = new Gpio(config.leftFrontPwm || DEFAULT_GPIO_PWM_LEFT_FRONT, { mode: Gpio.OUTPUT });
@@ -163,7 +172,7 @@ const MotorDriver = function () {
         motorClockPin = new Gpio(config.clockGpio || DEFAULT_GPIO_MOTOR_CLOCK, { mode: Gpio.OUTPUT });
 
         setSpeed(0);
-        return setRegister(MOVE_REGISTER.STOP);
+        setRegister(MOVE_REGISTER.STOP);
     };
 
     /**
@@ -173,9 +182,8 @@ const MotorDriver = function () {
      * @param {number} speed - The moving speed.
      * @param {number} time - The moving time.
      * @param {Function} cbEnd - The callback to be invoked when the given time has elapsed.
-     * @returns {Promise} - A promise that resolved when the motor driver controller setup is completed.
      */
-    const run = (direction, speed, time, cbEnd) => {
+    const run = async (direction, speed, time, cbEnd) => {
         speed = speed || _currentSpeed || DEFAULT_SPEED;
         direction = direction || MOVE_REGISTER.FORWARD;
         cbEnd = cbEnd || {};
@@ -183,10 +191,10 @@ const MotorDriver = function () {
             clearTimeout(_moveTimer);
             _moveTimer = null;
         }
-        logger.debug('Runing at speed', speed);
+        logger.info('Runing at speed', speed);
         setSpeed(speed);
         if (time) {
-            _moveTimer = setTimeout(() => {
+            _moveTimer = setTimeout(async () => {
                 setRegister(MOVE_REGISTER.STOP).then(cbEnd);
                 currentStatus = { direction: REGISTER_TO_DIRECTION[MOVE_REGISTER.STOP], speed: 0 };
                 _onStatusChange(currentStatus);
@@ -194,7 +202,7 @@ const MotorDriver = function () {
         }
         currentStatus = { direction: REGISTER_TO_DIRECTION[direction], speed };
         _onStatusChange(currentStatus);
-        return setRegister(direction);
+        setRegister(direction);
     };
 
     /**
@@ -205,7 +213,7 @@ const MotorDriver = function () {
      * @param {Function} cbEnd - The callback to be invoked when the given time has elapsed.
      * @returns {Promise} - A promise that resolved when the motor driver controller setup is completed.
      */
-    this.moveForward = async (speed, time, cbEnd) => run(MOVE_REGISTER.FORWARD, speed, time, cbEnd);
+    this.moveForward = (speed, time, cbEnd) => run(MOVE_REGISTER.FORWARD, speed, time, cbEnd);
 
     /**
      * Sets the motor diver controller so it moves in the backward direction at the given speed.
@@ -215,7 +223,7 @@ const MotorDriver = function () {
      * @param {Function} cbEnd - The callback to be invoked when the given time has elapsed.
      * @returns {Promise} - A promise that resolved when the motor driver controller setup is completed.
      */
-    this.moveBackward = async (speed, time, cbEnd) => run(MOVE_REGISTER.BACKWARD, speed, time, cbEnd);
+    this.moveBackward = (speed, time, cbEnd) => run(MOVE_REGISTER.BACKWARD, speed, time, cbEnd);
 
     /**
      * Sets the motor diver controller so it moves to the left at the given speed.
@@ -225,7 +233,7 @@ const MotorDriver = function () {
      * @param {Function} cbEnd - The callback to be invoked when the given time has elapsed.
      * @returns {Promise} - A promise that resolved when the motor driver controller setup is completed.
      */
-    this.moveLeft = async (speed, time, cbEnd) => run(MOVE_REGISTER.LEFT, speed, time, cbEnd);
+    this.moveLeft = (speed, time, cbEnd) => run(MOVE_REGISTER.LEFT, speed, time, cbEnd);
 
     /**
      * Sets the motor diver controller so it moves to the right at the given speed.
@@ -235,12 +243,10 @@ const MotorDriver = function () {
      * @param {Function} cbEnd - The callback to be invoked when the given time has elapsed.
      * @returns {Promise} - A promise that resolved when the motor driver controller setup is completed.
      */
-    this.moveRight = async (speed, time, cbEnd) => run(MOVE_REGISTER.RIGHT, speed, time, cbEnd);
+    this.moveRight = (speed, time, cbEnd) => run(MOVE_REGISTER.RIGHT, speed, time, cbEnd);
 
     /**
      * Sets the motor driver controller so it stops all motors.
-     *
-     * @returns {Promise} - A promise that resolved when the motor driver controller setup is completed.
      */
     this.stopAllMotors = () => {
         if (_moveTimer) {
@@ -249,7 +255,7 @@ const MotorDriver = function () {
         }
         currentStatus = { direction: REGISTER_TO_DIRECTION[MOVE_REGISTER.STOP], speed: 0 };
         _onStatusChange(currentStatus);
-        return setRegister(MOVE_REGISTER.STOP);
+        setRegister(MOVE_REGISTER.STOP);
     };
 
     /**

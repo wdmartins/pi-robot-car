@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function */
 'use strict';
 
 const logger = require('./logger').logger('CAR-ROBOT');
@@ -9,7 +10,24 @@ const EchoSensor = require('./echoSensor');
 const ServoCam = require('./servoCam');
 const { LineTracker } = require('./lineTracker');
 const { STATUS_KEYS } = require('../common/common');
-const SPEED_STEP = 20;
+
+// Speed increasing steps
+const SPEED_STEP = 10;
+
+// Automatic avoidance driving constants
+const AUTO_DRIVING_CHECK_INTERVAL = 100; // Miliseconds
+const MINIMUM_AVOIDANCE_DISTANCE = 30; // Centimeters
+const AUTO_DRIVING_CORRECTION_TIME = 500; // Miliseconds
+const AUTO_FORWARD_SPEED = 150;
+const AUTO_TURNING_SPEED = 200;
+const AUTO_BACKWARD_SPEED = 120;
+
+const AVOIDANCE_DRIVING_STATUS = {
+    STOPPED: 'stopped',
+    BACKING_OUT: 'backing_out',
+    TURNING: 'turning',
+    RUNNING: 'running'
+};
 
 const resetGpio = function () {
     try {
@@ -28,6 +46,9 @@ const CarRobot = function () {
 
     let _onStatusChange = function () {};
     const _currentStatus = {};
+    const _that = this;
+    let _autoDrivingInterval;
+    let _avoidanceDrivingStatus;
 
     // Initialize Gpio and Controllers
     piGpio.initialize();
@@ -69,6 +90,10 @@ const CarRobot = function () {
 
     this.stop = async function () {
         await motorDriver.stopAllMotors();
+        if (_autoDrivingInterval) {
+            clearInterval(_autoDrivingInterval);
+            _autoDrivingInterval = null;
+        }
     };
 
     this.forward = async function () {
@@ -173,6 +198,52 @@ const CarRobot = function () {
     };
 
     this.getStatus = () => _currentStatus;
+
+    this.startAvoidanceDrive = () => {
+        logger.info('Starting automatic obstacle avoidance driving');
+        // beeper.beep(1500, 500);
+        _autoDrivingInterval = setInterval(_that.avoidanceDriving, AUTO_DRIVING_CHECK_INTERVAL);
+        motorDriver.moveForward(AUTO_FORWARD_SPEED);
+        _avoidanceDrivingStatus = AVOIDANCE_DRIVING_STATUS.RUNNING;
+    };
+
+    this.avoidanceDriving = async () => {
+        const distance = echoSensor.getDistanceCm();
+        logger.info(`Distance to obstacle: ${distance}, status: ${_avoidanceDrivingStatus}`);
+        let turningTimer;
+        switch (_avoidanceDrivingStatus) {
+            case AVOIDANCE_DRIVING_STATUS.RUNNING:
+                if (distance < MINIMUM_AVOIDANCE_DISTANCE) {
+                    beeper.beep(500);
+                    _that.flashLed(LedStrip.COLOR_RED);
+                    motorDriver.stopAllMotors();
+                    _avoidanceDrivingStatus = AVOIDANCE_DRIVING_STATUS.STOPPED;
+                }
+                break;
+            case AVOIDANCE_DRIVING_STATUS.STOPPED:
+                motorDriver.moveBackward(AUTO_BACKWARD_SPEED);
+                _avoidanceDrivingStatus = AVOIDANCE_DRIVING_STATUS.BACKING_OUT;
+                break;
+            case AVOIDANCE_DRIVING_STATUS.BACKING_OUT:
+                if (distance > 2 * MINIMUM_AVOIDANCE_DISTANCE) {
+                    motorDriver.stopAllMotors();
+                    _avoidanceDrivingStatus = AVOIDANCE_DRIVING_STATUS.TURNING;
+                }
+                break;
+            case AVOIDANCE_DRIVING_STATUS.TURNING:
+                if (!turningTimer) {
+                    motorDriver.moveLeft(AUTO_TURNING_SPEED);
+                    turningTimer = setTimeout(() => {
+                        turningTimer = null;
+                        _avoidanceDrivingStatus = AVOIDANCE_DRIVING_STATUS.RUNNING;
+                        motorDriver.moveForward(AUTO_FORWARD_SPEED);
+                        // beeper.beepOff();
+                        ledStrip.render(0, 0, 0);
+                    }, AUTO_DRIVING_CORRECTION_TIME);
+                }
+                break;
+        }
+    };
 
     test();
 

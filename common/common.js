@@ -18,6 +18,8 @@ const DOWN = 'down';
 const FLASH_RED = 'flash_red';
 const FLASH_GREEN = 'flash_green';
 const FLASH_WHITE = 'flash_white';
+const AUTOMATIC = 'automatic';
+const LINE_TRACKING = 'line_tracking';
 
 const COMMAND_TYPE = {
     DRIVE: 'drive',
@@ -50,7 +52,9 @@ const DRIVE_COMMAND = {
     TURN_RIGHT,
     TURN_LEFT,
     SPEED_UP,
-    SPEED_DOWN
+    SPEED_DOWN,
+    AUTOMATIC,
+    LINE_TRACKING
 };
 const CAMERA_COMMAND = {
     LEFT,

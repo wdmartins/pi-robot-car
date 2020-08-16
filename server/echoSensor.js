@@ -11,11 +11,11 @@ const DEFAULT_TRIGGER_GPIO = GpioDef.WPI.GPIO26;
 // Default trigger time
 const DEFAULT_TRIGGER_TIME = 10; // microseconds
 // Default measurement interval
-const DEFAULT_MEASUREMENT_INTERVAL = 100; // miliseconds
+const DEFAULT_MEASUREMENT_INTERVAL = 500; // miliseconds
 // Microseconds it takes sound to travel 1cm at 20 degrees celcius
 const MICROSECDONDS_PER_CM = 1e6 / 34321;
 // The minimum difference in distance change from previous measurement to trigger onStatusChange.
-const DEFAULT_STATUS_CHANGE_TRIGGER = 1; // centimeters
+const DEFAULT_STATUS_CHANGE_TRIGGER = 2; // centimeters
 
 /**
  * Instantiates the echo sensor wrapper object.
@@ -74,7 +74,7 @@ const EchoSensor = function (config) {
      * @param {number} [changeTrigger=DEFAULT_STATUS_CHANGE_TRIGGER] - The minimum difference in distance change (in centimeters)
      * from previous measurement to trigger onStatusChange.
      */
-    this.setOnStatusChange = (onStatusChange, changeTrigger = 1) => {
+    this.setOnStatusChange = (onStatusChange, changeTrigger = DEFAULT_STATUS_CHANGE_TRIGGER) => {
         if (typeof onStatusChange !== 'function') {
             logger.error('OnStatusChange listerner is not a function');
             return;
