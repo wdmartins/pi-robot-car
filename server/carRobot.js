@@ -9,7 +9,7 @@ const Beeper = require('./beeper');
 const EchoSensor = require('./echoSensor');
 const ServoCam = require('./servoCam');
 const { LineTracker } = require('./lineTracker');
-const { STATUS_KEYS } = require('../common/common');
+const { STATUS_KEYS, CAMERA_COMMAND } = require('../common/common');
 
 // Speed increasing steps
 const SPEED_STEP = 10;
@@ -88,28 +88,44 @@ const CarRobot = function () {
         piGpio.terminate();
     };
 
-    this.stop = async function () {
-        await motorDriver.stopAllMotors();
+    this.stop = function () {
+        motorDriver.stopAllMotors();
         if (_autoDrivingInterval) {
             clearInterval(_autoDrivingInterval);
             _autoDrivingInterval = null;
         }
     };
 
-    this.forward = async function () {
-        await motorDriver.moveForward(currentSpeed);
+    this.forward = function () {
+        motorDriver.moveForward(currentSpeed);
     };
 
-    this.backward = async function () {
-        await motorDriver.moveBackward(currentSpeed);
+    this.backward = function () {
+        motorDriver.moveBackward(currentSpeed);
     };
 
-    this.turnRight = async function () {
-        await motorDriver.moveRight(currentSpeed);
+    this.turnRight = function () {
+        motorDriver.moveRight(currentSpeed);
     };
 
-    this.turnLeft = async function () {
-        await motorDriver.moveLeft(currentSpeed);
+    this.turnLeft = function () {
+        motorDriver.moveLeft(currentSpeed);
+    };
+
+    this.forwardLeft = function () {
+        motorDriver.moveForwardLeft();
+    };
+
+    this.forwardRight = function () {
+        motorDriver.moveForwardRight();
+    };
+
+    this.backwardLeft = function () {
+        motorDriver.moveBackwardLeft();
+    };
+
+    this.backwardRight = function () {
+        motorDriver.moveBackwardRight();
     };
 
     this.speedUp = function () {
@@ -140,12 +156,42 @@ const CarRobot = function () {
         _currentStatus[STATUS_KEYS.CAR_MOVEMENT][STATUS_KEYS.CAR_SET_SPEED] = currentSpeed;
     };
 
-    this.moveCamera = async (direction, degress) => {
-        if (direction === 'up' || direction === 'down') {
-            servoCam.move(degress, 0);
-        } else {
-            servoCam.move(0, degress);
+    this.moveCamera = async (command, degress = 100) => {
+        let hdegress = degress;
+        let vdegress = degress;
+        switch(command) {
+            case CAMERA_COMMAND.UP:
+                vdegress = -1 * vdegress;
+                hdegress = 0;
+                break;
+            case CAMERA_COMMAND.RIGHT:
+                hdegress = -1 * hdegress;
+                vdegress = 0;
+                break;
+            case CAMERA_COMMAND.DOWN:
+                hdegress = 0;
+                break;
+            case CAMERA_COMMAND.LEFT:
+                vdegress = 0;
+                break;
+            case CAMERA_COMMAND.UP_RIGHT:
+                hdegress = -1 * hdegress / 2;
+                vdegress = -1 * vdegress / 2;
+                break;
+            case CAMERA_COMMAND.DOWN_LEFT:
+                hdegress = hdegress / 2;
+                vdegress = vdegress / 2;
+                break;
+            case CAMERA_COMMAND.UP_LEFT:
+                hdegress = hdegress / 2;
+                vdegress = -1 * vdegress / 2;
+                break;
+            case CAMERA_COMMAND.DOWN_RIGHT:
+                hdegress = -1 * hdegress / 2;
+                vdegress = vdegress / 2;
+                break;
         }
+        servoCam.move(vdegress, hdegress);
     };
 
     this.flashLed = color => {

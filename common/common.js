@@ -8,6 +8,10 @@ const FORWARD = 'forward';
 const BACKWARD = 'backward';
 const TURN_RIGHT = 'turn_right';
 const TURN_LEFT = 'turn_left';
+const FORWARD_RIGHT = 'forward_right';
+const FORWARD_LEFT = 'forward_left';
+const BACKWARD_RIGHT = 'backward_right';
+const BACKWARD_LEFT = 'backward_left';
 const SPEED_UP = 'speed_up';
 const SPEED_DOWN = 'speed_down';
 const HONK = 'honk';
@@ -15,6 +19,10 @@ const LEFT = 'left';
 const RIGHT = 'right';
 const UP = 'up';
 const DOWN = 'down';
+const UP_LEFT = 'up_left';
+const UP_RIGHT = 'up_right';
+const DOWN_LEFT = 'down_left';
+const DOWN_RIGHT = 'down_right';
 const FLASH_RED = 'flash_red';
 const FLASH_GREEN = 'flash_green';
 const FLASH_WHITE = 'flash_white';
@@ -34,6 +42,10 @@ const COMMANDS = {
     BACKWARD,
     TURN_RIGHT,
     TURN_LEFT,
+    FORWARD_LEFT,
+    FORWARD_RIGHT,
+    BACKWARD_LEFT,
+    BACKWARD_RIGHT,
     SPEED_UP,
     SPEED_DOWN,
     HONK,
@@ -41,6 +53,10 @@ const COMMANDS = {
     RIGHT,
     UP,
     DOWN,
+    UP_LEFT,
+    UP_RIGHT,
+    DOWN_LEFT,
+    DOWN_RIGHT,
     FLASH_RED,
     FLASH_GREEN,
     FLASH_WHITE
@@ -51,6 +67,10 @@ const DRIVE_COMMAND = {
     BACKWARD,
     TURN_RIGHT,
     TURN_LEFT,
+    FORWARD_LEFT,
+    FORWARD_RIGHT,
+    BACKWARD_LEFT,
+    BACKWARD_RIGHT,
     SPEED_UP,
     SPEED_DOWN,
     AUTOMATIC,
@@ -60,7 +80,11 @@ const CAMERA_COMMAND = {
     LEFT,
     RIGHT,
     UP,
-    DOWN
+    DOWN,
+    UP_LEFT,
+    UP_RIGHT,
+    DOWN_LEFT,
+    DOWN_RIGHT
 };
 const BEEPER_COMMAND = {
     HONK

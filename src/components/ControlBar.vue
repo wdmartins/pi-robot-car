@@ -8,11 +8,11 @@
         <FourWayControl @move="move" type="camera" :action="action"/>
     </div>
     <!-- Drive control -->
-    <div class="col">
+    <div class="col mt-4">
         <FourWayControl @move="move" type="drive" :action="action"/>
     </div>
     <!-- Miscellaneous Controls -->
-    <div class="col mt-3">
+    <div class="col mt-4">
       <div class="row">
         <!-- Speed Control -->
         <h6 class="col p-0 mx-auto">Speed
@@ -48,7 +48,7 @@
       </div>
     </div>
     <!-- Enable Obstacle Avoidance -->
-    <div class="col mt-3">
+    <div class="col mt-4">
       <Toggle @toggle="toggle" command="automatic"
         v-bind:selectedMode="selectedMode" label="Automatic"/>
     </div>
@@ -81,6 +81,10 @@ const KEY_TO_RUN_COMMAND_MAP = {
   ArrowDown: COMMANDS.BACKWARD,
   ArrowLeft: COMMANDS.TURN_LEFT,
   ArrowRight: COMMANDS.TURN_RIGHT,
+  ArrowUpLeft: COMMANDS.FORWARD_LEFT,
+  ArrowUpRight: COMMANDS.FORWARD_RIGHT,
+  ArrowDownLeft: COMMANDS.BACKWARD_LEFT,
+  ArrowDownRight: COMMANDS.BACKWARD_RIGHT,
 };
 
 const KEY_TO_COMMAND_MAP = {
@@ -94,6 +98,10 @@ const KEY_TO_CAM_COMMAND_MAP = {
   ArrowDown: COMMANDS.DOWN,
   ArrowLeft: COMMANDS.LEFT,
   ArrowRight: COMMANDS.RIGHT,
+  ArrowUpLeft: COMMANDS.UP_LEFT,
+  ArrowUpRight: COMMANDS.UP_RIGHT,
+  ArrowDownLeft: COMMANDS.DOWN_LEFT,
+  ArrowDownRight: COMMANDS.DOWN_RIGHT,
 };
 
 const addSocketEventListeners = (app) => {
@@ -118,6 +126,10 @@ const setAction = (key, shiftKey) => ({
   down: key === 'ArrowDown',
   left: key === 'ArrowLeft',
   right: key === 'ArrowRight',
+  upLeft: key === 'ArrowUpLeft',
+  upRight: key === 'ArrowUpRight',
+  downLeft: key === 'ArrowDownLeft',
+  downRight: key === 'ArrowDownRight',
   type: shiftKey ? COMMAND_TYPE.CAMERA : COMMAND_TYPE.DRIVE,
 });
 

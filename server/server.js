@@ -64,19 +64,7 @@ const Server = function (port) {
     };
 
     const executeCameraCommand = command => {
-        let degress = 0;
-        logger.info('Executing camera command ', command);
-        switch (command) {
-            case CAMERA_COMMAND.UP:
-            case CAMERA_COMMAND.RIGHT:
-                degress = -100;
-                break;
-            case CAMERA_COMMAND.DOWN:
-            case CAMERA_COMMAND.LEFT:
-                degress = +100;
-                break;
-        }
-        carbot.moveCamera(command, degress);
+        carbot.moveCamera(command);
     };
 
     const executeDriveCommand = command => {
@@ -93,6 +81,18 @@ const Server = function (port) {
                 break;
             case DRIVE_COMMAND.TURN_RIGHT:
                 carbot.turnRight();
+                break;
+            case DRIVE_COMMAND.FORWARD_LEFT:
+                carbot.forwardLeft();
+                break;
+            case DRIVE_COMMAND.FORWARD_RIGHT:
+                carbot.forwardRight();
+                break;
+            case DRIVE_COMMAND.BACKWARD_LEFT:
+                carbot.backwardLeft();
+                break;
+            case DRIVE_COMMAND.BACKWARD_RIGHT:
+                carbot.backwardRight();
                 break;
             case DRIVE_COMMAND.STOP:
                 carbot.stop();
