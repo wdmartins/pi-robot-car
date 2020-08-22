@@ -8,8 +8,11 @@ const { LedStrip } = require('./ledStrip');
 const Beeper = require('./beeper');
 const EchoSensor = require('./echoSensor');
 const ServoCam = require('./servoCam');
-const { LineTracker } = require('./lineTracker');
+const { LineTracker, DEVIATION } = require('./lineTracker');
 const { STATUS_KEYS, CAMERA_COMMAND } = require('../common/common');
+
+// Default car spped
+const DEFAULT_SPEED = 150;
 
 // Speed increasing steps
 const SPEED_STEP = 10;
@@ -21,6 +24,9 @@ const AUTO_DRIVING_CORRECTION_TIME = 500; // Miliseconds
 const AUTO_FORWARD_SPEED = 150;
 const AUTO_TURNING_SPEED = 200;
 const AUTO_BACKWARD_SPEED = 120;
+const LINE_TRACKING_SPEED = 110;
+const LINE_TRACKING_CORRECTION_SPEED = 150;
+const LINE_TRACKING_MAX_UNKNOWN_TIME = 3000;
 
 const AVOIDANCE_DRIVING_STATUS = {
     STOPPED: 'stopped',
@@ -49,6 +55,8 @@ const CarRobot = function () {
     const _that = this;
     let _autoDrivingInterval;
     let _avoidanceDrivingStatus;
+    let _lineTrackingDriving = false;
+    let _lineTrackingUnknownTimer;
 
     // Initialize Gpio and Controllers
     piGpio.initialize();
@@ -61,7 +69,7 @@ const CarRobot = function () {
     const motorDriver = new MotorDriver();
     const lineTracker = new LineTracker();
 
-    let currentSpeed = 100;
+    let currentSpeed = DEFAULT_SPEED;
 
     const test = async function () {
         logger.info('Starting hardware test...');
@@ -88,11 +96,13 @@ const CarRobot = function () {
         piGpio.terminate();
     };
 
-    this.stop = function () {
+    this.stop = () => {
         motorDriver.stopAllMotors();
         if (_autoDrivingInterval) {
-            clearInterval(_autoDrivingInterval);
-            _autoDrivingInterval = null;
+            _that.stopAvoidanceDrive();
+        }
+        if (_lineTrackingDriving) {
+            _that.stopLineTrackingDrive();
         }
     };
 
@@ -159,7 +169,7 @@ const CarRobot = function () {
     this.moveCamera = async (command, degress = 100) => {
         let hdegress = degress;
         let vdegress = degress;
-        switch(command) {
+        switch (command) {
             case CAMERA_COMMAND.UP:
                 vdegress = -1 * vdegress;
                 hdegress = 0;
@@ -228,6 +238,36 @@ const CarRobot = function () {
         logger.info('LineTracker status has changed deviation to: ', deviation);
         _currentStatus[STATUS_KEYS.CAR_DEVIATION] = deviation;
         _onStatusChange(_currentStatus);
+        if (_lineTrackingDriving) {
+            if (deviation !== DEVIATION.UNKNOWN) {
+                if (_lineTrackingUnknownTimer) {
+                    clearTimeout(_lineTrackingUnknownTimer);
+                    _lineTrackingUnknownTimer = null;
+                }
+            }
+            switch (deviation) {
+                case DEVIATION.LEFT:
+                    motorDriver.moveForwardRight(LINE_TRACKING_CORRECTION_SPEED);
+                    break;
+                case DEVIATION.RIGHT:
+                    motorDriver.moveForwardLeft(LINE_TRACKING_CORRECTION_SPEED);
+                    break;
+                case DEVIATION.NONE:
+                    motorDriver.moveForward(LINE_TRACKING_SPEED);
+                    logger.info('No deviation!!');
+                    break;
+                case DEVIATION.UNKNOWN:
+                    if (!_lineTrackingUnknownTimer) {
+                        _lineTrackingUnknownTimer = setTimeout(() => {
+                            logger.info('Cannot find line to track');
+                            beeper.beep(500);
+                            _that.flashLed(LedStrip.COLOR_RED);
+                            motorDriver.stopAllMotors();
+                        }, LINE_TRACKING_MAX_UNKNOWN_TIME);
+                    }
+                    break;
+            }
+        }
     };
 
     this.onServoCamStatusChange = servoCamStatus => {
@@ -246,6 +286,7 @@ const CarRobot = function () {
     this.getStatus = () => _currentStatus;
 
     this.startAvoidanceDrive = () => {
+        _that.stopLineTrackingDrive();
         logger.info('Starting automatic obstacle avoidance driving');
         // beeper.beep(1500, 500);
         _autoDrivingInterval = setInterval(_that.avoidanceDriving, AUTO_DRIVING_CHECK_INTERVAL);
@@ -253,7 +294,16 @@ const CarRobot = function () {
         _avoidanceDrivingStatus = AVOIDANCE_DRIVING_STATUS.RUNNING;
     };
 
-    this.avoidanceDriving = async () => {
+    this.stopAvoidanceDrive = () => {
+        if (_autoDrivingInterval) {
+            logger.info('Stopping automatic obstacle avoidance driving');
+            clearInterval(_autoDrivingInterval);
+            motorDriver.stopAllMotors();
+            _avoidanceDrivingStatus = AVOIDANCE_DRIVING_STATUS.STOPPED;
+        }
+    };
+
+    this.avoidanceDriving = () => {
         const distance = echoSensor.getDistanceCm();
         logger.info(`Distance to obstacle: ${distance}, status: ${_avoidanceDrivingStatus}`);
         let turningTimer;
@@ -283,12 +333,28 @@ const CarRobot = function () {
                         turningTimer = null;
                         _avoidanceDrivingStatus = AVOIDANCE_DRIVING_STATUS.RUNNING;
                         motorDriver.moveForward(AUTO_FORWARD_SPEED);
-                        // beeper.beepOff();
-                        ledStrip.render(0, 0, 0);
                     }, AUTO_DRIVING_CORRECTION_TIME);
                 }
                 break;
         }
+    };
+
+    this.startLineTrackingDrive = () => {
+        _that.stopAvoidanceDrive();
+        _lineTrackingDriving = true;
+        lineTracker.startLineTracking();
+    };
+
+    this.stopLineTrackingDrive = () => {
+        if (_lineTrackingDriving) {
+            logger.info('Stopping line tracking driving');
+            if (_lineTrackingUnknownTimer) {
+                clearTimeout(_lineTrackingUnknownTimer);
+                _lineTrackingUnknownTimer = null;
+            }
+        }
+        _lineTrackingDriving = false;
+        lineTracker.stopLineTracking();
     };
 
     test();

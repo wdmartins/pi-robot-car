@@ -48,7 +48,7 @@ const Server = function (port) {
                 carbot.flashLed(LedStrip.COLOR_WHITE);
                 break;
             default:
-                logger.error(`Unkown flash command: ${command}`);
+                logger.error(`Flash command [${command}] not implemented`);
                 break;
         }
     };
@@ -59,8 +59,7 @@ const Server = function (port) {
             carbot.honk();
             return;
         }
-        logger.info('Beeper Command Not implemented ', command);
-
+        logger.error(`Beeper command [${command}] not implemented`);
     };
 
     const executeCameraCommand = command => {
@@ -108,6 +107,9 @@ const Server = function (port) {
                 break;
             case DRIVE_COMMAND.LINE_TRACKING:
                 carbot.startLineTrackingDrive();
+                break;
+            default:
+                logger.error(`Drive command [${command}] not implemented`);
                 break;
         }
     };

@@ -9,7 +9,7 @@ const GpioDef = require('./rpiGpioDef');
 const DEFAULT_LEFT_SENSOR = GpioDef.BCM.GPIO0;
 const DEFAULT_CENTER_SENSOR = GpioDef.BCM.GPIO2;
 const DEFAULT_RIGHT_SENSOR = GpioDef.BCM.GPIO3;
-const DEFAULT_LINE_TRACKING_INTERVAL = 200; // miliseconds
+const DEFAULT_LINE_TRACKING_INTERVAL = 5; // miliseconds
 
 const DEVIATION = {
     UNKNOWN: 'Unknown',
