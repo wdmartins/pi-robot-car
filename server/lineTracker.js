@@ -5,7 +5,6 @@ const { Gpio } = require('pigpio');
 const logger = require('./logger').logger('LINE_TRCK');
 const GpioDef = require('./rpiGpioDef');
 
-
 //-----------------------------------------------------------------------------
 // Constants definitions
 //-----------------------------------------------------------------------------

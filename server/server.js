@@ -10,19 +10,6 @@ const { getCarRobotInstance } = require('./carRobot');
 
 const PORT = process.env.PORT || 3128;
 
-const getCommandType = command => {
-    if (DRIVE_COMMAND.hasOwnProperty(command.toUpperCase())) {
-        return COMMAND_TYPE.DRIVE;
-    }
-    if (CAMERA_COMMAND.hasOwnProperty(command.toUpperCase())) {
-        return COMMAND_TYPE.CAMERA;
-    }
-    if (FLASH_COMMAND.hasOwnProperty(command.toUpperCase())) {
-        return COMMAND_TYPE.FLASH;
-    }
-    return COMMAND_TYPE.BEEPER;
-};
-
 /**
  * Instantiates the backend server object.
  *
@@ -34,6 +21,19 @@ const Server = function (port) {
 
     logger.info('Initializing server...');
     port = port || PORT;
+
+    const getCommandType = command => {
+        if (DRIVE_COMMAND.hasOwnProperty(command.toUpperCase())) {
+            return COMMAND_TYPE.DRIVE;
+        }
+        if (CAMERA_COMMAND.hasOwnProperty(command.toUpperCase())) {
+            return COMMAND_TYPE.CAMERA;
+        }
+        if (FLASH_COMMAND.hasOwnProperty(command.toUpperCase())) {
+            return COMMAND_TYPE.FLASH;
+        }
+        return COMMAND_TYPE.BEEPER;
+    };
 
     const executeFlashCommand = command => {
         logger.info('Executing flash command', command);
