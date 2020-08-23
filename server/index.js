@@ -5,15 +5,15 @@ const Server = require('./server');
 
 let server;
 
-const clearOnClose = async () => {
+const clearOnClose = () => {
     if (!server) {
         require('pigpio').terminate();
         return;
     }
-    await server.clearOnClose();
+    server.clearOnClose();
 };
 
-(async () => {
+(() => {
     try {
         logger.info('Initializing application...');
         server = new Server();
@@ -22,7 +22,7 @@ const clearOnClose = async () => {
     } catch (e) {
         logger.error(`bot failed ${e.message}`);
         logger.error(e.stack);
-        await clearOnClose();
+        clearOnClose();
     }
 })();
 

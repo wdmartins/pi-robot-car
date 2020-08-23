@@ -174,8 +174,11 @@ const Server = function (port) {
     /**
      * Cleanup before exiting the application.
      */
-    this.clearOnClose = async () => {
-        await carbot.clearOnClose();
+    this.clearOnClose = () => {
+        carbot.clearOnClose();
+        server.close(() => {
+            process.exit();
+        });
     };
 };
 

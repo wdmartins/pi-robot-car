@@ -6,16 +6,18 @@ const logger = require('./logger').logger('LINE_TRCK');
 const GpioDef = require('./rpiGpioDef');
 
 
-const DEFAULT_LEFT_SENSOR = GpioDef.BCM.GPIO0;
-const DEFAULT_CENTER_SENSOR = GpioDef.BCM.GPIO2;
-const DEFAULT_RIGHT_SENSOR = GpioDef.BCM.GPIO3;
-const DEFAULT_LINE_TRACKING_INTERVAL = 5; // miliseconds
-
+//-----------------------------------------------------------------------------
+// Constants definitions
+//-----------------------------------------------------------------------------
+const DEFAULT_LEFT_SENSOR = GpioDef.BCM.GPIO0;          // Default GPIO pin for the left IR reflective switch.
+const DEFAULT_CENTER_SENSOR = GpioDef.BCM.GPIO2;        // Default GPIO pin for the center IR reflective switch.
+const DEFAULT_RIGHT_SENSOR = GpioDef.BCM.GPIO3;         // Default GPIO pin for the right IR reflective switch.
+const DEFAULT_LINE_TRACKING_INTERVAL = 5;               // Default interval check in miliseconds.
 const DEVIATION = {
-    UNKNOWN: 'Unknown',
-    NONE: 'None',
-    LEFT: 'Left',
-    RIGHT: 'Right'
+    UNKNOWN: 'Unknown',                                 // Deviation is unkown. Line not detected or to wide.
+    NONE: 'None',                                       // No deviation.
+    LEFT: 'Left',                                       // Deviation to the left of the line.
+    RIGHT: 'Right'                                      // Deviation to the right of the line.
 };
 
 /**
@@ -25,10 +27,14 @@ const DEVIATION = {
  * @param {number} [config.leftSensor=DEFAULT_LEFT_SENSOR] - The GPIO pin number for the left sensor.
  * @param {number} [config.centerSensor=DEFAULT_CENTER_SENSOR] - The GPIO pin number for the center sensor.
  * @param {number} [config.rightSensor=DEFAULT_RIGHT_SENSOR] - The GPIO pin number for the right sensor.
- * @param {number} [config.interval=DEFAULT_LINE_TRACKING_INTERVAL] - The line tracking interval in miliseconds.
+ * @param {number} [config.checkInterval=DEFAULT_LINE_TRACKING_INTERVAL] - The line tracking interval in miliseconds.
  */
-const LineTracker = function (config) {
-    config = config || {};
+const LineTracker = function ({
+    leftSensor = DEFAULT_LEFT_SENSOR,
+    centerSensor = DEFAULT_CENTER_SENSOR,
+    rightSensor = DEFAULT_RIGHT_SENSOR,
+    checkInterval = DEFAULT_LINE_TRACKING_INTERVAL
+} = {}) {
     const _that = this;
     let _onStatusChange = function () {};
     let _trackingInterval;
@@ -36,9 +42,9 @@ const LineTracker = function (config) {
 
     logger.info('Initializing line tracker...');
 
-    const _leftSensor = new Gpio(config.leftSensor || DEFAULT_LEFT_SENSOR, { mode: Gpio.INPUT });
-    const _centerSensor = new Gpio(config.centerSensor || DEFAULT_CENTER_SENSOR, { mode: Gpio.INPUT });
-    const _rightSensor = new Gpio(config.rightSensor || DEFAULT_RIGHT_SENSOR, { mode: Gpio.INPUT });
+    const _leftSensor = new Gpio(leftSensor, { mode: Gpio.INPUT });
+    const _centerSensor = new Gpio(centerSensor, { mode: Gpio.INPUT });
+    const _rightSensor = new Gpio(rightSensor, { mode: Gpio.INPUT });
 
     /**
      * Gets the sensor values.
@@ -74,8 +80,13 @@ const LineTracker = function (config) {
         return DEVIATION.UNKNOWN;
     };
 
+    /**
+     * Starts tracking a line by checking IR sensors at a given interval.
+     *
+     * @param {number} interval - The interval to check for deviation in miliseconds.
+     */
     this.startLineTracking = interval => {
-        interval = interval || config.interval || DEFAULT_LINE_TRACKING_INTERVAL;
+        interval = interval || checkInterval;
         _trackingInterval = setInterval(() => {
             const forceStatusChange = !_previousDeviation;
             const currentDeviation = _that.getDeviation();
@@ -86,6 +97,9 @@ const LineTracker = function (config) {
         }, interval);
     };
 
+    /**
+     * Stops checking IR sensors.
+     */
     this.stopLineTracking = () => {
         if (_trackingInterval) {
             clearInterval(_trackingInterval);
@@ -105,6 +119,13 @@ const LineTracker = function (config) {
             return;
         }
         _onStatusChange = onStatusChange;
+    };
+
+    /**
+     * Terminates the line tracker.
+     */
+    this.terminate = () => {
+        _onStatusChange = function () {};
     };
 
     logger.info('Initialized line tracker');

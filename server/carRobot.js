@@ -89,10 +89,14 @@ const CarRobot = function () {
     /**
      * Set hardware to default status (Beeper, Leds and Motors off).
      */
-    this.clearOnClose = async function () {
-        beeper.beepOff();
-        ledStrip.render(0, 0, 0);
-        await motorDriver.stopAllMotors();
+    this.clearOnClose = () => {
+        _onStatusChange = function () {};
+        servoCam.terminate();
+        echoSensor.terminate();
+        beeper.terminate();
+        ledStrip.terminate();
+        motorDriver.terminate();
+        lineTracker.terminate();
         piGpio.terminate();
     };
 

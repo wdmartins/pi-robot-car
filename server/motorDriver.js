@@ -7,62 +7,59 @@ const logger = require('./logger').logger('MOTOR-DRV');
 const GpioDef = require('./rpiGpioDef.js');
 const { Gpio } = require('pigpio');
 
-// Default values for the motors controller.
-const DEFAULT_GPIO_MOTOR_LATCH = GpioDef.BCM.GPIO29;        // Pin 40
-const DEFAULT_GPIO_MOTOR_CLOCK = GpioDef.BCM.GPIO28;        // Pin 38
-const DEFAULT_GPIO_MOTOR_DATA = GpioDef.BCM.GPIO27;         // Pin 36
-const DEFAULT_GPIO_PWM_LEFT_REAR = GpioDef.BCM.GPIO21;      // Pin 29
-const DEFAULT_GPIO_PWM_RIGHT_REAR = GpioDef.BCM.GPIO22;     // Pin 31
-const DEFAULT_GPIO_PWM_LEFT_FRONT = GpioDef.BCM.GPIO23;     // Pin 33
-const DEFAULT_GPIO_PWM_RIGHT_FRONT = GpioDef.BCM.GPIO24;    // Pin 35
-
-const DEFAULT_SPEED = 150;
-const DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS = 1; // Shift register clock
-const MINIMUM_SPEED = 50;
-const MAXIMUM_SPEED = 200; // 255 will crash the Raspberry when running on batteries.
-
-// Values for the shift register of the motor controller.
-const MOVE_REGISTER = {
-    STOP: 0,            // 00000000
-    FORWARD: 57,        // 00111001
-    BACKWARD: 198,      // 11000110
-    RIGHT: 106,         // 01101010
-    LEFT: 149,          // 10010101
-    FORWARD_LEFT: 17,   // 00010001
-    FORWARD_RIGHT: 40,  // 00101000
-    BACKWARD_LEFT: 66,  // 01000010
-    BACKWARD_RIGHT: 132 // 10000100
+//-----------------------------------------------------------------------------
+// Constants definitions
+//-----------------------------------------------------------------------------
+const DEFAULT_GPIO_MOTOR_LATCH = GpioDef.BCM.GPIO29;        // Pin 40: Default GPIO pin for the shift register latch.
+const DEFAULT_GPIO_MOTOR_CLOCK = GpioDef.BCM.GPIO28;        // Pin 38: Default GPIO pin for the shift register clock.
+const DEFAULT_GPIO_MOTOR_DATA = GpioDef.BCM.GPIO27;         // Pin 36: Default GPIO pin for the shift data pin.
+const DEFAULT_GPIO_PWM_LEFT_REAR = GpioDef.BCM.GPIO21;      // Pin 29: Default GPIO pin for the left rear PWM.
+const DEFAULT_GPIO_PWM_RIGHT_REAR = GpioDef.BCM.GPIO22;     // Pin 31: Default GPIO pin for the right rear PWM.
+const DEFAULT_GPIO_PWM_LEFT_FRONT = GpioDef.BCM.GPIO23;     // Pin 33: Default GPIO pin for the left front PWM.
+const DEFAULT_GPIO_PWM_RIGHT_FRONT = GpioDef.BCM.GPIO24;    // Pin 35: Default GPIO pin for the right front PWM.
+const DEFAULT_SPEED = 150;                                  // Default speed for the PWM. (150 out of 255).
+const DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS = 1;              // Default shift register clock time in miliseconds.
+const MINIMUM_SPEED = 50;                                   // Minimum speed.
+const MAXIMUM_SPEED = 200;                                  // Maximum speed. 255 will crash the RPI 3B+ when running on batteries.
+const MOVE_REGISTER = {                                     // Values for the shift register of the motor controller.
+    STOP: 0,                                                // 00000000
+    FORWARD: 57,                                            // 00111001
+    BACKWARD: 198,                                          // 11000110
+    RIGHT: 106,                                             // 01101010
+    LEFT: 149,                                              // 10010101
+    FORWARD_LEFT: 17,                                       // 00010001
+    FORWARD_RIGHT: 40,                                      // 00101000
+    BACKWARD_LEFT: 66,                                      // 01000010
+    BACKWARD_RIGHT: 132                                     // 10000100
 };
-
-// Register to direction
-const REGISTER_TO_DIRECTION = {
-    0: 'Stop',              // 00000000
-    57: 'Forward',          // 00111001
-    198: 'Backward',        // 11000110
-    106: 'Right',           // 01101010
-    149: 'Left',            // 10010101
-    17: 'Forward-Left',     // 00010001
-    40: 'Forward-Rigth',    // 00101000
-    66: 'Backward-Left',    // 01000010
-    132: 'Backward-Right'   // 10000100
+const REGISTER_TO_DIRECTION = {                             // Register to direction mapping.
+    0: 'Stop',                                              // 00000000
+    57: 'Forward',                                          // 00111001
+    198: 'Backward',                                        // 11000110
+    106: 'Right',                                           // 01101010
+    149: 'Left',                                            // 10010101
+    17: 'Forward-Left',                                     // 00010001
+    40: 'Forward-Rigth',                                    // 00101000
+    66: 'Backward-Left',                                    // 01000010
+    132: 'Backward-Right'                                   // 10000100
 };
-
-// Bit array
-const BIT = [
-    1,   // 00000001
-    2,   // 00000010
-    4,   // 00000100
-    8,   // 00001000
-    16,  // 00010000
-    32,  // 00100000
-    64,  // 01000000
-    128  // 10000000
+const BIT = [                                               // Bit array of bit operations.
+    1,                                                      // 00000001
+    2,                                                      // 00000010
+    4,                                                      // 00000100
+    8,                                                      // 00001000
+    16,                                                     // 00010000
+    32,                                                     // 00100000
+    64,                                                     // 01000000
+    128                                                     // 10000000
 ];
 
 /**
  * Controls the wheels' motors driver.
  */
 const MotorDriver = function () {
+    logger.info('Initializing motorDriver...');
+
     let _onStatusChange = function () {};
     let _motorLatchPin;
     let _motorDataPin;
@@ -74,10 +71,9 @@ const MotorDriver = function () {
     let _currentSpeed = 0;
     let _currentStatus = { direction: REGISTER_TO_DIRECTION[MOVE_REGISTER.STOP], speed: 0 };
 
-    logger.info('Initializing motorDriver...');
 
     /**
-     * Hard delay. Used only to clock or 'cool off' the shift register.
+     * Hard delay. Used only to clock the shift register.
      *
      * @param {number} time - The delay in milisecons.
      */
@@ -120,18 +116,15 @@ const MotorDriver = function () {
 
         const setupController = function () {
             _motorLatchPin.digitalWrite(0);
-            delay();
             _motorDataPin.digitalWrite(0);
-            delay();
         };
 
         const writeRegister = function (data) {
-            _motorClockPin.digitalWrite(0);
             delay();
+            _motorClockPin.digitalWrite(0);
             _motorDataPin.digitalWrite(data);
             delay();
             _motorClockPin.digitalWrite(1);
-            delay();
         };
 
         setupController();
@@ -144,30 +137,39 @@ const MotorDriver = function () {
         writeRegister(byte & BIT[1] ? true : false);
         writeRegister(byte & BIT[0] ? true : false);
         _motorLatchPin.digitalWrite(1);
-        delay();
     };
 
     /**
      * Configures the motor driver controller and sets the motors to a stop.
      *
-     * @param {object} config - The motor driver configuration object.
-     * @param {number} config.leftFrontPwm - The GPIO to configure a PWM for the left front wheel motor.
-     * @param {number} config.leftRearPwm - The GPIO to configure a PWM for the left rear wheel motor.
-     * @param {number} config.rightFrontPwm - The GPIO to configure a PWM for the right front wheel motor.
-     * @param {number} config.rightRearPwm - The GPIO to configure a PWM for the right read wheel motor.
+     * @param {object} [config] - The motor driver configuration object.
+     * @param {number} [config.leftFrontPwm=DEFAULT_GPIO_PWM_LEFT_FRONT] - The GPIO to configure a PWM for the left front wheel motor.
+     * @param {number} [config.leftRearPwm=DEFAULT_GPIO_PWM_LEFT_REAR] - The GPIO to configure a PWM for the left rear wheel motor.
+     * @param {number} [config.rightFrontPwm=DEFAULT_GPIO_PWM_RIGHT_FRONT] - The GPIO to configure a PWM for the right front wheel motor.
+     * @param {number} [config.rightRearPwm=DEFAULT_GPIO_PWM_RIGHT_REAR] - The GPIO to configure a PWM for the right read wheel motor.
+     * @param {number} [config.dataGpio=DEFAULT_GPIO_MOTOR_DATA] - The GPIO to configure the shift register data pin.
+     * @param {number} [config.latchGpio=DEFAULT_GPIO_MOTOR_LATCH] - The GPIO to configure the shift register latch.
+     * @param {number} [config.clockGpio=DEFAULT_GPIO_MOTOR_CLOCK] - The GPIO to configure the shift register clock.
      */
-    this.initializeController = config => {
-        config = config || {};
+    this.initializeController = ({
+        leftFrontPwm = DEFAULT_GPIO_PWM_LEFT_FRONT,
+        leftRearPwm = DEFAULT_GPIO_PWM_LEFT_REAR,
+        rightFrontPwm = DEFAULT_GPIO_PWM_RIGHT_FRONT,
+        rightRearPwm = DEFAULT_GPIO_PWM_RIGHT_REAR,
+        dataGpio = DEFAULT_GPIO_MOTOR_DATA,
+        latchGpio = DEFAULT_GPIO_MOTOR_LATCH,
+        clockGpio = DEFAULT_GPIO_MOTOR_CLOCK
+    } = {}) => {
         // Initialize PWM
-        _leftFrontPwm = new Gpio(config.leftFrontPwm || DEFAULT_GPIO_PWM_LEFT_FRONT, { mode: Gpio.OUTPUT });
-        _leftRearPwm = new Gpio(config.leftRearPwm || DEFAULT_GPIO_PWM_LEFT_REAR, { mode: Gpio.OUTPUT });
-        _rightFrontPwm = new Gpio(config.rightFrontPwm || DEFAULT_GPIO_PWM_RIGHT_FRONT, { mode: Gpio.OUTPUT });
-        _rightRearPwm = new Gpio(config.rightRearPwm || DEFAULT_GPIO_PWM_RIGHT_REAR, { mode: Gpio.OUTPUT });
+        _leftFrontPwm = new Gpio(leftFrontPwm, { mode: Gpio.OUTPUT });
+        _leftRearPwm = new Gpio(leftRearPwm, { mode: Gpio.OUTPUT });
+        _rightFrontPwm = new Gpio(rightFrontPwm, { mode: Gpio.OUTPUT });
+        _rightRearPwm = new Gpio(rightRearPwm, { mode: Gpio.OUTPUT });
 
         // Initialize shift register to control individual DC Motors
-        _motorDataPin = new Gpio(config.dataGpio || DEFAULT_GPIO_MOTOR_DATA, { mode: Gpio.OUTPUT });
-        _motorLatchPin = new Gpio(config.latchGpio || DEFAULT_GPIO_MOTOR_LATCH, { mode: Gpio.OUTPUT });
-        _motorClockPin = new Gpio(config.clockGpio || DEFAULT_GPIO_MOTOR_CLOCK, { mode: Gpio.OUTPUT });
+        _motorDataPin = new Gpio(dataGpio, { mode: Gpio.OUTPUT });
+        _motorLatchPin = new Gpio(latchGpio, { mode: Gpio.OUTPUT });
+        _motorClockPin = new Gpio(clockGpio, { mode: Gpio.OUTPUT });
 
         setSpeed(0);
         setRegister(MOVE_REGISTER.STOP);
@@ -303,6 +305,13 @@ const MotorDriver = function () {
      * @returns {object} - The motor driver current status object.
      */
     this.getStatus = () => _currentStatus;
+
+    /**
+     * Terminates the motors driver controller.
+     */
+    this.terminate = () => {
+        _onStatusChange = function () {};
+    };
 
     // Motor driver initialization completed.
     logger.info('Initialized motorDriver');

@@ -4,30 +4,42 @@ const logger = require('./logger').logger('SERVO-CAM');
 const { Gpio } = require('pigpio');
 const GpioDef = require('./rpiGpioDef');
 
-// Defalt values for the servo motors GPIO pins.
-const DEFAULT_GPIO_CAM_H_SERVO = GpioDef.BCM.GPIO7; // GpioDef.WPI.GPIO4;
-const DEFAULT_GPIO_CAM_V_SERVO = GpioDef.BCM.GPIO6; // GpioDef.WPI.GPIO25;
-const DEFAULT_HORIZONTAL_CENTER = 1500;
-const DEFAULT_VERTICAL_CENTER = 1500;
-const MIN_SERVO_WRITE_VALUE = 500;
-const MAX_SERVO_WRITE_VALUE = 2500;
+//-----------------------------------------------------------------------------
+// Constants definitions
+//-----------------------------------------------------------------------------
+const DEFAULT_GPIO_CAM_H_SERVO = GpioDef.BCM.GPIO7; // Default value for the horizontal servo motor GPIO pin.
+const DEFAULT_GPIO_CAM_V_SERVO = GpioDef.BCM.GPIO6; // Default value for the vertical servo motor GPIO pin.
+const DEFAULT_HORIZONTAL_CENTER = 1500;             // Default value for the horizontal centered valued.
+const DEFAULT_VERTICAL_CENTER = 1500;               // Default value for the vertical centered valued.
+const MIN_SERVO_WRITE_VALUE = 500;                  // Minimum value for the servo motor.
+const MAX_SERVO_WRITE_VALUE = 2500;                 // Maximum value for the servo motor.
 
 /**
  * Initializes the servo motors to control the position of the camera.
  *
- * @param {number} [hServoGpio=DEFAULT_GPIO_CAM_H_SERVO] - The GPIO number to control the horizontal servo motor.
- * @param {number} [vServoGpio=DEFAULT_GPIO_CAM_V_SERVO] - The GPIO number to control the vertical servo motor.
+ * @param {object} [config] - The servo motors configuration parameters.
+ * @param {number} [config.hServoGpio=DEFAULT_GPIO_CAM_H_SERVO] - The GPIO number to control the horizontal servo motor.
+ * @param {number} [config.vServoGpio=DEFAULT_GPIO_CAM_V_SERVO] - The GPIO number to control the vertical servo motor.
  */
-const ServoCam = function (hServoGpio = DEFAULT_GPIO_CAM_H_SERVO, vServoGpio = DEFAULT_GPIO_CAM_V_SERVO) {
-    let currentHPos;
-    let currentVPos;
-    let _onStatusChange = function () {};
-
+const ServoCam = function ({
+    hServoGpio = DEFAULT_GPIO_CAM_H_SERVO,
+    vServoGpio = DEFAULT_GPIO_CAM_V_SERVO
+} = {}) {
     logger.info('Initializing servoCam...');
+
     const _that = this;
     const vCamServo = new Gpio(hServoGpio, { mode: Gpio.OUTPUT });
     const hCamServo = new Gpio(vServoGpio, { mode: Gpio.OUTPUT });
 
+    let currentHPos;
+    let currentVPos;
+    let _onStatusChange = function () {};
+
+    /**
+     * Builds the servo motors status object.
+     *
+     * @returns {object} - The servo motors status objects.
+     */
     const getStatus = () => ({
         horizontal: currentHPos,
         vertical: currentVPos
@@ -76,6 +88,13 @@ const ServoCam = function (hServoGpio = DEFAULT_GPIO_CAM_H_SERVO, vServoGpio = D
             return;
         }
         _onStatusChange = onStatusChange;
+    };
+
+    /**
+     * Terminates the servo motors controller.
+     */
+    this.terminate = () => {
+        _onStatusChange = function () {};
     };
 
     _that.absolutePosition(DEFAULT_HORIZONTAL_CENTER, DEFAULT_VERTICAL_CENTER);

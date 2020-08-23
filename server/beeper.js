@@ -4,24 +4,25 @@ const { Gpio } = require('pigpio');
 const GpioDef = require('./rpiGpioDef');
 const logger = require('./logger').logger('BEEPER');
 
-// Default value for the GPIO pin for the beeper.
-const DEFAULT_GPIO = GpioDef.BCM.GPIO26;
-
-// Digital value to write to the GPIO pin.
-const STATUS_OFF = 0;
-const STATUS_ON = 1;
+//-----------------------------------------------------------------------------
+// Constants definitions
+//-----------------------------------------------------------------------------
+const DEFAULT_GPIO = GpioDef.BCM.GPIO26; // Default value for the GPIO pin for the buzzer.
+const STATUS_OFF = 0;                    // False digital value to write to the GPIO pin.
+const STATUS_ON = 1;                     // True digital value to write to the GPIO pin.
 
 /**
- * Instantiates a wrapper object to control a beeper.
+ * Instantiates a wrapper object to control a buzzer.
  *
- * @param {number} [gpio=DEFAULT_GPIO] - The GPIO number for the beeper.
+ * @param {number} [gpio=DEFAULT_GPIO] - The GPIO number for the buzzer.
  */
 const Beeper = function (gpio = DEFAULT_GPIO) {
-    const _that = this;
-    let _onStatusChange = function () {};
     logger.info('Initializing beeper...');
 
     const beep = new Gpio(gpio, { mode: Gpio.OUTPUT });
+    const _that = this;
+
+    let _onStatusChange = function () {};
     let beepLenghtTimer = null;
     let beepPeriodTimer = null;
 
@@ -40,9 +41,20 @@ const Beeper = function (gpio = DEFAULT_GPIO) {
     };
 
     /**
+     * Turns the beeper off.
+     *
+     * @param {boolean} [stopTimers=true] - Clear all timers and intervals if set to true.
+     */
+    const beepOff = (stopTimers = true) => {
+        stopTimers && clearTimers();
+        beep.digitalWrite(STATUS_OFF);
+        _onStatusChange(STATUS_OFF);
+    };
+
+    /**
      * Turns the beeper on.
      *
-     * @param {boolean} stopTimers - Clear all timers and intervals if set to true.
+     * @param {boolean} [stopTimers=true] - Clear all timers and intervals if set to true.
      */
     this.beepOn = (stopTimers = true) => {
         stopTimers && clearTimers();
@@ -53,19 +65,15 @@ const Beeper = function (gpio = DEFAULT_GPIO) {
     /**
      * Turns the beeper off.
      *
-     * @param {boolean} stopTimers - Clear all timers and intervals if set to true.
+     * @param {boolean} [stopTimers=true] - Clear all timers and intervals if set to true.
      */
-    this.beepOff = (stopTimers = true) => {
-        stopTimers && clearTimers();
-        beep.digitalWrite(STATUS_OFF);
-        _onStatusChange(STATUS_OFF);
-    };
+    this.beepOff = beepOff;
 
     /**
      * Turns the beeper on for the given time at the given interval.
      *
      * @param {number} time - The time to beep in miliseconds.
-     * @param {number} interval - If provided the interval to beep in miliseconds.
+     * @param {number} [interval] - If provided the interval to beep in miliseconds.
      */
     this.beep = (time, interval) => {
         if (beepLenghtTimer || beepPeriodTimer) {
@@ -108,6 +116,13 @@ const Beeper = function (gpio = DEFAULT_GPIO) {
             return;
         }
         _onStatusChange = onStatusChange;
+    };
+
+    /**
+     * Terminates the beeper.
+     */
+    this.terminate = () => {
+        _onStatusChange = function () {};
     };
 
     // Complete beeper initialization

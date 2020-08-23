@@ -5,27 +5,39 @@ const logger = require('./logger').logger('LED-STRIP');
 const ws281x = require('rpi-ws281x-native');
 const GpioDef = require('./rpiGpioDef');
 
+//-----------------------------------------------------------------------------
+// Constants definitions
+//-----------------------------------------------------------------------------
 const COLOR_BLUE = 'blue';
 const COLOR_GREEN = 'green';
 const COLOR_RED = 'red';
 const COLOR_WHITE = 'white';
+const SUPPORTED_COLORS = [COLOR_BLUE, COLOR_GREEN, COLOR_RED, COLOR_WHITE];
 
-const DEFAULT_NUMBER_OF_LEDS = 16;
-const DEFAULT_DMA = 10;
-const DEFAULT_GPIO = GpioDef.BCM.GPIO1;
-const DEFAULT_FLASHING_TIME = 2000;
-const DEFAULT_FLASHING_PERIOD = 100;
-const DEFAULT_FLASHING_COLOR = 'red';
+const DEFAULT_NUMBER_OF_LEDS = 16;      // Default number of LEDs on the strip.
+const DEFAULT_DMA = 10;                 // Default DMA.
+const DEFAULT_GPIO = GpioDef.BCM.GPIO1; // Default GPIO pin number.
+const DEFAULT_FLASHING_TIME = 2000;     // Default flashing time in miliseconds.
+const DEFAULT_FLASHING_PERIOD = 100;    // Default flashing period in miliseconds.
+const DEFAULT_FLASHING_COLOR = COLOR_RED;   // Default flashing color.
 
 /**
  * Instantiates a LED strip wrapper object.
  *
- * @param {number} numberOfLeds - The number of leds.
- * @param {number} dma - The DMA number.
- * @param {number} gpio - The GPIO pin number.
+ * @param {object} [config] - The LED strip configuration.
+ * @param {number} [config.numberOfLeds=DEFAULT_NUMBER_OF_LEDS] - The number of leds.
+ * @param {number} [config.dma=DEFAULT_DMA] - The DMA number.
+ * @param {number} [config.gpio=DEFAULT_GPIO] - The GPIO pin number.
  */
-const LedStrip = function (numberOfLeds, dma, gpio) {
+const LedStrip = function ({
+    numberOfLeds = DEFAULT_NUMBER_OF_LEDS,
+    dma = DEFAULT_DMA,
+    gpio = DEFAULT_GPIO
+} = {}) {
+    logger.info('Initializing ledStrip...');
+
     const _that = this;
+    const pixels = new Uint32Array(numberOfLeds);
     let _onStatusChange = function () {};
     let _currentColors = {
         red: 0,
@@ -33,15 +45,10 @@ const LedStrip = function (numberOfLeds, dma, gpio) {
         blue: 0
     };
 
-    logger.info('Initializing ledStrip...');
-
-    numberOfLeds = numberOfLeds || DEFAULT_NUMBER_OF_LEDS;
-    const pixels = new Uint32Array(numberOfLeds);
-
     // Initialize the LED strip controller.
     ws281x.init(numberOfLeds, {
-        gpioPin: gpio || DEFAULT_GPIO,
-        dmaNum: dma || DEFAULT_DMA
+        gpioPin: gpio,
+        dmaNum: dma
     });
 
     /**
@@ -103,7 +110,7 @@ const LedStrip = function (numberOfLeds, dma, gpio) {
      * @param {number} [flashinInterval=DEFAULT_FLASHING_PERIOD] - The flashing interval in miliseconds.
      */
     this.flash = (color = DEFAULT_FLASHING_COLOR, flashingTime = DEFAULT_FLASHING_TIME, flashinInterval = DEFAULT_FLASHING_PERIOD) => {
-        if (color !== 'red' && color !== 'blue' && color !== 'green' && color !== 'white') {
+        if (!SUPPORTED_COLORS.includes(color)) {
             logger.error(`Not supported color: ${color}`);
             return;
         }
@@ -136,6 +143,13 @@ const LedStrip = function (numberOfLeds, dma, gpio) {
             return;
         }
         _onStatusChange = onStatusChange;
+    };
+
+    /**
+     * Terminates the LED strip.
+     */
+    this.terminate = () => {
+        _onStatusChange = function () {};
     };
 
     logger.info('Initialized ledStrip');
