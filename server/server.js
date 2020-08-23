@@ -6,7 +6,7 @@ const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const { DRIVE_COMMAND, CAMERA_COMMAND, BEEPER_COMMAND, COMMAND_TYPE, FLASH_COMMAND } = require('../common/common.js');
 const LedStrip = require('./ledStrip');
-const { CarRobot } = require('./carRobot');
+const { getCarRobotInstance } = require('./carRobot');
 
 const PORT = process.env.PORT || 3128;
 
@@ -29,7 +29,7 @@ const getCommandType = command => {
  * @param {number} port - The server port.
  */
 const Server = function (port) {
-    const carbot = new CarRobot();
+    const carbot = getCarRobotInstance();
     let reportingInterval;
 
     logger.info('Initializing server...');

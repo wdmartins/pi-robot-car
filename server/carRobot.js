@@ -377,4 +377,7 @@ const CarRobot = function () {
     logger.debug('Initialized carRobot');
 };
 
-module.exports.CarRobot = CarRobot;
+const carRobot = new CarRobot();
+
+const getCarRobotInstance = () => carRobot;
+module.exports.getCarRobotInstance = getCarRobotInstance;
