@@ -1,9 +1,9 @@
 'use strict';
 
-const logger = require('./logger').logger('SERVER');
 const app = require('express')();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
+const logger = require('./logger').logger('SERVER');
 const { DRIVE_COMMAND, CAMERA_COMMAND, BEEPER_COMMAND, COMMAND_TYPE, FLASH_COMMAND } = require('../common/common.js');
 const LedStrip = require('./ledStrip');
 const { getCarRobotInstance } = require('./carRobot');
@@ -123,11 +123,6 @@ const Server = function (port) {
         io.on('connection', ws => {
             ws.on('command', command => {
                 logger.info('Received: ', command);
-                if (command.confidence < 0.98) {
-                    logger.info('No enough confidence to process command');
-                    carbot.flashLed('red');
-                    return;
-                }
                 const commandType = getCommandType(command.command);
                 logger.info('Get Command Type: ', commandType);
                 switch (commandType) {

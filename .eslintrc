@@ -1,14 +1,17 @@
 {
     "root": true,
-    "parser": "babel-eslint",
+    "parser": "vue-eslint-parser",
     "plugins": [
       "babel",
       "jsdoc"
     ],
     "parserOptions": {
-      "ecmaVersion": 2019,
-      "sourceType": "script"
+      "ecmaVersion": 2020
     },
+    "extends": [
+      "plugin:vue/essential",
+      "@vue/airbnb"
+    ],
     "env": {
       "es6": true,
       "node": true

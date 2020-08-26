@@ -1,8 +1,9 @@
 /* eslint-disable no-bitwise */
+
 'use strict';
 
-const logger = require('./logger').logger('LED-STRIP');
 const ws281x = require('rpi-ws281x-native');
+const logger = require('./logger').logger('LED-STRIP');
 const GpioDef = require('./rpiGpioDef');
 
 //-----------------------------------------------------------------------------
@@ -162,4 +163,3 @@ module.exports = {
     COLOR_RED,
     COLOR_WHITE
 };
-

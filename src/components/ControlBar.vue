@@ -61,9 +61,8 @@
 </template>
 
 <script>
-// @ is an alias to /src
-import FourWayControl from '@/components/FourWayControl.vue';
-import Toggle from '@/components/Toggle.vue';
+import FourWayControl from './FourWayControl.vue';
+import Toggle from './Toggle.vue';
 import {
   COMMANDS,
   COMMAND_TYPE,
@@ -177,12 +176,11 @@ export default {
         command = shiftKey ? KEY_TO_CAM_COMMAND_MAP[eventKey]
           : KEY_TO_RUN_COMMAND_MAP[eventKey] || KEY_TO_COMMAND_MAP[eventKey];
       }
-      this.sendCommand(command, 1);
+      this.sendCommand(command);
     },
-    sendCommand(command, confidence = 1) {
+    sendCommand(command) {
       this.$socket.emit('command', {
         command,
-        confidence,
       });
     },
     onSocketConnected() {

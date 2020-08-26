@@ -1,0 +1,24 @@
+{
+    "extends": "../.eslintrc",
+    "plugins": [
+      "babel",
+      "jsdoc"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint",
+      "ecmaVersion": 2020,
+      "sourceType": "script"
+    },
+    "env": {
+      "es6": true,
+      "node": true
+    },
+    "rules": {
+      "no-underscore-dangle": "off",
+      "func-names": "off",
+      "no-plusplus": "off",
+      "object-curly-newline": "off",
+      "no-param-reassign": "off",
+      "no-prototype-builtins": "off"
+    }
+}

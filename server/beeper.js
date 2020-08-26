@@ -130,4 +130,3 @@ const Beeper = function (gpio = DEFAULT_GPIO) {
 };
 
 module.exports = Beeper;
-
