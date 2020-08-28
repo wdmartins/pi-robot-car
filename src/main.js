@@ -15,7 +15,7 @@ Vue.use(IconsPlugin);
 // Add websockets to Vue components
 Vue.use(new VueSocketIO({
   debug: true,
-  connection: sockeio('http://192.168.1.187:3128', {
+  connection: sockeio('https://192.168.1.187', {
     transports: ['websocket'],
   }),
 }));

@@ -13,13 +13,8 @@ then
 else
     echo "$ROOT does not exist. Creating folder..."
     sudo mkdir $ROOT
-    sudo mkdir $ROOT/assets
-    sudo mkdir $ROOT/assets/img
 fi;
 echo "Copying files to $ROOT..."
-sudo cp index.html $ROOT
-sudo cp client.js $ROOT
-sudo cp common/common.js $ROOT
-sudo cp -r assets/* $ROOT/assets
-
+cd dist
+sudo cp -r ./* $ROOT
 echo "Done!"
