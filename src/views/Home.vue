@@ -12,16 +12,16 @@
 
 <script>
 // @ is an alias to /src
-import ControlBar from '@/components/ControlBar.vue';
-import VideoCamera from '@/components/VideoCamera.vue';
-import InformationBar from '@/components/InformationBar.vue';
+import ControlBar from '../components/ControlBar.vue';
+import VideoCamera from '../components/VideoCamera.vue';
+import InformationBar from '../components/InformationBar.vue';
 
 export default {
   name: 'Home',
   components: {
     ControlBar,
     VideoCamera,
-    InformationBar,
+    InformationBar
   },
 };
 </script>

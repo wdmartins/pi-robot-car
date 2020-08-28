@@ -18,7 +18,7 @@
       <div class="label">Horizontal:
         <span class="value">{{horizontalStatus}}</span>
       </div>
-      <div class="label">vertical:
+      <div class="label">Vertical:
         <span class="value">{{verticalStatus}}</span>
       </div>
     </div>
@@ -52,7 +52,7 @@ export default {
     directionStatus: 'Unknown',
     deviationStatus: 'Unknown',
     setSpeedStatus: 'Unknown',
-    currentSpeedStatus: 'Unknown',
+    currentSpeedStatus: 'Unknown'
   }),
   mounted() {
     this.sockets.listener.subscribe('STATUS', this.onStatus);
@@ -68,9 +68,8 @@ export default {
       this.currentSpeedStatus = status[STATUS_KEYS.CAR_MOVEMENT][STATUS_KEYS.CAR_CURRENT_SPEED];
       this.setSpeedStatus = status[STATUS_KEYS.CAR_MOVEMENT][STATUS_KEYS.CAR_SET_SPEED];
       this.directionStatus = status[STATUS_KEYS.CAR_MOVEMENT][STATUS_KEYS.CAR_DIRECTION];
-      console.log(status);
-    },
-  },
+    }
+  }
 };
 </script>
 

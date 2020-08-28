@@ -75,13 +75,13 @@ export default {
   name: 'FourWayControl',
   props: {
     type: String,
-    action: Object,
+    action: Object
   },
   methods: {
     move(direction, mouseDown) {
       this.$emit('move', direction, mouseDown ? 'down' : 'up', this.type);
-    },
-  },
+    }
+  }
 };
 </script>
 

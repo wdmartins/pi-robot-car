@@ -67,12 +67,12 @@ import {
   COMMANDS,
   COMMAND_TYPE,
   BEEPER_COMMAND,
-  DRIVE_COMMAND,
+  DRIVE_COMMAND
 } from '../../common/common';
 
 const KEY_EVENT_TYPE = {
   DOWN: 'down',
-  UP: 'up',
+  UP: 'up'
 };
 
 const KEY_TO_RUN_COMMAND_MAP = {
@@ -83,13 +83,13 @@ const KEY_TO_RUN_COMMAND_MAP = {
   ArrowUpLeft: COMMANDS.FORWARD_LEFT,
   ArrowUpRight: COMMANDS.FORWARD_RIGHT,
   ArrowDownLeft: COMMANDS.BACKWARD_LEFT,
-  ArrowDownRight: COMMANDS.BACKWARD_RIGHT,
+  ArrowDownRight: COMMANDS.BACKWARD_RIGHT
 };
 
 const KEY_TO_COMMAND_MAP = {
   Enter: COMMANDS.HONK,
   a: COMMANDS.SPEED_UP,
-  z: COMMANDS.SPEED_DOWN,
+  z: COMMANDS.SPEED_DOWN
 };
 
 const KEY_TO_CAM_COMMAND_MAP = {
@@ -100,7 +100,7 @@ const KEY_TO_CAM_COMMAND_MAP = {
   ArrowUpLeft: COMMANDS.UP_LEFT,
   ArrowUpRight: COMMANDS.UP_RIGHT,
   ArrowDownLeft: COMMANDS.DOWN_LEFT,
-  ArrowDownRight: COMMANDS.DOWN_RIGHT,
+  ArrowDownRight: COMMANDS.DOWN_RIGHT
 };
 
 const addSocketEventListeners = (app) => {
@@ -117,7 +117,7 @@ const clearAction = () => ({
   up: false,
   down: false,
   left: false,
-  right: false,
+  right: false
 });
 
 const setAction = (key, shiftKey) => ({
@@ -129,14 +129,14 @@ const setAction = (key, shiftKey) => ({
   upRight: key === 'ArrowUpRight',
   downLeft: key === 'ArrowDownLeft',
   downRight: key === 'ArrowDownRight',
-  type: shiftKey ? COMMAND_TYPE.CAMERA : COMMAND_TYPE.DRIVE,
+  type: shiftKey ? COMMAND_TYPE.CAMERA : COMMAND_TYPE.DRIVE
 });
 
 export default {
   name: 'ControlBar',
   components: {
     FourWayControl,
-    Toggle,
+    Toggle
   },
   mounted() {
     addWindowEventListeners(this);
@@ -148,7 +148,7 @@ export default {
     greenInvisible: false,
     whiteInvisible: false,
     hornInvisible: false,
-    selectedMode: 'none',
+    selectedMode: 'none'
   }),
   methods: {
     onKeyDown(evt) {
@@ -158,8 +158,6 @@ export default {
       this.onKeyEvent(KEY_EVENT_TYPE.UP, evt.key, evt.shiftKey);
     },
     onKeyEvent(eventType, eventKey, shiftKey) {
-      console.log(`Key event: ${eventType} ${shiftKey ? 'Shift-' : ''}${eventKey}`);
-
       if (!KEY_TO_RUN_COMMAND_MAP[eventKey] && !KEY_TO_CAM_COMMAND_MAP[eventKey]
         && (!KEY_TO_COMMAND_MAP[eventKey] || eventType === KEY_EVENT_TYPE.UP)) {
         // Key has no associated action
@@ -188,20 +186,16 @@ export default {
     onSocketDisconnected() {
     },
     move(eventKey, eventType, componentType) {
-      console.log(`Move event with Direction ${eventKey}, eventType ${eventType} and componentType ${componentType}`);
       this.onKeyEvent(eventType, eventKey, componentType === 'camera');
     },
     toggle(command, status) {
-      console.log(`ControlBar: command ${command}, status ${status}`);
       this.selectedMode = status ? command : 'none';
       this[command](status);
     },
     automatic(status) {
-      console.log(`Automatic mode set to: ${status}`);
       this.sendCommand(status ? DRIVE_COMMAND.AUTOMATIC : DRIVE_COMMAND.STOP);
     },
     line(status) {
-      console.log(`Line Tracking set to: ${status}`);
       this.sendCommand(status ? DRIVE_COMMAND.LINE_TRACKING : DRIVE_COMMAND.STOP);
     },
     flashIcon(icon) {
@@ -221,8 +215,8 @@ export default {
     honk() {
       this.sendCommand(BEEPER_COMMAND.HONK);
       this.flashIcon('hornInvisible');
-    },
-  },
+    }
+  }
 };
 </script>
 

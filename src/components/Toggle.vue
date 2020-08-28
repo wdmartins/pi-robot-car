@@ -15,16 +15,14 @@ export default {
   props: {
     command: String,
     label: String,
-    selectedMode: String,
+    selectedMode: String
   },
   data: () => ({
     status: false,
-    enable: true,
+    enable: true
   }),
   methods: {
     toggle(status) {
-      console.log(`Selected Mode = ${this.selectedMode}`);
-      console.log(`Toggle: ${this.command}, ${this.label}, ${this.status}, ${this.enable}`);
       this.status = status;
       this.$emit('toggle', this.command, status);
     },
