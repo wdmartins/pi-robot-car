@@ -4,7 +4,7 @@
 
 Credit: [UCTRONICS](https://www.uctronics.com/)
 
-The purpose of this project is to replace the [C language UCTRONICS Raspberry PI Robot Car server](https://github.com/UCTRONICS/UCTRONICS_Smart_Robot_Car_RaspberryPi) that controls the hardware by a [Node.js](https://nodejs.org/en/) version.
+The purpose of this project is to replace the [C language UCTRONICS Raspberry PI Robot Car server](https://github.com/UCTRONICS/UCTRONICS_Smart_Robot_Car_RaspberryPi) that controls the hardware by a [Node.js](https://nodejs.org/en/) implementation.
 
 The requirements are:
 
