@@ -36,7 +36,7 @@ The MJPEG streamer project is used to stream the camera module video feed. Follo
 
 In order to access the Robot Car application from the internet get a domain name. [DuckDNS](https://www.duckdns.org) will provide a duckdns subdomain resolving to your Internet Service Provider IP address.
 
-### Set up the port forwarding on your home routes
+### Set up the port forwarding on your home router
 
 Once the domain name resolves to your home router external IP address, the router needs to forward traffic on ports 80 and 443 to your Raspberry Pi ip address. The instructions depends on your router. Information, very likely, is available by search for "port forwarding [your router brand and model]"
 
@@ -130,6 +130,7 @@ To obtain a new or tweaked version of this certificate in the future, simply run
 ### Install project dependencies
 
 ````bash
+    cd pi-robot-car
     npm install
 ````
 
