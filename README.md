@@ -4,15 +4,23 @@
 
 Credit: [UCTRONICS](https://www.uctronics.com/)
 
-The purpose of this project is to replace the C++ UCTRONICS Raspberry PI Robot Car server that controls the hardware by a [Node.js](https://nodejs.org/en/) version.
+The purpose of this project is to replace the [C language UCTRONICS Raspberry PI Robot Car server](https://github.com/UCTRONICS/UCTRONICS_Smart_Robot_Car_RaspberryPi) that controls the hardware by a [Node.js](https://nodejs.org/en/) version.
 
 The requirements are:
 
-* All original features are functional (except bluetooth remote control).
+* With the exception of bluetooth remote control, all original features are functional.
 * Control over the internet using secure connection is possible.
-* Open source, of course.
 * Focus is on the server running on Node.js (Although a basic Vue.js UI is provided for demostration purposes).
 * Compatibility with UCTRONICS mobile app is not required.
+* Open source, of course.
+
+The instructions below assume you already setup your Raspberry PI with Debian, and the following software is already installed. In parenthesis the versions this project has been tested the last time.
+
+* Debian (jester)
+* git (2.20.1)
+* npm (6.14.5)
+* node (v12.8.2)
+* vue-cli (4.4.6)
 
 ## Required materials
 
@@ -26,6 +34,8 @@ The requirements are:
 
 Block diagram
 
+In the block diagram above the green boxes represent the implementaton of this project.
+
 ## MJPEG Streamer
 
 The MJPEG streamer project is used to stream the camera module video feed. Follow the complete instructions in the following link.
@@ -38,7 +48,7 @@ In order to access the Robot Car application from the internet get a domain name
 
 ### Set up the port forwarding on your home router
 
-Once the domain name resolves to your home router external IP address, the router needs to forward traffic on ports 80 and 443 to your Raspberry Pi ip address. The instructions depends on your router. Information, very likely, is available by search for "port forwarding [your router brand and model]"
+Once the domain name resolves to your home router external IP address, the router needs to forward traffic on ports 80 and 443 to your Raspberry Pi ip address. The instructions depends on your router. Information, very likely, is available by searching for "port forwarding [your router brand and model]"
 
 ## NGINX installation
 
