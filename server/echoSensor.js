@@ -8,8 +8,8 @@ const GpioDef = require('./rpiGpioDef');
 //-----------------------------------------------------------------------------
 // Constants definitions
 //-----------------------------------------------------------------------------
-const DEFAULT_ECHO_GPIO = GpioDef.WPI.GPIO23;    // Default value for the ECHO GPIO pin of the echo sensor.
-const DEFAULT_TRIGGER_GPIO = GpioDef.WPI.GPIO26; // Default value for the TRIGGER GPIO pin of the echo sensor.
+const DEFAULT_ECHO_GPIO = GpioDef.BCM.GPIO4;     // Default value for the ECHO GPIO pin of the echo sensor.
+const DEFAULT_TRIGGER_GPIO = GpioDef.BCM.GPIO25; // Default value for the TRIGGER GPIO pin of the echo sensor.
 const DEFAULT_TRIGGER_TIME = 10;                 // Default trigger time in microseconds.
 const DEFAULT_MEASUREMENT_INTERVAL = 500;        // Default measurement interval in miliseconds.
 const MICROSECDONDS_PER_CM = 1e6 / 34321;        // Microseconds it takes sound to travel 1cm at 20 degrees celcius.
