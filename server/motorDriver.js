@@ -10,13 +10,13 @@ const { Gpio } = require('pigpio');
 //-----------------------------------------------------------------------------
 // Constants definitions
 //-----------------------------------------------------------------------------
-const DEFAULT_GPIO_MOTOR_LATCH = GpioDef.BCM.GPIO29;        // Pin 40: Default GPIO pin for the shift register latch.
-const DEFAULT_GPIO_MOTOR_CLOCK = GpioDef.BCM.GPIO28;        // Pin 38: Default GPIO pin for the shift register clock.
-const DEFAULT_GPIO_MOTOR_DATA = GpioDef.BCM.GPIO27;         // Pin 36: Default GPIO pin for the shift data pin.
-const DEFAULT_GPIO_PWM_LEFT_REAR = GpioDef.BCM.GPIO21;      // Pin 29: Default GPIO pin for the left rear PWM.
-const DEFAULT_GPIO_PWM_RIGHT_REAR = GpioDef.BCM.GPIO22;     // Pin 31: Default GPIO pin for the right rear PWM.
-const DEFAULT_GPIO_PWM_LEFT_FRONT = GpioDef.BCM.GPIO23;     // Pin 33: Default GPIO pin for the left front PWM.
-const DEFAULT_GPIO_PWM_RIGHT_FRONT = GpioDef.BCM.GPIO24;    // Pin 35: Default GPIO pin for the right front PWM.
+const DEFAULT_GPIO_MOTOR_LATCH = GpioDef.BCM.GPIO29;        // Default GPIO pin for the shift register latch.
+const DEFAULT_GPIO_MOTOR_CLOCK = GpioDef.BCM.GPIO28;        // Default GPIO pin for the shift register clock.
+const DEFAULT_GPIO_MOTOR_DATA = GpioDef.BCM.GPIO27;         // Default GPIO pin for the shift data pin.
+const DEFAULT_GPIO_PWM_LEFT_REAR = GpioDef.BCM.GPIO21;      // Default GPIO pin for the left rear PWM.
+const DEFAULT_GPIO_PWM_RIGHT_REAR = GpioDef.BCM.GPIO22;     // Default GPIO pin for the right rear PWM.
+const DEFAULT_GPIO_PWM_LEFT_FRONT = GpioDef.BCM.GPIO23;     // Default GPIO pin for the left front PWM.
+const DEFAULT_GPIO_PWM_RIGHT_FRONT = GpioDef.BCM.GPIO24;    // Default GPIO pin for the right front PWM.
 const DEFAULT_SPEED = 150;                                  // Default speed for the PWM. (150 out of 255).
 const DEFAULT_SHIT_REGISTER_CLOCK_TIME_MS = 1;              // Default shift register clock time in miliseconds.
 const MINIMUM_SPEED = 50;                                   // Minimum speed.
